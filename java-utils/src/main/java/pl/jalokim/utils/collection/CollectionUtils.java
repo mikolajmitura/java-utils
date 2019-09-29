@@ -17,6 +17,10 @@ public class CollectionUtils {
         return getLastIndex(list) == index;
     }
 
+    public static boolean isLastIndex(Object[] array, int index) {
+        return getLastIndex(array) == index;
+    }
+
     public static int getLastIndex(Collection<?> list) {
         return list.size() - 1;
     }
