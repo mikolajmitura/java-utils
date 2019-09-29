@@ -116,9 +116,22 @@ public class InvokableReflectionUtils {
         }
     }
 
-    // TODO get field  value
+    public static <T> T invokeStaticMethod(Class<?> targetClass, String methodName,
+                                           List<Class<?>> argClasses, List<Object> args) {
+        return invokeMethod(null, targetClass, methodName, argClasses, args);
+    }
 
-    // TODO with classes too like in methods
+    public static <T> T invokeStaticMethod(Class<?> targetClass, String methodName, List<Object> args) {
+        return invokeMethod(null, targetClass, methodName, args);
+    }
+
+    public static <T> T invokeStaticMethod(Class<?> targetClass, String methodName, Object... args) {
+        return invokeMethod(null, targetClass, methodName, args);
+    }
+
+    // TODO get field  value
+    // TODO get static final field  value
+
     public static <T> T newInstance(Class<T> type, List<Class<?>> argsClasses, List<Object> args) {
         return newInstance(type, argsClasses, args.toArray());
     }
