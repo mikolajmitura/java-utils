@@ -1,4 +1,4 @@
-package pl.jalokim.utils.reflection.beans;
+package pl.jalokim.utils.reflection.beans.inheritiance;
 
 
 import java.time.DayOfWeek;
@@ -16,6 +16,7 @@ public class ClassForTest {
     private Map<Integer, IntegerInfo> integerInfoByNumber;
     private Map<String, IntegerInfo> integerInfoByText;
     private Map<SomeEnum, String> enumMap;
+    private SomeEnum someEnum;
     private float simpleFloat;
     private int simpleInt;
     private Integer objectInt;

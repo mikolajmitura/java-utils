@@ -11,6 +11,10 @@
 
     <artifactId>test-utils</artifactId>
 
+    <properties>
+        <slf4j.version>1.7.28</slf4j.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.assertj</groupId>
@@ -20,7 +24,12 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.28</version>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j.version}</version>
         </dependency>
     </dependencies>
 

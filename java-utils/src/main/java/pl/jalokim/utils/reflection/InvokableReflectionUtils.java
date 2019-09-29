@@ -1,18 +1,12 @@
 package pl.jalokim.utils.reflection;
 
-import org.reflections.Reflections;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
-import static java.util.Collections.unmodifiableSet;
-import static pl.jalokim.utils.collection.CollectionUtils.filterToSet;
 import static pl.jalokim.utils.collection.CollectionUtils.mapToList;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getField;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getMethod;
@@ -37,6 +31,11 @@ public class InvokableReflectionUtils {
      * Setup new value for target object for given field name.
      * It will looks in whole hierarchy but it will start from targetClass if find first match field name then will change value.
      * It not check that field and new value will have the same type.
+     * It can't override primitive final fields and final String fields.
+     * <p>
+     * Some interesting links below:
+     * @see <a href="https://stackoverflow.com/questions/3301635/change-private-static-final-field-using-java-reflection">Stackoverflow thread: Change private static final field using Java reflection</a>
+     * @see <a href="https://docs.oracle.com/javase/specs/jls/se7/html/jls-15.html#jls-15.28">Constant Expressions</a>
      *
      * @param targetObject reference for object for which will be changed value
      * @param targetClass  target class from which will start looking for field with that name.
@@ -63,6 +62,17 @@ public class InvokableReflectionUtils {
         }
     }
 
+    /**
+     * It can't override primitive static final fields and static final String fields.
+     * <p>
+     * Some interesting links below:
+     * @see <a href="https://stackoverflow.com/questions/3301635/change-private-static-final-field-using-java-reflection">Stackoverflow thread: Change private static final field using Java reflection</a>
+     * @see <a href="https://docs.oracle.com/javase/specs/jls/se7/html/jls-15.html#jls-15.28">Constant Expressions</a>
+     *
+     * @param targetClass class for which will be changed static field
+     * @param fieldName name of static field
+     * @param newValue new value for static field.
+     */
     public static void setValueForStaticField(Class<?> targetClass,
                                               String fieldName, Object newValue) {
         setValueForField(null, targetClass, fieldName, newValue);
@@ -95,7 +105,7 @@ public class InvokableReflectionUtils {
 
     public static <T> T invokeMethod(Object target, Class<?> targetClass, String methodName,
                                      List<Class<?>> argClasses, List<Object> args) {
-        Method method = getMethod(targetClass, methodName, argClasses);
+        Method method = getMethod(targetClass, methodName, argClasses.toArray(new Class[0]));
         try {
             method.setAccessible(true);
             T result = (T) method.invoke(target, args.toArray(new Object[0]));
@@ -106,19 +116,7 @@ public class InvokableReflectionUtils {
         }
     }
 
-    public static <T> Set<Class<? extends T>> getAllChildClassesForAbstractClass(Class<T> abstractType, String packageDefinition) {
-        /*
-         * It is not working from another module when package prefix is empty...
-         * So this is reason why we have here this my package.
-         */
-        Reflections reflections = new Reflections(packageDefinition);
-
-        Set<Class<? extends T>> findAllClassesInClassPath = reflections.getSubTypesOf(abstractType);
-
-        findAllClassesInClassPath = filterToSet(findAllClassesInClassPath,
-                                                classMeta -> !Modifier.isAbstract(classMeta.getModifiers()));
-        return unmodifiableSet(findAllClassesInClassPath);
-    }
+    // TODO get field  value
 
     // TODO with classes too like in methods
     public static <T> T newInstance(Class<T> type, List<Class<?>> argsClasses, List<Object> args) {

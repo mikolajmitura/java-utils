@@ -1,4 +1,4 @@
-package pl.jalokim.utils.reflection.beans;
+package pl.jalokim.utils.reflection.beans.inheritiance;
 
 import lombok.Getter;
 

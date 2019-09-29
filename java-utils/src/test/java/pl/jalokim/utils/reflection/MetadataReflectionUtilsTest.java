@@ -5,15 +5,26 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import pl.jalokim.utils.reflection.beans.ClassForTest;
-import pl.jalokim.utils.reflection.beans.Event;
+import pl.jalokim.utils.reflection.beans.SuperObject2;
+import pl.jalokim.utils.reflection.beans.inheritiance.AbstractClassExSuperObject;
+import pl.jalokim.utils.reflection.beans.inheritiance.ClassForTest;
+import pl.jalokim.utils.reflection.beans.inheritiance.Event;
+import pl.jalokim.utils.reflection.beans.inheritiance.SecondLevelSomeConcreteObject;
+import pl.jalokim.utils.reflection.beans.inheritiance.SomeConcreteObject;
+import pl.jalokim.utils.reflection.beans.inheritiance.SuperObject;
+import pl.jalokim.utils.reflection.beans.inheritiance.innerpack.ThirdLevelConcrClass;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getAllChildClassesForClass;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getField;
+import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getMethod;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getParametrizedType;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getTypeOfArrayField;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isArrayType;
@@ -24,6 +35,7 @@ import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isMapType;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isNumberType;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isSimpleType;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isTextType;
+import static pl.jalokim.utils.test.ErrorProneTestUtil.ErrorProneTestUtilBuilder.when;
 
 public class MetadataReflectionUtilsTest {
 
@@ -31,23 +43,47 @@ public class MetadataReflectionUtilsTest {
     public ExpectedException expectedEx = ExpectedException.none();
 
     @Test
+    public void getFieldForClassWillReturnFieldFromSuperClass() {
+        // when
+        Field privateField = getField(ThirdLevelConcrClass.class, "privateField");
+        // then
+        assertThat(privateField.getType()).isEqualTo(String.class);
+    }
+
+    @Test
+    public void getFieldForInstanceWillReturnFieldFromSuperClass() {
+        ThirdLevelConcrClass instance = new ThirdLevelConcrClass();
+        // when
+        Field privateField = getField(instance, "privateField");
+        // then
+        assertThat(privateField.getType()).isEqualTo(String.class);
+    }
+
+    @Test
     public void getFieldFromClassReturnExpectedField() {
         // when
-        Field requesterField = getField(ClassForTest.class, "nextObject");
+        Field nextObjectField = getField(ClassForTest.class, "nextObject");
         // then
-        assertThat(requesterField.getName()).isEqualTo("nextObject");
-        assertThat(requesterField.getType()).isEqualTo(ClassForTest.NextObject.class);
+        assertThat(nextObjectField.getName()).isEqualTo("nextObject");
+        assertThat(nextObjectField.getType()).isEqualTo(ClassForTest.NextObject.class);
     }
 
     @Test
     public void givenCollectionFieldIsArrayType() {
         // given
         Field eventsField = getField(ClassForTest.class, "eventsAsList");
+        Field nextObjectField = getField(ClassForTest.class, "nextObject");
         // when
         boolean arrayType = isCollectionType(eventsField.getType());
+
         // then
         assertThat(arrayType).isTrue();
+        assertThat(isCollectionType(eventsField)).isTrue();
+        assertThat(isCollectionType(nextObjectField.getType())).isFalse();
+        assertThat(isCollectionType(nextObjectField)).isFalse();
         assertThat(isHavingElementsType(eventsField.getType())).isTrue();
+        assertThat(isHavingElementsType(nextObjectField.getType())).isFalse();
+        assertThat(isHavingElementsType(nextObjectField)).isFalse();
     }
 
     @Test
@@ -58,6 +94,7 @@ public class MetadataReflectionUtilsTest {
         boolean arrayType = isArrayType(eventsField.getType());
         // then
         assertThat(arrayType).isTrue();
+        assertThat(isArrayType(eventsField)).isTrue();
         assertThat(isHavingElementsType(eventsField.getType())).isTrue();
     }
 
@@ -69,8 +106,8 @@ public class MetadataReflectionUtilsTest {
         boolean arrayType = isArrayType(requester1Field.getType());
         // then
         assertThat(arrayType).isFalse();
+        assertThat(isArrayType(requester1Field)).isFalse();
     }
-
 
     @Test
     public void returnExpectedTypeInGivenCollectionField() {
@@ -93,6 +130,51 @@ public class MetadataReflectionUtilsTest {
     }
 
     @Test
+    public void cannotGetTypeOfArrayForNotArrayField() {
+        // given
+        Field eventsAsListField = getField(ClassForTest.class, "eventsAsList");
+        // when
+        when(() -> {
+            getTypeOfArrayField(eventsAsListField);
+        }).thenExpectedException(ReflectionOperationException.class,
+                                 String.format("field: '%s' is not array type, is type: %s", eventsAsListField, eventsAsListField.getType()));
+    }
+
+    @Test
+    public void getMethodForSuperClassFromConcreteClass() {
+        // when
+        Method someMethod = getMethod(ThirdLevelConcrClass.class, "someMethod", Integer.class, String.class);
+        // then
+        assertThat(someMethod.getParameterCount()).isEqualTo(2);
+    }
+
+    @Test
+    public void getMethodForSuperClassFromConcreteInstance() {
+        // given
+        ThirdLevelConcrClass thirdLevelConcrClass = new ThirdLevelConcrClass();
+        // when
+        Method someMethod = getMethod(thirdLevelConcrClass, "someMethod", Integer.class, String.class);
+        // then
+        assertThat(someMethod.getParameterCount()).isEqualTo(2);
+    }
+
+    @Test
+    public void cannotGetMethodForSuperClassFromConcreteInstance() {
+        // given
+        ThirdLevelConcrClass thirdLevelConcrClass = new ThirdLevelConcrClass();
+        // when
+        when(() ->
+                     getMethod(thirdLevelConcrClass, "someMethod", Integer.class, Integer.class)
+            ).thenExpectedException(ReflectionOperationException.class,
+                                    "java.lang.NoSuchMethodException: pl.jalokim.utils.reflection.beans.inheritiance.innerpack.ThirdLevelConcrClass.someMethod(java.lang.Integer, java.lang.Integer)",
+                                    "pl.jalokim.utils.reflection.beans.inheritiance.SecondLevelSomeConcreteObject.someMethod(java.lang.Integer, java.lang.Integer)",
+                                    "pl.jalokim.utils.reflection.beans.inheritiance.SomeConcreteObject.someMethod(java.lang.Integer, java.lang.Integer)",
+                                    "pl.jalokim.utils.reflection.beans.inheritiance.SuperObject.someMethod(java.lang.Integer, java.lang.Integer)",
+                                    "pl.jalokim.utils.reflection.beans.inheritiance.SuperAbstractObject.someMethod(java.lang.Integer, java.lang.Integer)",
+                                    "java.lang.Object.someMethod(java.lang.Integer, java.lang.Integer)");
+    }
+
+    @Test
     public void readKeyAndValueTypeFromMap() {
         // given
         Field additionalIdentifiersField = getField(ClassForTest.class, "integerInfoByNumber");
@@ -106,12 +188,69 @@ public class MetadataReflectionUtilsTest {
     }
 
     @Test
+    public void returnsExpectedTypesForSomeConcreteInstance() {
+        // given
+        ThirdLevelConcrClass instance = new ThirdLevelConcrClass();
+        // when
+        Class intClass = getParametrizedType(instance, 0);
+        Class stringClass = getParametrizedType(instance, 1);
+        Class shortClass = getParametrizedType(instance, 2);
+        // then
+        assertThat(intClass).isEqualTo(Integer.class);
+        assertThat(stringClass).isEqualTo(String.class);
+        assertThat(shortClass).isEqualTo(Short.class);
+    }
+
+    @Test
+    public void cannotGetParametrizedTypeForRawObjectInstance() {
+        // given
+        Object instance = new Object();
+        // when
+        when(() -> getParametrizedType(instance, 0))
+                .thenExpectedException(
+                        ReflectionOperationException.class,
+                        format("Cannot find parametrized type for class: '%s', at: %s index", Object.class, 0))
+                .then(ex -> {
+                    Throwable cause = ex.getCause();
+                    assertThat(cause).isNotNull();
+                });
+    }
+
+    @Test
+    public void returnsExpectedTypesForSomeConcreteClass() {
+        // given
+        Class concreteClass = ThirdLevelConcrClass.class;
+        // when
+        Class intClass = getParametrizedType(concreteClass, 0);
+        Class stringClass = getParametrizedType(concreteClass, 1);
+        Class shortClass = getParametrizedType(concreteClass, 2);
+        // then
+        assertThat(intClass).isEqualTo(Integer.class);
+        assertThat(stringClass).isEqualTo(String.class);
+        assertThat(shortClass).isEqualTo(Short.class);
+    }
+
+    @Test
+    public void cannotGetParametrizedTypeForGivenField() {
+        // given
+        Field eventsField = getField(ClassForTest.class, "events");
+        // when
+        when(() -> getParametrizedType(eventsField, 0))
+                .thenExpectedException(ReflectionOperationException.class,
+                                       format("Cannot find parametrized type for field with class: '%s', at: %s index", eventsField.getType(), 0));
+    }
+
+    @Test
     public void simpleIntIsNumber() {
         // given
         Field simpleIntField = getField(ClassForTest.class, "simpleInt");
+        Field stringField = getField(ClassForTest.class, "string");
         // when
         // then
         assertThat(isNumberType(simpleIntField.getType())).isTrue();
+        assertThat(isNumberType(stringField.getType())).isFalse();
+        assertThat(isNumberType(simpleIntField)).isTrue();
+        assertThat(isNumberType(stringField)).isFalse();
     }
 
     @Test
@@ -125,6 +264,42 @@ public class MetadataReflectionUtilsTest {
         assertThat(isEnumType(typeOfKey)).isTrue();
         assertThat(isTextType(typeOfValue)).isTrue();
         assertThat(isMapType(enumMapField.getType())).isTrue();
+    }
+
+    @Test
+    public void isTextFieldTest() {
+        // given
+        Field textField = getField(ClassForTest.class, "string");
+        Field simpleByteField = getField(ClassForTest.class, "simpleByte");
+        // when // then
+        assertThat(isTextType(textField)).isTrue();
+        assertThat(isTextType(textField.getType())).isTrue();
+        assertThat(isTextType(simpleByteField.getType())).isFalse();
+        assertThat(isTextType(simpleByteField.getType())).isFalse();
+    }
+
+    @Test
+    public void isEnumFieldTest() {
+        // given
+        Field someEnumField = getField(ClassForTest.class, "someEnum");
+        Field simpleByteField = getField(ClassForTest.class, "simpleByte");
+        // when // then
+        assertThat(isEnumType(someEnumField)).isTrue();
+        assertThat(isEnumType(someEnumField.getType())).isTrue();
+        assertThat(isEnumType(simpleByteField.getType())).isFalse();
+        assertThat(isEnumType(simpleByteField.getType())).isFalse();
+    }
+
+    @Test
+    public void isMapFieldTest() {
+        // given
+        Field mapField = getField(ClassForTest.class, "textByEvent");
+        Field simpleByteField = getField(ClassForTest.class, "simpleByte");
+        // when // then
+        assertThat(isMapType(mapField)).isTrue();
+        assertThat(isMapType(mapField.getType())).isTrue();
+        assertThat(isMapType(simpleByteField.getType())).isFalse();
+        assertThat(isMapType(simpleByteField.getType())).isFalse();
     }
 
     @Test
@@ -153,11 +328,48 @@ public class MetadataReflectionUtilsTest {
             // when
             boolean simpleFieldResult = isSimpleType(fieldExpectation.getField().getType());
             // then
-
-            String msgPart = fieldExpectation.isExpectedResult()? "" : "not ";
+            assertThat(simpleFieldResult).isEqualTo(isSimpleType(fieldExpectation.getField()));
+            String msgPart = fieldExpectation.isExpectedResult() ? "" : "not ";
             Assert.assertEquals("field " + fieldExpectation + " expected to be " + msgPart + "simple field",
                                 simpleFieldResult, fieldExpectation.isExpectedResult());
         });
+    }
+
+
+    @Test
+    public void getAllChildClassesForSuperObjectClassFromConcretePackageWithAbstract() {
+        // when
+        Set<Class<? extends SuperObject>> allChildClassesForAbstractClass =
+                getAllChildClassesForClass(SuperObject.class, "pl.jalokim.utils.reflection.beans.inheritiance", true);
+        // then
+        assertThat(allChildClassesForAbstractClass).containsExactlyInAnyOrder(SomeConcreteObject.class,
+                                                                              SecondLevelSomeConcreteObject.class,
+                                                                              ThirdLevelConcrClass.class,
+                                                                              AbstractClassExSuperObject.class);
+    }
+
+    @Test
+    public void getAllChildClassesForSuperObjectClassFromWiderConcretePackageWithAbstract() {
+        // when
+        Set<Class<? extends SuperObject>> allChildClassesForAbstractClass =
+                getAllChildClassesForClass(SuperObject.class, "pl.jalokim.utils.reflection.beans", true);
+        // then
+        assertThat(allChildClassesForAbstractClass).containsExactlyInAnyOrder(SomeConcreteObject.class,
+                                                                              SecondLevelSomeConcreteObject.class,
+                                                                              ThirdLevelConcrClass.class,
+                                                                              AbstractClassExSuperObject.class,
+                                                                              SuperObject2.class);
+    }
+
+    @Test
+    public void getAllChildClassesForSuperObjectClassFromConcretePackageWithoutAbstract() {
+        // when
+        Set<Class<? extends SuperObject>> allChildClassesForAbstractClass =
+                getAllChildClassesForClass(SuperObject.class, "pl.jalokim.utils.reflection.beans.inheritiance", false);
+        // then
+        assertThat(allChildClassesForAbstractClass).containsExactlyInAnyOrder(SomeConcreteObject.class,
+                                                                              SecondLevelSomeConcreteObject.class,
+                                                                              ThirdLevelConcrClass.class);
     }
 
     private static FieldExpectation create(Class<?> type, String fieldName, boolean expectedResult) {

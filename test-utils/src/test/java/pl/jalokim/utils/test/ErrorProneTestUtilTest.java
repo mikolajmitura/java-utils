@@ -21,10 +21,11 @@ import static pl.jalokim.utils.test.ErrorProneTestUtil.ErrorProneTestUtilBuilder
 
 @RunWith(MockitoJUnitRunner.class)
 public class ErrorProneTestUtilTest {
+
+    private static final String WITH_MESSAGE = " with message: ";
     private static final String EXPECTED_MSG = "expected Message";
     private static final String EXPECTED_AS_SET_MSG = "expected as set!";
     private static final String COMPOSED_EXCEPTION_MESSAGE = "Composed Exception message";
-    public static final String WITH_MESSAGE = " with message: ";
 
     @Mock
     private MockObject mockInTestableInstance;
@@ -153,7 +154,7 @@ public class ErrorProneTestUtilTest {
                     })
                     .assertNestedException(IllegalArgumentException.class, EXPECTED_MSG);
             fail("should not occurred");
-        } catch (AssertionError assertionError) {
+        } catch(AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo("Cannot find nested expected type : " + IllegalArgumentException.class.getCanonicalName() + WITH_MESSAGE + EXPECTED_MSG + " for caught exception: ");
         }
@@ -170,7 +171,7 @@ public class ErrorProneTestUtilTest {
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
                          );
-        } catch (AssertionError assertionError) {
+        } catch(AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo("Nothing was thrown! Expected exception: " + OwnException.class.getCanonicalName() + WITH_MESSAGE + EXPECTED_MSG);
             verify(assertionChecker, never()).invokeMethod();
@@ -188,7 +189,7 @@ public class ErrorProneTestUtilTest {
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
                          );
-        } catch (AssertionError assertionError) {
+        } catch(AssertionError assertionError) {
 
             RuntimeException runtimeException = new RuntimeException(EXPECTED_AS_SET_MSG);
             AssertionError expected = new AssertionError("Expected exception type: " + OwnException.class.getCanonicalName()
@@ -216,11 +217,11 @@ public class ErrorProneTestUtilTest {
         }
 
         void validate(Boolean throwEx, Boolean composedEx, String message) throws OwnException, MainException {
-            if (throwEx == null) {
+            if(throwEx == null) {
                 throw new RuntimeException(EXPECTED_AS_SET_MSG);
             }
-            if (throwEx) {
-                if (composedEx) {
+            if(throwEx) {
+                if(composedEx) {
                     throw new MainException(new RuntimeException(new OwnException(message)));
                 }
                 throw new OwnException(message);
