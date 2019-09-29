@@ -40,4 +40,8 @@ public class SuperObject extends SuperAbstractObject<Integer, String, Short> {
     private void someMethod(Integer arg1, String arg2) {
 
     }
+
+    private Integer returnIntegerVal(String var1, Number number) {
+        return 10;
+    }
 }

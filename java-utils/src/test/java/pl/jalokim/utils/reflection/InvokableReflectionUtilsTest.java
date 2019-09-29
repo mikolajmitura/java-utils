@@ -8,10 +8,14 @@ import pl.jalokim.utils.reflection.beans.inheritiance.SuperAbstractObject;
 import pl.jalokim.utils.reflection.beans.inheritiance.SuperObject;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.List;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static pl.jalokim.utils.reflection.InvokableReflectionUtils.invokeMethod;
+import static pl.jalokim.utils.reflection.InvokableReflectionUtils.invokeStaticMethod;
 import static pl.jalokim.utils.reflection.InvokableReflectionUtils.setValueForField;
 import static pl.jalokim.utils.reflection.InvokableReflectionUtils.setValueForStaticField;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getField;
@@ -185,5 +189,135 @@ public class InvokableReflectionUtilsTest {
         // then
         assertThat(getCAN_BE_UPDATE_STATIC_FINAL()).isEqualTo(newValue);
         setValueForStaticField(SuperObject.class, "CAN_BE_UPDATE_STATIC_FINAL", "0");
+    }
+
+    @Test
+    public void invokeMethodFromTheSameClassWithVarargs() {
+        // given
+        SecondLevelSomeConcreteObject instance = new SecondLevelSomeConcreteObject();
+        // when
+        String result = invokeMethod(instance, "returnResultOf", "_1", "_2");
+        // then
+        assertThat(result).isEqualTo("SecondLevelSomeConcreteObject" + "_1" + "_2");
+    }
+
+    @Test
+    public void invokeMethodFromTheSameClassWithListArgs() {
+        // given
+        SecondLevelSomeConcreteObject instance = new SecondLevelSomeConcreteObject();
+        // when
+        String result = invokeMethod(instance, "returnResultOf", Arrays.asList("_1", "_2"));
+        // then
+        assertThat(result).isEqualTo("SecondLevelSomeConcreteObject" + "_1" + "_2");
+    }
+
+    @Test
+    public void invokeMethodFromTheSameClassWithListTypesAndArgList() {
+        // given
+        SecondLevelSomeConcreteObject instance = new SecondLevelSomeConcreteObject();
+        // when
+        String result = invokeMethod(instance,
+                                     "returnResultOf",
+                                     Arrays.asList(String.class, Object.class),
+                                     Arrays.asList("_1", 2));
+        // then
+        assertThat(result).isEqualTo("SecondLevelSomeConcreteObject" + "_1" + "2");
+    }
+
+    @Test
+    public void invokeMethodFromSuperClassWithVarargs() {
+        // given
+        SecondLevelSomeConcreteObject instance = new SecondLevelSomeConcreteObject();
+        // when
+        String result = invokeMethod(instance, SuperObject.class, "returnResultOf", "_1");
+        // then
+        assertThat(result).isEqualTo("SuperAbstractObject");
+    }
+
+    @Test
+    public void invokeMethodFromSuperClassWithListArgs() {
+        // given
+        SecondLevelSomeConcreteObject instance = new SecondLevelSomeConcreteObject();
+        // when
+        String result = invokeMethod(instance, SuperObject.class, "returnResultOf", singletonList("_1"));
+        // then
+        assertThat(result).isEqualTo("SuperAbstractObject");
+    }
+
+    @Test
+    public void invokePrivateMethodFromSuperClassWithVarargs() {
+        // given
+        SecondLevelSomeConcreteObject instance = new SecondLevelSomeConcreteObject();
+        // when
+        String result = invokeMethod(instance, SuperObject.class, "privateMethodString");
+        // then
+        assertThat(result).isEqualTo("abstractClass");
+    }
+
+    @Test
+    public void invokePrivateMethodFromTheSameClassWithVarargs() {
+        // given
+        SecondLevelSomeConcreteObject instance = new SecondLevelSomeConcreteObject();
+        // when
+        String result = invokeMethod(instance, "privateMethodString");
+        // then
+        assertThat(result).isEqualTo("concreteClass2ndLevel");
+    }
+
+    @Test
+    public void invokePrivateMethodFromSuperClassWithExplicitArgTypes() {
+        // given
+        SecondLevelSomeConcreteObject instance = new SecondLevelSomeConcreteObject();
+        // when
+        Integer result = invokeMethod(instance, SuperObject.class,
+                                      "returnIntegerVal",
+                                      asList(String.class, Number.class),
+                                      asList("text", 1L));
+        // then
+        assertThat(result).isEqualTo(10);
+    }
+
+    @Test
+    public void cannotInvokeNonStaticMethodWithoutTargetInstance() {
+        when(() -> invokeMethod(null, SuperObject.class,
+                                "returnIntegerVal",
+                                asList(String.class, Number.class),
+                                asList("text", 1L)))
+                .thenExpectedException(
+                        new ReflectionOperationException("Cannot invoke non static method on null target object"));
+        SuperAbstractObject.reset();
+    }
+
+    @Test
+    public void invokePrivateStaticMethodFromSuperClassWithExplicitArgTypes() {
+        // given
+        Integer result = invokeStaticMethod(SuperObject.class,
+                                            "incrementValue",
+                                            singletonList(Number.class),
+                                            singletonList(12L));
+        // then
+        assertThat(result).isEqualTo(1);
+    }
+
+    @Test
+    public void invokePrivateStaticMethodFromSuperClassWithVarargs() {
+        // given
+        String new_value = "new_value";
+        invokeStaticMethod(SuperObject.class,
+                                            "updateSTATIC_STRING",
+                                            singletonList(new_value));
+        // then
+        assertThat(SuperAbstractObject.STATIC_STRING).isEqualTo(new_value);
+    }
+
+    @Test
+    public void invokePrivateStaticMethodFromSuperClassWithArgumentList() {
+        // given
+        String new_value = "new_value";
+        invokeStaticMethod(SuperObject.class,
+                           "updateSTATIC_STRING",
+                           new_value);
+        // then
+        assertThat(SuperAbstractObject.STATIC_STRING).isEqualTo(new_value);
     }
 }
