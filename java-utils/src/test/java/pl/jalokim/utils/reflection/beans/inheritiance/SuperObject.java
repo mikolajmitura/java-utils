@@ -10,6 +10,7 @@ public class SuperObject extends SuperAbstractObject<Integer, String, Short> {
     private static final Integer STATIC_FINAL_INTEGER = 0;
     private static final Integer STATIC_FINAL_INTEGER2 = 2;
     private static final int PRIMITIVE_STATIC_FINAL_INTEGER = 0;
+    private static final int PRIMITIVE_STATIC_FINAL_INTEGER2 = 0;
     private static final String CAN_BE_UPDATE_STATIC_FINAL;
 
     static {

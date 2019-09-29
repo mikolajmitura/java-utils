@@ -5,6 +5,9 @@ public abstract class SuperAbstractObject<T1, T2, T3> {
     private static int nextId = 0;
     public static String STATIC_STRING = "";
 
+    private final String finalString = "FINAL_STRING_SA";
+    private  String privateString = "private_String_SA";
+
     String returnResultOf(String var1, String var2) {
         return "SuperAbstractObject";
     }

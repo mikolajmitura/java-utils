@@ -12,8 +12,11 @@ import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getField;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getMethod;
 
 @SuppressWarnings("unchecked")
-public class InvokableReflectionUtils {
+public final class InvokableReflectionUtils {
 
+    private InvokableReflectionUtils() {
+
+    }
     /**
      * Setup new value for target object for given field name.
      * It will looks in whole hierarchy if find first match field name then will change value.
@@ -76,6 +79,59 @@ public class InvokableReflectionUtils {
     public static void setValueForStaticField(Class<?> targetClass,
                                               String fieldName, Object newValue) {
         setValueForField(null, targetClass, fieldName, newValue);
+    }
+
+
+    /**
+     * It gets value for given field name from target object.
+     * It looks in whole class hierarchy for target object.
+     *
+     * @param targetObject target object
+     * @param fieldName field name
+     * @param <T> expected return type
+     * @return value from field.
+     */
+    public static <T> T getValueOfField(Object targetObject, String fieldName) {
+       return getValueOfField(targetObject, targetObject.getClass(), fieldName);
+    }
+
+    /**
+     * It gets value for given field name from target object.
+     * It looks in whole class hierarchy but starts from target class.
+     *
+     * @param targetObject target object
+     * @param targetClass target class
+     * @param fieldName field name
+     * @param <T> expected return type
+     * @return value from field.
+     */
+    public static <T> T getValueOfField(Object targetObject, Class targetClass, String fieldName) {
+        Field field = getField(targetClass, fieldName);
+        if (!Modifier.isStatic(field.getModifiers()) && targetObject == null ) {
+            throw new ReflectionOperationException("Cannot find non static field on null target object");
+        }
+
+        try {
+            field.setAccessible(true);
+            Object result = field.get(targetObject);
+            field.setAccessible(false);
+            return (T) result;
+        } catch(IllegalAccessException e) {
+            throw new ReflectionOperationException(e);
+        }
+    }
+
+    /**
+     * It gets value for static field by name from target class.
+     * It starts looking for field from target class up in hierarchy.
+     *
+     * @param targetClass target class
+     * @param fieldName field name
+     * @param <T> expected return type
+     * @return value from field.
+     */
+    public static <T> T getValueForStaticField(Class targetClass, String fieldName) {
+        return getValueOfField(null, targetClass, fieldName);
     }
 
     /**
@@ -257,9 +313,6 @@ public class InvokableReflectionUtils {
     public static <T> T invokeStaticMethod(Class<?> targetClass, String methodName, Object... args) {
         return invokeMethod(null, targetClass, methodName, args);
     }
-
-    // TODO get field  value
-    // TODO get static final field  value
 
     public static <T> T newInstance(Class<T> type, List<Class<?>> argsClasses, List<Object> args) {
         return newInstance(type, argsClasses, args.toArray());

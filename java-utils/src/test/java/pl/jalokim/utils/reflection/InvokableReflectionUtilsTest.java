@@ -14,6 +14,8 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static pl.jalokim.utils.reflection.InvokableReflectionUtils.getValueForStaticField;
+import static pl.jalokim.utils.reflection.InvokableReflectionUtils.getValueOfField;
 import static pl.jalokim.utils.reflection.InvokableReflectionUtils.invokeMethod;
 import static pl.jalokim.utils.reflection.InvokableReflectionUtils.invokeStaticMethod;
 import static pl.jalokim.utils.reflection.InvokableReflectionUtils.setValueForField;
@@ -164,6 +166,8 @@ public class InvokableReflectionUtilsTest {
         setValueForStaticField(SuperObject.class, "PRIMITIVE_STATIC_FINAL_INTEGER", NEW_NUMBER_VALUE);
         // then
         assertThat(getSTATIC_FINAL_INTEGER()).isEqualTo(0);
+        Integer newValue = getValueForStaticField(SuperObject.class, "PRIMITIVE_STATIC_FINAL_INTEGER");
+        assertThat(newValue).isEqualTo(NEW_NUMBER_VALUE);
     }
 
     @Test
@@ -304,8 +308,8 @@ public class InvokableReflectionUtilsTest {
         // given
         String new_value = "new_value";
         invokeStaticMethod(SuperObject.class,
-                                            "updateSTATIC_STRING",
-                                            singletonList(new_value));
+                           "updateSTATIC_STRING",
+                           singletonList(new_value));
         // then
         assertThat(SuperAbstractObject.STATIC_STRING).isEqualTo(new_value);
     }
@@ -319,5 +323,62 @@ public class InvokableReflectionUtilsTest {
                            new_value);
         // then
         assertThat(SuperAbstractObject.STATIC_STRING).isEqualTo(new_value);
+    }
+
+    @Test
+    public void getValueFromSuperClassForGivenTargetObjectForPrivateField() {
+        // given
+        SecondLevelSomeConcreteObject instance = new SecondLevelSomeConcreteObject();
+        // when
+        String result = getValueOfField(instance, SomeConcreteObject.class, "privateString");
+        // then
+        assertThat(result).isEqualTo("private_String_SA");
+    }
+
+    @Test
+    public void getValueFromInstanceForGivenTargetObjectForPrivateField() {
+        // given
+        SecondLevelSomeConcreteObject instance = new SecondLevelSomeConcreteObject();
+        // when
+        String result = getValueOfField(instance, "privateString");
+        // then
+        assertThat(result).isEqualTo("private_String_2LEVEL");
+    }
+
+    @Test
+    public void getValueFromSuperClassForGivenTargetObjectForPrivateFinalField() {
+        // given
+        SecondLevelSomeConcreteObject instance = new SecondLevelSomeConcreteObject();
+        // when
+        String result = getValueOfField(instance, SomeConcreteObject.class, "finalString");
+        // then
+        assertThat(result).isEqualTo("FINAL_STRING_SA");
+    }
+
+    @Test
+    public void getValueFromInstanceForGivenTargetObjectForPrivateFinalField() {
+        // given
+        SecondLevelSomeConcreteObject instance = new SecondLevelSomeConcreteObject();
+        // when
+        String result = getValueOfField(instance, "finalString");
+        // then
+        assertThat(result).isEqualTo("FINAL_STRING_2LEVEL");
+    }
+
+    @Test
+    public void getStaticFinalValueFromFieldFromSuperClass() {
+        // when
+        Integer result = getValueForStaticField(SecondLevelSomeConcreteObject.class, "PRIMITIVE_STATIC_FINAL_INTEGER2");
+        // then
+        assertThat(result).isEqualTo(0);
+    }
+
+    @Test
+    public void cannotFindNonStaticFieldWithoutTargetInstance() {
+        when(() -> getValueForStaticField(SuperObject.class,
+                                "anotherPrivateField"))
+                .thenExpectedException(
+                        new ReflectionOperationException("Cannot find non static field on null target object"));
+        SuperAbstractObject.reset();
     }
 }
