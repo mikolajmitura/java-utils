@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -17,6 +18,7 @@ public final class InvokableReflectionUtils {
     private InvokableReflectionUtils() {
 
     }
+
     /**
      * Setup new value for target object for given field name.
      * It will looks in whole hierarchy if find first match field name then will change value.
@@ -87,12 +89,12 @@ public final class InvokableReflectionUtils {
      * It looks in whole class hierarchy for target object.
      *
      * @param targetObject target object
-     * @param fieldName field name
-     * @param <T> expected return type
+     * @param fieldName    field name
+     * @param <T>          expected return type
      * @return value from field.
      */
     public static <T> T getValueOfField(Object targetObject, String fieldName) {
-       return getValueOfField(targetObject, targetObject.getClass(), fieldName);
+        return getValueOfField(targetObject, targetObject.getClass(), fieldName);
     }
 
     /**
@@ -100,14 +102,14 @@ public final class InvokableReflectionUtils {
      * It looks in whole class hierarchy but starts from target class.
      *
      * @param targetObject target object
-     * @param targetClass target class
-     * @param fieldName field name
-     * @param <T> expected return type
+     * @param targetClass  target class
+     * @param fieldName    field name
+     * @param <T>          expected return type
      * @return value from field.
      */
     public static <T> T getValueOfField(Object targetObject, Class targetClass, String fieldName) {
         Field field = getField(targetClass, fieldName);
-        if (!Modifier.isStatic(field.getModifiers()) && targetObject == null ) {
+        if(!Modifier.isStatic(field.getModifiers()) && targetObject == null) {
             throw new ReflectionOperationException("Cannot find non static field on null target object");
         }
 
@@ -126,8 +128,8 @@ public final class InvokableReflectionUtils {
      * It starts looking for field from target class up in hierarchy.
      *
      * @param targetClass target class
-     * @param fieldName field name
-     * @param <T> expected return type
+     * @param fieldName   field name
+     * @param <T>         expected return type
      * @return value from field.
      */
     public static <T> T getValueForStaticField(Class targetClass, String fieldName) {
@@ -314,29 +316,73 @@ public final class InvokableReflectionUtils {
         return invokeMethod(null, targetClass, methodName, args);
     }
 
+    /**
+     * It create instance of object based on below arguments.
+     *
+     * @param type        expected type
+     * @param argsClasses list with every type for every constructor argument.
+     * @param args        list with every constructor argument.
+     * @param <T>         expected type of create object
+     * @return instance of new object
+     */
     public static <T> T newInstance(Class<T> type, List<Class<?>> argsClasses, List<Object> args) {
         return newInstance(type, argsClasses, args.toArray());
     }
 
+    /**
+     * It create instance of object based on below arguments.
+     *
+     * @param type        expected type
+     * @param argsClasses list with every type for every constructor argument.
+     * @param args        array with every constructor argument.
+     * @param <T>         expected type of create object
+     * @return instance of new object
+     */
     public static <T> T newInstance(Class<T> type, List<Class<?>> argsClasses, Object... args) {
         try {
-            Constructor<T> constructor = type.getConstructor(argsClasses.toArray(new Class<?>[0]));
-            return constructor.newInstance(args);
+            Constructor<T> constructor = type.getDeclaredConstructor(argsClasses.toArray(new Class<?>[0]));
+            constructor.setAccessible(true);
+            T instance = constructor.newInstance(args);
+            constructor.setAccessible(false);
+            return instance;
         } catch(Exception e) {
             throw new ReflectionOperationException(e);
         }
     }
 
-    public static <T> T newInstance(Class<T> type, Object... args) {
-        List<Class<?>> argumentClasses = mapToList(Object::getClass, args);
+    /**
+     * It create instance of object based on below arguments.
+     *
+     * @param type expected type
+     * @param args list with every constructor argument.
+     * @param <T>  expected type of create object
+     * @return instance of new object
+     */
+    public static <T> T newInstance(Class<T> type, List<Object> args) {
+        List<Class<?>> argumentClasses = mapToList(args, Object::getClass);
         return newInstance(type, argumentClasses, args);
     }
 
+    /**
+     * It create instance of object based on below arguments.
+     *
+     * @param type expected type
+     * @param args array with every constructor argument.
+     * @param <T>  expected type of create object
+     * @return instance of new object
+     */
+    public static <T> T newInstance(Class<T> type, Object... args) {
+        return newInstance(type, Arrays.asList(args));
+    }
+
+    /**
+     * It create instance of object without constructor arguments.
+     *
+     * @param type expected type
+     * @param <T>  expected type of create object
+     * @return instance of new object
+     */
     public static <T> T newInstance(Class<T> type) {
-        try {
-            return type.newInstance();
-        } catch(Exception e) {
-            throw new ReflectionOperationException(e);
-        }
+        return newInstance(type, new ArrayList[0]);
     }
 }

@@ -5,6 +5,25 @@ import lombok.Getter;
 @Getter
 public class SuperObject extends SuperAbstractObject<Integer, String, Short> {
 
+
+    private int constructorNr;
+
+    public SuperObject() {
+        constructorNr = 0;
+    }
+
+    public SuperObject(String var1, Integer var2) {
+        constructorNr = 1;
+    }
+
+    public SuperObject(String var1, Number var2) {
+        constructorNr = 2;
+    }
+
+    private SuperObject(Integer var1) {
+        constructorNr = 3;
+    }
+
     public static final String PRIVATE_FIELD_INIT = "privateField_Init";
 
     private static final Integer STATIC_FINAL_INTEGER = 0;

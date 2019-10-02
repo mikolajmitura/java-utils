@@ -2,6 +2,7 @@ package pl.jalokim.utils.reflection;
 
 import junit.framework.TestCase;
 import org.junit.Test;
+import pl.jalokim.utils.reflection.beans.inheritiance.ClassWithoutDefConstr;
 import pl.jalokim.utils.reflection.beans.inheritiance.SecondLevelSomeConcreteObject;
 import pl.jalokim.utils.reflection.beans.inheritiance.SomeConcreteObject;
 import pl.jalokim.utils.reflection.beans.inheritiance.SuperAbstractObject;
@@ -376,9 +377,78 @@ public class InvokableReflectionUtilsTest {
     @Test
     public void cannotFindNonStaticFieldWithoutTargetInstance() {
         when(() -> getValueForStaticField(SuperObject.class,
-                                "anotherPrivateField"))
+                                          "anotherPrivateField"))
                 .thenExpectedException(
                         new ReflectionOperationException("Cannot find non static field on null target object"));
         SuperAbstractObject.reset();
+    }
+
+    @Test
+    public void createInstanceWithoutArgs() {
+        // when
+        SuperObject superObject = InvokableReflectionUtils.newInstance(SuperObject.class);
+        // then
+        assertThat(superObject.getConstructorNr()).isEqualTo(0);
+    }
+
+    @Test
+    public void createInstanceOnlyWithArrayArgs() {
+        // given
+        String var1 = "";
+        Integer var2 = 1;
+        // when
+        SuperObject superObject = InvokableReflectionUtils.newInstance(SuperObject.class, var1, var2);
+        // then
+        assertThat(superObject.getConstructorNr()).isEqualTo(1);
+    }
+
+    @Test
+    public void createInstanceOnlyWithListArgs() {
+        // given
+        String var1 = "";
+        Integer var2 = 1;
+        // when
+        SuperObject superObject = InvokableReflectionUtils.newInstance(SuperObject.class, Arrays.asList(var1, var2));
+        // then
+        assertThat(superObject.getConstructorNr()).isEqualTo(1);
+    }
+
+    @Test
+    public void createInstanceWithTypesListAndArrayArgs() {
+        // given
+        String var1 = "";
+        Integer var2 = 1;
+        // when
+        SuperObject superObject = InvokableReflectionUtils.newInstance(SuperObject.class, Arrays.asList(String.class, Number.class), var1, var2);
+        // then
+        assertThat(superObject.getConstructorNr()).isEqualTo(2);
+    }
+
+    @Test
+    public void createInstanceWithTypesListAndListArgs() {
+        // given
+        String var1 = "";
+        Integer var2 = 1;
+        // when
+        SuperObject superObject = InvokableReflectionUtils.newInstance(SuperObject.class, Arrays.asList(String.class, Number.class), Arrays.asList(var1, var2));
+        // then
+        assertThat(superObject.getConstructorNr()).isEqualTo(2);
+    }
+
+    @Test
+    public void cannotCreateObjectWithEmptyArguments() {
+        when(() ->
+                     InvokableReflectionUtils.newInstance(ClassWithoutDefConstr.class)
+            ).thenExpectedException(ReflectionOperationException.class);
+    }
+
+    @Test
+    public void invokePrivateConstructor() {
+        // given
+        Integer var1 = 1;
+        // when
+        SuperObject superObject = InvokableReflectionUtils.newInstance(SuperObject.class, var1);
+        // then
+        assertThat(superObject.getConstructorNr()).isEqualTo(3);
     }
 }

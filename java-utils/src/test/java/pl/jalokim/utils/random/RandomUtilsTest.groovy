@@ -4,6 +4,10 @@ import spock.lang.Specification
 
 class RandomUtilsTest extends Specification {
 
+    void setup() {
+        RandomUtils.impl = new RandomUtilImpl()
+    }
+
     def "always return in range"() {
         when:
         List<Integer> numbers = [3, 4, 5, 6, 7]
@@ -20,6 +24,18 @@ class RandomUtilsTest extends Specification {
     def "always return element from list"() {
         when:
         List<Integer> numbers = [100, 120, 123, 665, 6127]
+        then:
+        Set<Integer> generatedNumbers = new HashSet<>()
+        while (generatedNumbers.size() != numbers.size()) {
+            int generated = RandomUtils.randomElement(numbers)
+            generatedNumbers.add(generated)
+            assert numbers.contains(generated)
+        }
+    }
+
+    def "always return element from array"() {
+        when:
+        Integer[] numbers = [100, 120, 123, 665, 6127]
         then:
         Set<Integer> generatedNumbers = new HashSet<>()
         while (generatedNumbers.size() != numbers.size()) {
@@ -68,5 +84,20 @@ class RandomUtilsTest extends Specification {
         then:
         RandomException randomException = thrown()
         randomException.message == "Cannot get random element from empty list: []"
+    }
+
+    def "random true return false"() {
+        RandomUtilImpl mockImpl = Mock(RandomUtilImpl)
+        RandomUtils.impl = mockImpl
+
+        given:
+        mockImpl.randomTrue() >>> [false, true]
+
+        when:
+        boolean result1 = RandomUtils.randomTrue()
+        boolean result2 = RandomUtils.randomTrue()
+        then:
+        !result1
+        result2
     }
 }

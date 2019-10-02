@@ -4,9 +4,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-public class RandomUtils {
+public final class RandomUtils {
 
     private static RandomUtilImpl impl = new RandomUtilImpl();
+
+    private RandomUtils() {
+
+    }
 
     public static int randomInRange(int min, int max) {
         return impl.randomInRangeImpl(min, max);
@@ -33,6 +37,8 @@ public class RandomUtils {
         return impl.randomTrue();
     }
 
+
+    // TODO next here
     public static boolean randomTrue(int probabilityOfTrueInPercent) {
         return impl.randomTrueWithProbability(probabilityOfTrueInPercent);
     }
