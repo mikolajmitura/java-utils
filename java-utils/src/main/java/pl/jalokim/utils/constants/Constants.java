@@ -12,4 +12,6 @@ public class Constants {
     public static final String EMPTY = "";
     public static final String NEW_LINE = String.format("%n");
     public static final String COMMA = ",";
+    public static final String SLASH = "/";
+    public static final String BACK_SLASH = "\\";
 }
