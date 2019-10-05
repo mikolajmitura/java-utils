@@ -4,7 +4,7 @@ import spock.lang.Specification
 
 class RandomUtilsTest extends Specification {
 
-    void setup() {
+    void cleanup() {
         RandomUtils.impl = new RandomUtilImpl()
     }
 
@@ -99,5 +99,54 @@ class RandomUtilsTest extends Specification {
         then:
         !result1
         result2
+    }
+
+    def "random index from array"() {
+        RandomUtilImpl mockImpl = Mock(RandomUtilImpl)
+        RandomUtils.impl = mockImpl
+
+        given:
+        String[] texts = ["1", "test", "test4", "test0"]
+        mockImpl.randomInRangeImpl(_, _) >> {
+            args ->
+                if (args[0] == 0 && args[1] == 3) {
+                    return 2
+                }
+                throw new UnsupportedOperationException("not mock for args: $args")
+        }
+
+        when:
+        int second = RandomUtils.randomIndex(texts)
+        then:
+        second == 2
+    }
+
+    def "random true"() {
+        RandomUtilImpl mockImpl = Mock(RandomUtilImpl)
+        RandomUtils.impl = mockImpl
+
+        given:
+        mockImpl.randomTrueWithProbability(_) >> {
+            args ->
+                if (args[0] == 30) {
+                    return true
+                }
+                throw new UnsupportedOperationException("not mock for args: $args")
+        }
+
+        when:
+        boolean result = RandomUtils.randomTrue(30)
+        then:
+        result
+    }
+
+    def "elements null"() {
+        given:
+        Collection<String> collection = null
+        when:
+        RandomUtils.randomElement(collection)
+        then:
+        NullPointerException ex = thrown()
+        ex.message == null
     }
 }
