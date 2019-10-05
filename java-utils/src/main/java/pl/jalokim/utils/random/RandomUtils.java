@@ -16,6 +16,10 @@ public final class RandomUtils {
 
     }
 
+    public static void ownRandomImpl(RandomUtilImpl newImpl) {
+        impl = newImpl;
+    }
+
     /**
      * Return random integer number.
      *

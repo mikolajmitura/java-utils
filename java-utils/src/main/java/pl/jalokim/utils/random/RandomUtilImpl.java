@@ -1,5 +1,6 @@
 package pl.jalokim.utils.random;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -9,13 +10,21 @@ import static pl.jalokim.utils.random.RandomUtils.randomIndex;
 
 public class RandomUtilImpl {
 
-    private Random RANDOM = new Random();
+    private final Random random;
+
+    public RandomUtilImpl() {
+        this.random = new SecureRandom();
+    }
+
+    public RandomUtilImpl(Random random) {
+        this.random = random;
+    }
 
     public Integer randomInRangeImpl(int min, int max) {
         if (max < min) {
             throw new RandomException("Max: " + max + " should be greater than or equals with min: " + min);
         }
-        return RANDOM.nextInt((max - min) + 1) + min;
+        return random.nextInt((max - min) + 1) + min;
     }
 
     public <T> T randomElementImpl(Collection<T> elements) {

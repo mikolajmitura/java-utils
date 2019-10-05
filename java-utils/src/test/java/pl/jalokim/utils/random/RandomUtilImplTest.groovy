@@ -9,12 +9,12 @@ class RandomUtilImplTest extends Specification {
     private RandomUtilImpl tested = new RandomUtilImpl()
 
     void cleanup() {
-        RandomUtils.impl = new RandomUtilImpl()
+        RandomUtils.ownRandomImpl(new RandomUtilImpl())
     }
 
     def "randomTrueWithProbability return true when probability 20%"() {
         RandomUtilImpl mockImpl = Mock(RandomUtilImpl)
-        RandomUtils.impl = mockImpl
+        RandomUtils.ownRandomImpl(mockImpl)
 
         given:
         mockImpl.randomInRangeImpl(_, _) >> {
@@ -123,7 +123,7 @@ class RandomUtilImplTest extends Specification {
     def "return true when 1"() {
         given:
         Random randomMock = Mock(Random)
-        tested.RANDOM = randomMock
+        tested = new RandomUtilImpl(randomMock)
 
         randomMock.nextInt(_) >> {
             args->
@@ -142,7 +142,7 @@ class RandomUtilImplTest extends Specification {
     def "return true when not 1"() {
         given:
         Random randomMock = Mock(Random)
-        tested.RANDOM = randomMock
+        tested = new RandomUtilImpl(randomMock)
 
         randomMock.nextInt(_) >> {
             args->
