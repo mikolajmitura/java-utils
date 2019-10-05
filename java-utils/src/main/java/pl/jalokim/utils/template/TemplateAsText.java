@@ -36,6 +36,7 @@ public class TemplateAsText {
                 value.replace("$", "\\$"));
     }
 
+    // TODO throw error when some placeholder not set. 
     public String getCurrentTemplateText() {
         return templateText;
     }
