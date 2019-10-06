@@ -1,0 +1,5 @@
+some text with: ${placeholder_name}
+some text with: ${another-placeholder}
+this one will not throw exception: ${test^test}
+the same text like in first with: '${placeholder_name}' end text.
+other text with: ${placeholder_name_5}
