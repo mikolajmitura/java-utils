@@ -6,8 +6,8 @@ import java.util.function.Consumer;
 
 import static java.lang.String.join;
 import static java.util.Arrays.asList;
-import static pl.jalokim.utils.test.ExpectedErrorUtil.WITH_MESSAGE;
-import static pl.jalokim.utils.test.ExpectedErrorUtil.assertExceptionAndMessageLines;
+import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.WITH_MESSAGE;
+import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.assertExceptionAndMessageLines;
 
 /**
  * Useful after correct assertion of exception. In then you can get thrown exception and check others things in this exception.
