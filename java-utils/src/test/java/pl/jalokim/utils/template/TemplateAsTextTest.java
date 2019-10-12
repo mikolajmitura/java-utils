@@ -43,7 +43,7 @@ public class TemplateAsTextTest {
         // when
         templateAsText.overrideVariable("placeholder_name", "SOME TEXT");
         when(templateAsText::getCurrentTemplateText)
-                .thenExpectedException(
+                .thenException(
                         new IllegalArgumentException("Not resolved placeholders: [${another-placeholder}, ${placeholder_name_5}]"));
     }
 
@@ -69,7 +69,7 @@ public class TemplateAsTextTest {
         // when
         templateAsText.overrideVariable("placeholder_name", "SOME TEXT");
         when(templateAsText::getCurrentTemplateText)
-                .thenExpectedException(
+                .thenException(
                         new IllegalArgumentException("Not resolved placeholders: [${another-placeholder}, ${placeholder_name_5}]"));
     }
 
@@ -95,7 +95,7 @@ public class TemplateAsTextTest {
         // when
         templateAsText.overrideVariable("placeholder_name", "SOME TEXT");
         when(templateAsText::getCurrentTemplateText)
-                .thenExpectedException(
+                .thenException(
                         new IllegalArgumentException("Not resolved placeholders: [${another-placeholder}, ${placeholder_name_5}]"));
     }
 
@@ -122,7 +122,7 @@ public class TemplateAsTextTest {
         TemplateAsText templateAsText = fromText(TEMPLATE_AS_TEXT, true);
         when(() ->
                      templateAsText.overrideVariable("placeholder_name", null))
-                .thenExpectedException(
+                .thenException(
                         NullPointerException.class,
                         "Value for variable: 'placeholder_name' cannot be null");
     }

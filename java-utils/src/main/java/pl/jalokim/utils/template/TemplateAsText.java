@@ -1,7 +1,5 @@
 package pl.jalokim.utils.template;
 
-import pl.jalokim.utils.collection.CollectionUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -27,7 +25,7 @@ public class TemplateAsText {
     private final boolean throwExceptionForNotResolved;
     private String templateText;
 
-    public TemplateAsText(String templateText, boolean throwExceptionForNotResolved) {
+    private TemplateAsText(String templateText, boolean throwExceptionForNotResolved) {
         this.throwExceptionForNotResolved = throwExceptionForNotResolved;
         this.templateText = templateText;
     }
@@ -36,32 +34,81 @@ public class TemplateAsText {
         this(templateText, false);
     }
 
+    /**
+     * Load text with placeholders from classpath.
+     *
+     * @param resourcePath name of resource
+     * @return instance of TemplateAsText
+     */
     public static TemplateAsText fromClassPath(String resourcePath) {
         return new TemplateAsText(loadFileFromClassPathAsText(resourcePath));
     }
 
+    /**
+     * Load text with placeholders from classpath and set flag for throwExceptionForNotResolved.
+     *
+     * @param resourcePath                 name of resource
+     * @param throwExceptionForNotResolved it setup that will be throw exception
+     *                                     when will not resolved all placeholder during invoke {@link #getCurrentTemplateText()}
+     * @return instance of TemplateAsText
+     */
     public static TemplateAsText fromClassPath(String resourcePath, boolean throwExceptionForNotResolved) {
         return new TemplateAsText(loadFileFromClassPathAsText(resourcePath), throwExceptionForNotResolved);
     }
 
+    /**
+     * Load text with placeholders from file from certain file path.
+     *
+     * @param filePath path for file
+     * @return instance of TemplateAsText
+     */
     public static TemplateAsText fromFile(String filePath) {
         return new TemplateAsText(loadFileFromPathAsText(filePath));
     }
 
+    /**
+     * Load text with placeholders from file from certain file path and set flag for throwExceptionForNotResolved.
+     *
+     * @param filePath                     path for file
+     * @param throwExceptionForNotResolved it setup that will be throw exception
+     *                                     when will not resolved all placeholder during invoke {@link #getCurrentTemplateText()}
+     * @return instance of TemplateAsText
+     */
     public static TemplateAsText fromFile(String filePath, boolean throwExceptionForNotResolved) {
         return new TemplateAsText(loadFileFromPathAsText(filePath), throwExceptionForNotResolved);
     }
 
+    /**
+     * Load text with placeholders from simple String object.
+     *
+     * @param templateText text with placeholders
+     * @return instance of TemplateAsText
+     */
     public static TemplateAsText fromText(String templateText) {
         return new TemplateAsText(templateText);
     }
 
+    /**
+     * * Load text with placeholders from simple String object and set flag for throwExceptionForNotResolved.
+     *
+     * @param templateText                 text with placeholders
+     * @param throwExceptionForNotResolved it setup that will be throw exception
+     *                                     when will not resolved all placeholder during invoke {@link #getCurrentTemplateText()}
+     * @return instance of TemplateAsText
+     */
     public static TemplateAsText fromText(String templateText, boolean throwExceptionForNotResolved) {
         return new TemplateAsText(templateText, throwExceptionForNotResolved);
     }
 
+
+    /**
+     * Override some placeholder.
+     *
+     * @param varName value of placeholder name
+     * @param value   value for setup.
+     */
     public void overrideVariable(String varName, String value) {
-        if (value == null) {
+        if(value == null) {
             throw new NullPointerException("Value for variable: '" + varName + "' cannot be null");
         }
         templateText = templateText.replaceAll(
@@ -69,8 +116,14 @@ public class TemplateAsText {
                 value.replace("$", "\\$"));
     }
 
+    /**
+     * Returns value for already resolved placeholders.
+     *
+     * @return text with already resolved placeholders or throw exception when some placeholder not resolved
+     * only when throwExceptionForNotResolved is set to true.
+     */
     public String getCurrentTemplateText() {
-        if (throwExceptionForNotResolved) {
+        if(throwExceptionForNotResolved) {
             Pattern pattern = Pattern.compile(String.format(VAR_PATTERN, "(\\w|-)+"));
             Matcher matcher = pattern.matcher(templateText);
 
@@ -79,7 +132,7 @@ public class TemplateAsText {
             while(matcher.find()) {
                 notResolved.add(matcher.group(0));
             }
-            if (isNotEmpty(notResolved)) {
+            if(isNotEmpty(notResolved)) {
                 throw new IllegalArgumentException("Not resolved placeholders: " + notResolved);
             }
         }

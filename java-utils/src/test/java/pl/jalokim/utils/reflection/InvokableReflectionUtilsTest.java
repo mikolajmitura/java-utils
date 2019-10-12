@@ -181,7 +181,7 @@ public class InvokableReflectionUtilsTest {
         when(() -> {
             Field foundField = getField(SuperObject.class, "STATIC_FINAL_INTEGER2");
             foundField.set(null, 123);
-        }).thenExpectedException(IllegalAccessException.class, "Class pl.jalokim.utils.reflection.InvokableReflectionUtilsTest can not access a member of class pl.jalokim.utils.reflection.beans.inheritiance.SuperObject with modifiers \"private static final\"");
+        }).thenException(IllegalAccessException.class, "Class pl.jalokim.utils.reflection.InvokableReflectionUtilsTest can not access a member of class pl.jalokim.utils.reflection.beans.inheritiance.SuperObject with modifiers \"private static final\"");
     }
 
     @Test
@@ -288,7 +288,7 @@ public class InvokableReflectionUtilsTest {
                                 "returnIntegerVal",
                                 asList(String.class, Number.class),
                                 asList("text", 1L)))
-                .thenExpectedException(
+                .thenException(
                         new ReflectionOperationException("Cannot invoke non static method on null target object"));
         SuperAbstractObject.reset();
     }
@@ -378,7 +378,7 @@ public class InvokableReflectionUtilsTest {
     public void cannotFindNonStaticFieldWithoutTargetInstance() {
         when(() -> getValueForStaticField(SuperObject.class,
                                           "anotherPrivateField"))
-                .thenExpectedException(
+                .thenException(
                         new ReflectionOperationException("Cannot find non static field on null target object"));
         SuperAbstractObject.reset();
     }
@@ -439,7 +439,7 @@ public class InvokableReflectionUtilsTest {
     public void cannotCreateObjectWithEmptyArguments() {
         when(() ->
                      InvokableReflectionUtils.newInstance(ClassWithoutDefConstr.class)
-            ).thenExpectedException(ReflectionOperationException.class);
+            ).thenException(ReflectionOperationException.class);
     }
 
     @Test

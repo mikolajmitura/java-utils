@@ -1,7 +1,6 @@
 package pl.jalokim.utils.test;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collections;
 import java.util.List;
@@ -17,7 +16,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Useful for assert test which throws exception with certain text, with certain lines of test or exactly expected message.
  */
 @RequiredArgsConstructor(access = PRIVATE)
-@Slf4j
 public class ErrorProneTestUtil {
 
     private static final String NEW_LINE = String.format("%n");
@@ -33,31 +31,34 @@ public class ErrorProneTestUtil {
         try {
             instruction.invoke();
             instructionPassed.set(true);
-        } catch (Throwable exception) {
-            if (expectedExceptionType.isInstance(exception)) {
+        } catch(Throwable exception) {
+            if(expectedExceptionType.isInstance(exception)) {
                 caughtException = exception;
             } else {
-                log.error("not expected exception", exception);
                 throw new AssertionError("Expected exception type: " + expectedExceptionType.getCanonicalName()
                                          + " but was caught another! " + exception, exception);
             }
         }
-        if (instructionPassed.get()) {
+        if(instructionPassed.get()) {
+            String restMsg = expectedMessage == null ? "" : WITH_MESSAGE + expectedMessage;
             throw new AssertionError("Nothing was thrown! Expected exception: " + expectedExceptionType.getCanonicalName()
-                                     + WITH_MESSAGE + expectedMessage);
+                                     + restMsg);
         }
         return this;
     }
 
-    // TODO nested exception on this level too
-    // TODO message contains on this level too
-    // TODO message to lambda on this level too
-    private Throwable assertCaughtException(Throwable expectedException) {
-        return assertCaughtExceptionMessage(expectedException.getMessage());
-    }
-
     private Throwable assertCaughtExceptionMessage(String expectedMessage) {
-        assertThat(expectedMessage).isEqualTo(caughtException.getMessage());
+        if(expectedMessage != null) {
+            try {
+                assertThat(expectedMessage).isEqualTo(caughtException.getMessage());
+            } catch(AssertionError original) {
+                System.err.println("stacktrace for original caught exception:");
+                caughtException.printStackTrace();
+                throw new AssertionError(String.format("Caught expected exception type: %s but has another message than expected",
+                                                       caughtException.getClass().getCanonicalName()),
+                                         original);
+            }
+        }
         return caughtException;
     }
 
@@ -66,18 +67,26 @@ public class ErrorProneTestUtil {
         return caughtException;
     }
 
-    public static void assertExceptionAndMessageLines(Throwable thrownThrowable, List<String> expectedLinesMessage) {
+    private static void assertExceptionAndMessageLines(Throwable thrownThrowable, List<String> expectedLinesMessage) {
         List<String> linesFromException = asList(thrownThrowable.getMessage().split(NEW_LINE));
         Collections.sort(linesFromException);
         Collections.sort(expectedLinesMessage);
-        assertThat(linesFromException).isEqualTo(expectedLinesMessage);
+        try {
+            assertThat(linesFromException).isEqualTo(expectedLinesMessage);
+        } catch(AssertionError original) {
+            System.err.println("stacktrace for original caught exception:");
+            thrownThrowable.printStackTrace();
+            throw new AssertionError(String.format("Caught expected exception type: %s but has another message lines than expected",
+                                                   thrownThrowable.getClass().getCanonicalName()),
+                                     original);
+        }
     }
 
-    public static String messageLines(String... lines) {
+    private static String messageLines(String... lines) {
         return messageLines(asList(lines));
     }
 
-    public static String messageLines(List<String> lines) {
+    private static String messageLines(List<String> lines) {
         return join(NEW_LINE, lines);
     }
 
@@ -96,36 +105,44 @@ public class ErrorProneTestUtil {
             return builder;
         }
 
-        public AfterAssertion thenExpectedException(Throwable expectedException) {
-            this.expectedExceptionType = expectedException.getClass();
-            ErrorProneTestUtil errorProneTestUtil = new ErrorProneTestUtil(instruction, expectedExceptionType, expectedException.getMessage());
-            return new AfterAssertion(errorProneTestUtil
-                                              .invokeTest()
-                                              .assertCaughtException(expectedException));
+        /**
+         * This method checks that expected exception is the same type, and contains the same message type.
+         *
+         * @param expectedException instance of expected exception. (for verify exception will only check exception type and message, without nested exceptions and their messages)
+         * @return instance of AfterAssertion on which you can check nested exception etc...
+         */
+        @TESTED
+        public AfterAssertion thenException(Throwable expectedException) {
+            return thenException(expectedException.getClass(), expectedException.getMessage());
         }
 
-        public AfterAssertion thenExpectedException(Class<? extends Throwable> exceptionType, String expectedMessage) {
-            this.expectedExceptionType = exceptionType;
-            ErrorProneTestUtil errorProneTestUtil = new ErrorProneTestUtil(instruction, expectedExceptionType, expectedMessage);
-            return new AfterAssertion(errorProneTestUtil
-                                              .invokeTest()
-                                              .assertCaughtExceptionMessage(expectedMessage));
+        @TESTED
+        public AfterAssertion thenException(Class<? extends Throwable> exceptionType) {
+            return thenException(exceptionType, (String) null);
         }
 
-        public AfterAssertion thenExpectedException(Class<? extends Throwable> exceptionType, String... expectedLines) {
+        @TESTED
+        public AfterAssertion thenException(Class<? extends Throwable> exceptionType, String exactlyExpectedMessage) {
             this.expectedExceptionType = exceptionType;
-            ErrorProneTestUtil errorProneTestUtil = new ErrorProneTestUtil(instruction, expectedExceptionType, messageLines(expectedLines));
+            ErrorProneTestUtil errorProneTestUtil = new ErrorProneTestUtil(instruction, expectedExceptionType, exactlyExpectedMessage);
             return new AfterAssertion(errorProneTestUtil
                                               .invokeTest()
-                                              .assertCaughtExceptionMessage(asList(expectedLines)));
+                                              .assertCaughtExceptionMessage(exactlyExpectedMessage));
         }
 
-        public AfterAssertion thenExpectedException(Class<? extends Throwable> exceptionType) {
+        @TESTED
+        public AfterAssertion thenException(Class<? extends Throwable> exceptionType, String... expectedLinesInAnyOrder) {
             this.expectedExceptionType = exceptionType;
-            ErrorProneTestUtil errorProneTestUtil = new ErrorProneTestUtil(instruction, expectedExceptionType, null);
+            ErrorProneTestUtil errorProneTestUtil = new ErrorProneTestUtil(instruction, expectedExceptionType, messageLines(expectedLinesInAnyOrder));
             return new AfterAssertion(errorProneTestUtil
-                                              .invokeTest().caughtException);
+                                              .invokeTest()
+                                              .assertCaughtExceptionMessage(asList(expectedLinesInAnyOrder)));
         }
+
+
+        // TODO nested exception on this level too 4 like below
+        // TODO message contains on this level too for nested and firstException
+        // TODO message to lambda on this level too for nested and firstException
     }
 
     /**
@@ -141,11 +158,11 @@ public class ErrorProneTestUtil {
             return this;
         }
 
-        // TODO add for text contains and text lambda
-        public AfterAssertion assertNestedException(Class<? extends Throwable> exceptionType, String... expectedLines) {
+        // TODO 5 methods for nested exception, but after nested exception assertion next "then" method wil return exception instance for nested exception.
+        public AfterAssertion thenNestedException(Class<? extends Throwable> exceptionType, String... expectedLines) {
             Throwable currentEx = caughtException;
-            while (currentEx != null) {
-                if (exceptionType.isInstance(currentEx)) {
+            while(currentEx != null) {
+                if(exceptionType.isInstance(currentEx)) {
                     assertExceptionAndMessageLines(currentEx, asList(expectedLines));
                     return this;
                 }

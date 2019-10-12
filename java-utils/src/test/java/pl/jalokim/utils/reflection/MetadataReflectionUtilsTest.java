@@ -136,8 +136,8 @@ public class MetadataReflectionUtilsTest {
         // when
         when(() -> {
             getTypeOfArrayField(eventsAsListField);
-        }).thenExpectedException(ReflectionOperationException.class,
-                                 String.format("field: '%s' is not array type, is type: %s", eventsAsListField, eventsAsListField.getType()));
+        }).thenException(ReflectionOperationException.class,
+                         String.format("field: '%s' is not array type, is type: %s", eventsAsListField, eventsAsListField.getType()));
     }
 
     @Test
@@ -165,13 +165,13 @@ public class MetadataReflectionUtilsTest {
         // when
         when(() ->
                      getMethod(thirdLevelConcrClass, "someMethod", Integer.class, Integer.class)
-            ).thenExpectedException(ReflectionOperationException.class,
-                                    "java.lang.NoSuchMethodException: pl.jalokim.utils.reflection.beans.inheritiance.innerpack.ThirdLevelConcrClass.someMethod(java.lang.Integer, java.lang.Integer)",
-                                    "pl.jalokim.utils.reflection.beans.inheritiance.SecondLevelSomeConcreteObject.someMethod(java.lang.Integer, java.lang.Integer)",
-                                    "pl.jalokim.utils.reflection.beans.inheritiance.SomeConcreteObject.someMethod(java.lang.Integer, java.lang.Integer)",
-                                    "pl.jalokim.utils.reflection.beans.inheritiance.SuperObject.someMethod(java.lang.Integer, java.lang.Integer)",
-                                    "pl.jalokim.utils.reflection.beans.inheritiance.SuperAbstractObject.someMethod(java.lang.Integer, java.lang.Integer)",
-                                    "java.lang.Object.someMethod(java.lang.Integer, java.lang.Integer)");
+            ).thenException(ReflectionOperationException.class,
+                            "java.lang.NoSuchMethodException: pl.jalokim.utils.reflection.beans.inheritiance.innerpack.ThirdLevelConcrClass.someMethod(java.lang.Integer, java.lang.Integer)",
+                            "pl.jalokim.utils.reflection.beans.inheritiance.SecondLevelSomeConcreteObject.someMethod(java.lang.Integer, java.lang.Integer)",
+                            "pl.jalokim.utils.reflection.beans.inheritiance.SomeConcreteObject.someMethod(java.lang.Integer, java.lang.Integer)",
+                            "pl.jalokim.utils.reflection.beans.inheritiance.SuperObject.someMethod(java.lang.Integer, java.lang.Integer)",
+                            "pl.jalokim.utils.reflection.beans.inheritiance.SuperAbstractObject.someMethod(java.lang.Integer, java.lang.Integer)",
+                            "java.lang.Object.someMethod(java.lang.Integer, java.lang.Integer)");
     }
 
     @Test
@@ -207,7 +207,7 @@ public class MetadataReflectionUtilsTest {
         Object instance = new Object();
         // when
         when(() -> getParametrizedType(instance, 0))
-                .thenExpectedException(
+                .thenException(
                         ReflectionOperationException.class,
                         format("Cannot find parametrized type for class: '%s', at: %s index", Object.class, 0))
                 .then(ex -> {
@@ -236,8 +236,8 @@ public class MetadataReflectionUtilsTest {
         Field eventsField = getField(ClassForTest.class, "events");
         // when
         when(() -> getParametrizedType(eventsField, 0))
-                .thenExpectedException(ReflectionOperationException.class,
-                                       format("Cannot find parametrized type for field with class: '%s', at: %s index", eventsField.getType(), 0));
+                .thenException(ReflectionOperationException.class,
+                               format("Cannot find parametrized type for field with class: '%s', at: %s index", eventsField.getType(), 0));
     }
 
     @Test
