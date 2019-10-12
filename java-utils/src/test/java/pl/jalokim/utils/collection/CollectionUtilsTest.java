@@ -14,7 +14,7 @@ import static pl.jalokim.utils.collection.CollectionUtils.addWhenNotExist;
 import static pl.jalokim.utils.collection.CollectionUtils.hasTheSameElements;
 import static pl.jalokim.utils.collection.CollectionUtils.intersection;
 import static pl.jalokim.utils.collection.CollectionUtils.isNotEmpty;
-import static pl.jalokim.utils.test.ErrorProneTestUtil.ErrorProneTestUtilBuilder.when;
+import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.when;
 
 public class CollectionUtilsTest {
 

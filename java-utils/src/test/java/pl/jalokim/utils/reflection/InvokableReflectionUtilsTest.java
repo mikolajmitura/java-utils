@@ -27,7 +27,7 @@ import static pl.jalokim.utils.reflection.beans.inheritiance.SuperObject.PRIVATE
 import static pl.jalokim.utils.reflection.beans.inheritiance.SuperObject.getCAN_BE_UPDATE_STATIC_FINAL;
 import static pl.jalokim.utils.reflection.beans.inheritiance.SuperObject.getSTATIC_FINAL_INTEGER;
 import static pl.jalokim.utils.reflection.beans.inheritiance.SuperObject.getSTATIC_FINAL_INTEGER2;
-import static pl.jalokim.utils.test.ErrorProneTestUtil.ErrorProneTestUtilBuilder.when;
+import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.when;
 
 public class InvokableReflectionUtilsTest {
 

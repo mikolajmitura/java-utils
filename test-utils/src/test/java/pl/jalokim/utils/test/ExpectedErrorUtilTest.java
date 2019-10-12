@@ -16,10 +16,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static pl.jalokim.utils.test.ErrorProneTestUtil.ErrorProneTestUtilBuilder.when;
+import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ErrorProneTestUtilTest {
+public class ExpectedErrorUtilTest {
 
     private static final String WITH_MESSAGE = " with message: ";
     private static final String EXPECTED_MSG = "expected Message";
@@ -341,7 +341,7 @@ public class ErrorProneTestUtilTest {
             fail("should not occurred");
         } catch(AssertionError assertionError) {
             // then
-            assertThat(assertionError.getMessage()).isEqualTo("Caught expected exception type: pl.jalokim.utils.test.ErrorProneTestUtilTest.SimpleException but has another message lines than expected");
+            assertThat(assertionError.getMessage()).isEqualTo("Caught expected exception type: pl.jalokim.utils.test.ExpectedErrorUtilTest.SimpleException but has another message lines than expected");
             assertThat(assertionError.getCause().getMessage()).isEqualTo("expected:<[\"first line\", \"[]third line\"]> but was:<[\"first line\", \"[second line\", \"]third line\"]>");
             assertThat(assertionError.getCause() instanceof AssertionError).isTrue();
             verify(assertionChecker, never()).invokeMethod();

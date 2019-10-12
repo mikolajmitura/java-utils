@@ -35,7 +35,7 @@ import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isMapType;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isNumberType;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isSimpleType;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isTextType;
-import static pl.jalokim.utils.test.ErrorProneTestUtil.ErrorProneTestUtilBuilder.when;
+import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.when;
 
 public class MetadataReflectionUtilsTest {
 

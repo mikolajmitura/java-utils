@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static pl.jalokim.utils.template.TemplateAsText.fromClassPath;
 import static pl.jalokim.utils.template.TemplateAsText.fromFile;
 import static pl.jalokim.utils.template.TemplateAsText.fromText;
-import static pl.jalokim.utils.test.ErrorProneTestUtil.ErrorProneTestUtilBuilder.when;
+import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.when;
 
 public class TemplateAsTextTest {
 
