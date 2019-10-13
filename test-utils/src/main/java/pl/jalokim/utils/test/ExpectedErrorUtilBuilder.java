@@ -2,14 +2,12 @@ package pl.jalokim.utils.test;
 
 import lombok.RequiredArgsConstructor;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static java.lang.String.join;
 import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
+import static pl.jalokim.utils.test.AssertionErrorUtils.ASSERTION_NULL_MSG;
+import static pl.jalokim.utils.test.AssertionErrorUtils.EMPTY_MESSAGE_BUILDER;
 
 /**
  * Builder for ExpectedErrorUtil.
@@ -18,16 +16,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RequiredArgsConstructor
 public class ExpectedErrorUtilBuilder {
 
-    static final String WITH_MESSAGE = " with message: ";
-    private static final String NEW_LINE = String.format("%n");
-
-    private static final Function<Object, String> EMPTY_MESSAGE_BUILDER = m -> "";
-    private static final BiConsumer<Throwable, Object> ASSERTION_NULL_MSG = (t, m) -> {
-    };
-
-
     private final ThrowableRunnable instruction;
 
+    /**
+     * pass some code which will throw some exception.
+     *
+     * @param instruction some code which can throw exception
+     * @return instance of ExpectedErrorUtilBuilder on which you can assert thrown exception, message of them or
+     * assert nested exception of thrown exception with message of them.
+     */
     public static ExpectedErrorUtilBuilder when(ThrowableRunnable instruction) {
         return new ExpectedErrorUtilBuilder(instruction);
     }
@@ -38,53 +35,120 @@ public class ExpectedErrorUtilBuilder {
      * @param expectedException instance of expected exception. (for verify exception will only check exception type and message, without nested exceptions and their messages)
      * @return instance of AfterAssertion on which you can check nested exception etc...
      */
-    @FULLY_TESTED
     public AfterAssertion thenException(Throwable expectedException) {
         return thenException(expectedException.getClass(), expectedException.getMessage());
     }
 
-    @FULLY_TESTED
+    /**
+     * This method checks that expected exception is the same type.
+     *
+     * @param exceptionType type of expected exception. Exception message is not verified.
+     * @return instance of AfterAssertion on which you can check nested exception etc...
+     */
     public AfterAssertion thenException(Class<? extends Throwable> exceptionType) {
         return buildExpectedErrorUtil(exceptionType, null,
                                       EMPTY_MESSAGE_BUILDER,
                                       ASSERTION_NULL_MSG);
     }
 
-    @FULLY_TESTED
+    /**
+     * This method checks that expected exception is the same type, and contains the expected message type.
+     *
+     * @param exceptionType          type of expected exception.
+     * @param exactlyExpectedMessage message which is expected in thrown exception.
+     * @return instance of AfterAssertion on which you can check nested exception etc...
+     */
     public AfterAssertion thenException(Class<? extends Throwable> exceptionType, String exactlyExpectedMessage) {
         return buildExpectedErrorUtil(exceptionType, exactlyExpectedMessage,
-                                      ExpectedErrorUtilBuilder::buildExpectedExMessage,
-                                      ExpectedErrorUtilBuilder::assertCaughtExceptionMessage);
+                                      AssertionErrorUtils::buildExpectedExMessage,
+                                      AssertionErrorUtils::assertCaughtExceptionMessage);
     }
 
-    @FULLY_TESTED
+    /**
+     * This method checks that expected exception is the same type, and contains some text from containsText arg.
+     *
+     * @param exceptionType type of expected exception.
+     * @param containsText  message which is expected in thrown exception.
+     * @return instance of AfterAssertion on which you can check nested exception etc...
+     */
+    public AfterAssertion thenExceptionContainsMsg(Class<? extends Throwable> exceptionType, String containsText) {
+        return buildExpectedErrorUtil(exceptionType, containsText,
+                                      AssertionErrorUtils::buildExpectedExContainsMessage,
+                                      AssertionErrorUtils::assertCaughtExceptionContainsMessage);
+    }
+
+    /**
+     * This method checks that expected exception is the same type, and contains all provided message lines.
+     *
+     * @param exceptionType           type of expected exception.
+     * @param expectedLinesInAnyOrder message lines which is expected in thrown exception.
+     * @return instance of AfterAssertion on which you can check nested exception etc...
+     */
     public AfterAssertion thenException(Class<? extends Throwable> exceptionType, String... expectedLinesInAnyOrder) {
         return buildExpectedErrorUtil(exceptionType, asList(expectedLinesInAnyOrder),
-                                      ExpectedErrorUtilBuilder::buildExpectedExMessage,
-                                      ExpectedErrorUtilBuilder::assertExceptionAndMessageLines);
+                                      AssertionErrorUtils::buildExpectedExMessage,
+                                      AssertionErrorUtils::assertExceptionAndMessageLines);
     }
 
-    @FULLY_TESTED
+    /**
+     * This method checks that thrown exception contains expected exception with the same type, and contains the same message type.
+     *
+     * @param expectedException instance of nested expected exception. (for verify exception will only check exception type and message, without nested exceptions and their messages)
+     * @return instance of AfterAssertion on which you can check deeper nested exception etc...
+     */
     public AfterAssertion thenNestedException(Throwable expectedException) {
         return thenNestedException(expectedException.getClass(), expectedException.getMessage());
     }
 
+    /**
+     * This method checks that thrown exception contains expected exception with the same type.
+     *
+     * @param exceptionType type of nested expected exception. Exception message is not verified.
+     * @return instance of AfterAssertion on which you can check deeper nested exception etc...
+     */
     public AfterAssertion thenNestedException(Class<? extends Throwable> exceptionType) {
         return buildNestedExpectedErrorUtil(exceptionType, null,
-                                      EMPTY_MESSAGE_BUILDER,
-                                      ASSERTION_NULL_MSG);
+                                            EMPTY_MESSAGE_BUILDER,
+                                            ASSERTION_NULL_MSG);
     }
 
+    /**
+     * This method checks that thrown exception contains expected exception with the same type, and contains the expected message type.
+     *
+     * @param exceptionType          type of nested exception.
+     * @param exactlyExpectedMessage expected message of nested expected in thrown exception.
+     * @return instance of AfterAssertion on which you can check nested exception etc...
+     */
     public AfterAssertion thenNestedException(Class<? extends Throwable> exceptionType, String exactlyExpectedMessage) {
         return buildNestedExpectedErrorUtil(exceptionType, exactlyExpectedMessage,
-                                            ExpectedErrorUtilBuilder::buildExpectedExMessage,
-                                            ExpectedErrorUtilBuilder::assertCaughtExceptionMessage);
+                                            AssertionErrorUtils::buildExpectedExMessage,
+                                            AssertionErrorUtils::assertCaughtExceptionMessage);
     }
 
+    /**
+     * This method checks that thrown exception contains expected exception with the expected type and contains some text from containsText arg.
+     *
+     * @param exceptionType type of expected exception.
+     * @param containsText  message which is expected in thrown exception.
+     * @return instance of AfterAssertion on which you can check nested exception etc...
+     */
+    public AfterAssertion thenNestedExceptionContainsMsg(Class<? extends Throwable> exceptionType, String containsText) {
+        return buildNestedExpectedErrorUtil(exceptionType, containsText,
+                                            AssertionErrorUtils::buildExpectedExContainsMessage,
+                                            AssertionErrorUtils::assertCaughtExceptionContainsMessage);
+    }
+
+    /**
+     * This method checks that thrown exception contains expected exception with the same type and contains all provided message lines.
+     *
+     * @param exceptionType           type of nested exception.
+     * @param expectedLinesInAnyOrder message lines of nested expected in thrown exception.
+     * @return instance of AfterAssertion on which you can check nested exception etc...
+     */
     public AfterAssertion thenNestedException(Class<? extends Throwable> exceptionType, String... expectedLinesInAnyOrder) {
         return buildNestedExpectedErrorUtil(exceptionType, asList(expectedLinesInAnyOrder),
-                                      ExpectedErrorUtilBuilder::buildExpectedExMessage,
-                                      ExpectedErrorUtilBuilder::assertExceptionAndMessageLines);
+                                            AssertionErrorUtils::buildExpectedExMessage,
+                                            AssertionErrorUtils::assertExceptionAndMessageLines);
     }
 
     private <T> AfterAssertion buildExpectedErrorUtil(Class<? extends Throwable> expectedExceptionType, T expectedMessage,
@@ -98,48 +162,12 @@ public class ExpectedErrorUtilBuilder {
     private <T> AfterAssertion buildNestedExpectedErrorUtil(Class<? extends Throwable> expectedExceptionType, T expectedMessage,
                                                             Function<T, String> messageBuilder,
                                                             BiConsumer<Throwable, T> assertionFunction) {
-        return new AfterAssertion(new ExpectedNestedErrorUtil<>(instruction, expectedExceptionType,
-                                                                expectedMessage, messageBuilder,
+        return new AfterAssertion(new ExpectedNestedErrorUtil<>(instruction,
+                                                                expectedExceptionType,
+                                                                expectedMessage,
+                                                                messageBuilder,
                                                                 assertionFunction).invokeTest());
     }
 
-    static String buildExpectedExMessage(String msg) {
-        return WITH_MESSAGE + msg;
-    }
-
-    static String buildExpectedExMessage(List<String> expectedLinesInAnyOrder) {
-        return " with message lines: " + messageLines(expectedLinesInAnyOrder);
-    }
-
-    static void assertCaughtExceptionMessage(Throwable caughtException, String expectedMessage) {
-        try {
-            assertThat(expectedMessage).isEqualTo(caughtException.getMessage());
-        } catch(AssertionError original) {
-            throw new WrappedAssertionError(String.format("Caught expected exception type: %s but has another message than expected",
-                                                   caughtException.getClass().getCanonicalName()),
-                                     original, caughtException);
-        }
-    }
-
-    static void assertExceptionAndMessageLines(Throwable thrownThrowable, List<String> expectedLinesMessage) {
-        List<String> linesFromException = asList(thrownThrowable.getMessage().split(NEW_LINE));
-        Collections.sort(linesFromException);
-        Collections.sort(expectedLinesMessage);
-        try {
-            assertThat(linesFromException).isEqualTo(expectedLinesMessage);
-        } catch(AssertionError original) {
-            throw new WrappedAssertionError(String.format("Caught expected exception type: %s but has another message lines than expected",
-                                                   thrownThrowable.getClass().getCanonicalName()),
-                                     original, thrownThrowable);
-        }
-    }
-
-    static String messageLines(List<String> lines) {
-        return join(NEW_LINE + ",", lines);
-    }
-
-    // TODO nested exception on this level too 4 like below
-    // TODO message contains on this level too for nested and firstException
-    // TODO message to lambda on this level too for nested and firstException
 }
 

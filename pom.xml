@@ -12,7 +12,7 @@
     <modules>
         <module>java-utils</module>
         <module>test-utils</module>
-        <module>java-utils-coverage</module>
+        <module>all-utils-coverage</module>
     </modules>
 
     <name>Java properties to Json</name>
