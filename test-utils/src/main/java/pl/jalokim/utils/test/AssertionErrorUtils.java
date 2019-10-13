@@ -9,7 +9,11 @@ import static java.lang.String.join;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-class AssertionErrorUtils {
+final class AssertionErrorUtils {
+
+    private AssertionErrorUtils() {
+
+    }
 
     static final Function<Object, String> EMPTY_MESSAGE_BUILDER = m -> "";
     static final BiConsumer<Throwable, Object> ASSERTION_NULL_MSG = (t, m) -> {

@@ -1,9 +1,7 @@
 package pl.jalokim.utils.test;
 
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
@@ -13,8 +11,6 @@ import java.util.function.Function;
  * Useful for assert test which throws exception with certain text, with certain lines of test or exactly expected message.
  */
 @RequiredArgsConstructor
-@Getter
-@Setter
 class ExpectedErrorUtil<T> {
 
     protected final ThrowableRunnable instruction;
@@ -25,6 +21,10 @@ class ExpectedErrorUtil<T> {
 
     protected Throwable caughtException;
     private final AtomicBoolean exceptionNotThrown = new AtomicBoolean(false);
+
+    Throwable getCaughtException() {
+        return caughtException;
+    }
 
     Throwable invokeTest() {
         try {
