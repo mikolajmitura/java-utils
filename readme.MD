@@ -1,6 +1,13 @@
-Java Utils
+Java Utils project
 ---------------------------------------------
-This project contains some utils code for java for: 
+This project contains some utils code for java and for test.
+It contains two modules: 
+ - java-utils
+ - test-utils 
+
+java-utils
+---------------------------------------------
+
 - collection 
 - file
 - random
@@ -8,7 +15,7 @@ This project contains some utils code for java for:
 - string
 - override placeholders in file with template (override some variables)  
 
-<h3>Maven dependency</h3>
+<h3>Maven dependency for java-utils</h3>
 
 ```xml
     <dependency>
@@ -256,4 +263,65 @@ This project contains some utils code for java for:
     templateAsText.overrideVariable("var2", "someText_2");
     String currentTemplateText = templateAsText.getCurrentTemplateText(); // will return text from file but with resolved placeholders
     ```        
-        
+
+test-utils
+---------------------------------------------
+
+This module contains useful code for test exceptions in test. 
+
+how to test exception in test with test-utils module? (class ExpectedErrorUtilBuilder)
+
+```java
+    import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.when
+    ...
+
+      // assert only exception type
+      @Test
+      public void expectedSomeException() {
+          when(()-> {
+              // some code which can rise exception...
+          }).thenException(ExpectedException.class);
+      }
+      
+      // assert exception type and message
+      @Test
+      public void expectedSomeException() {
+            when(()-> {
+                       // some code which can rise exception...
+                   }).thenException(ExpectedException.class, "expected message of exception")
+                   .then(thrownEx-> {
+                       // do some assertion on catch exception...
+                   });
+      }
+      
+      // you can assert some nested exception be method thenNestedException      
+      @Test
+      public void expectedSomeException() {
+          when(()-> {
+              // some code which can rise exception...
+          }).thenNestedException(ExpectedException.class, "expected message of exception")
+          .then(thrownEx-> {
+              // do some assertion on catch nested exception...
+          });
+      }
+      
+      // you can assert some main exception and nested exception
+      @Test
+      public void expectedSomeException() {
+           when(()-> {
+                  // some code which can rise exception...
+              }).thenException(ExpectedException.class, "expected message of exception")
+                .thenNestedException(NestedException.class, "text for nested exception");
+      }
+```
+     
+<h3>Maven dependency for test-utils</h3>
+
+```xml
+    <dependency>
+        <groupId>pl.jalokim.utils</groupId>
+        <artifactId>test-utils</artifactId>
+        <version>1.0.0</version>
+    </dependency>
+```     
+     
