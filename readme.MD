@@ -8,9 +8,7 @@ This project contains some utils code for java for:
 - string
 - override placeholders in file with template (override some variables)  
 
-
 <h3>Maven dependency</h3>
----------------------------------------------
 
 ```xml
     <dependency>
@@ -21,9 +19,9 @@ This project contains some utils code for java for:
 ```
 
 <h3>Util methods</h3>
----------------------------------------------
 
  1) <h5>collection package</h5>
+ 
     - <h6>CollectionUtils class</h6>
         - Contains methods for get last index from list or array or checks that is last index... 
         ```java
