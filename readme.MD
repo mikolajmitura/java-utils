@@ -128,13 +128,13 @@ This project contains some utils code for java for:
  
     <h6>FileCursor class implements Iterator<String>, you can read line by line</h6>
     
-        ```java
-          FileCursor fileCursor = new FileCursor("/path/to/file");
-          Long lineNumber = fileCursor.getLineNumber();
-          String currentLine1 = fileCursor.getCurrentLine();// it can be invoke many times and will always returns the same value
-          String next = fileCursor.next(); // it get next line from file. 
-          boolean hasNext = fileCursor.hasNext(); // verify that have next line
-        ```
+    ```java
+        FileCursor fileCursor = new FileCursor("/path/to/file");
+        Long lineNumber = fileCursor.getLineNumber();
+        String currentLine1 = fileCursor.getCurrentLine();// it can be invoke many times and will always returns the same value
+        String next = fileCursor.next(); // it get next line from file. 
+        boolean hasNext = fileCursor.hasNext(); // verify that have next line
+    ```
         
     <h6>FileUtils class</h6>
       - Simply you can read from file to String, to List or to Consumer<String> without problematic checked exception.
