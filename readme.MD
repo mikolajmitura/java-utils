@@ -127,6 +127,7 @@ This project contains some utils code for java for:
  2) <h5>file package</h5>
  
     <h6>FileCursor class implements Iterator<String>, you can read line by line</h6>
+    
         ```java
           FileCursor fileCursor = new FileCursor("/path/to/file");
           Long lineNumber = fileCursor.getLineNumber();
@@ -134,13 +135,17 @@ This project contains some utils code for java for:
           String next = fileCursor.next(); // it get next line from file. 
           boolean hasNext = fileCursor.hasNext(); // verify that have next line
         ```
+        
     <h6>FileUtils class</h6>
       - Simply you can read from file to String, to List or to Consumer<String> without problematic checked exception.
       below example for read from file to String
+      
       ```java
         String fileContent = FileUtils.loadFileFromPathAsText("path/to/file");
       ```
+      
       - simple you can write String or List<String> to file or append to existed file.
+      
       ```java
       public static void writeToFile(String filePath, String fileContent);
 
@@ -150,6 +155,7 @@ This project contains some utils code for java for:
 3) <h5>random package</h5> 
     You can get random number, random element from list, random index for array or list. Random true. 
     code examples:
+    
     ```java
     String[] array = {"1", "2", "123", "34"};
     List<String> list = Arrays.asList("1", "2", "123", "34");
@@ -165,11 +171,14 @@ This project contains some utils code for java for:
     
     boolean randomTrueWithPercengate = RandomUtils.randomTrue(30);
     ```
+    
     Under the hood random is provided by java.security.SecureRandom class
     
 4) <h5>reflection package</h5>
+
    - InvokableReflectionUtils class
      - You can set new value for field by, it will change field for super class when necessary
+     
        ```java
        InvokableReflectionUtils.setValueForField(targetObject, "fieldName", newValue);
        // for static fields
@@ -177,6 +186,7 @@ This project contains some utils code for java for:
        ```
      
      - you can invoke Method and get results, it will change field for super class when necessary
+     
        ```java
        T result = InvokableReflectionUtils.invokeMethod(targetObject, "methodName", args)
        // for static method
@@ -184,6 +194,7 @@ This project contains some utils code for java for:
        ```
         
      - you can create new instance
+     
         ```java
             T result = InvokableReflectionUtils.newInstance(targetClass, args)
         ```     
@@ -210,6 +221,7 @@ This project contains some utils code for java for:
         - public static boolean isArrayType(Field field)
         - public static boolean isArrayType(Class<?> someClass)
      - can get all child classes from provided package. (It uses super https://github.com/ronmamo/reflections project)
+     
         ```java
            getAllChildClassesForClass(yourSuperClass, "some.package", withAbstractClasses)
            // withAbstractClasses pass true when you want get as result some abstract classes
