@@ -235,9 +235,9 @@ This project contains some utils code for java for:
         
 5) <h5>string package (StringUtils class)</h5>
 
-        - it can verify that text is empty or blank (Yes, the same like apache commons etc)        
-        - can repeat some text N times by repeatTextNTimes(int nTimes, String text) method        
-        - concatenate text with joiner with function, mapper etc
+    - it can verify that text is empty or blank (Yes, the same like apache commons etc)        
+    - can repeat some text N times by repeatTextNTimes(int nTimes, String text) method        
+    - concatenate text with joiner with function, mapper etc
 
 5) <h5>template package</h5>
 
