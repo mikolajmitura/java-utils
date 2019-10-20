@@ -177,6 +177,7 @@ This project contains some utils code for java for:
 4) <h5>reflection package</h5>
 
    - <h6>InvokableReflectionUtils class</h6>
+   
      - You can set new value for field by, it will change field for super class when necessary
      
        ```java
@@ -200,6 +201,7 @@ This project contains some utils code for java for:
         ```     
          
    - <h6>MetadataReflectionUtils class</h6>
+   
      - can get java.lang.reflect.Field (you can provide some concrete class, it can gets Field from super class)
      - can get java.lang.reflect.Method (you can provide some concrete class, it can gets Method from super class)
      - can get Parametrized Type from some object by index
