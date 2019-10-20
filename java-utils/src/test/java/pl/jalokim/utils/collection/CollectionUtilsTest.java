@@ -13,6 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static pl.jalokim.utils.collection.CollectionUtils.addWhenNotExist;
 import static pl.jalokim.utils.collection.CollectionUtils.hasTheSameElements;
 import static pl.jalokim.utils.collection.CollectionUtils.intersection;
+import static pl.jalokim.utils.collection.CollectionUtils.isEmpty;
 import static pl.jalokim.utils.collection.CollectionUtils.isNotEmpty;
 import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.when;
 
@@ -273,6 +274,22 @@ public class CollectionUtilsTest {
         boolean notEmpty = isNotEmpty(null);
         // then
         assertThat(notEmpty).isFalse();
+    }
+
+    @Test
+    public void passedNullListIsRecognizedAsEmptyList() {
+        // when
+        boolean isEmpty = isEmpty(null);
+        // then
+        assertThat(isEmpty).isTrue();
+    }
+
+    @Test
+    public void passedEmptyListIsRecognizedAsEmptyList() {
+        // when
+        boolean isEmpty = isEmpty(new ArrayList<>());
+        // then
+        assertThat(isEmpty).isTrue();
     }
 
     @Test

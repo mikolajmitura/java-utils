@@ -270,10 +270,11 @@ public final class CollectionUtils {
 
     /**
      * Swap element in copy of sourceList and returns it.
-     * @param sourceList source for swap.
+     *
+     * @param sourceList  source for swap.
      * @param indexToSwap index element to swap in copy of source list
-     * @param newValue new value in certain index.
-     * @param <T> generic type for list.
+     * @param newValue    new value in certain index.
+     * @param <T>         generic type for list.
      * @return copy of source list with swapped value.
      */
     public static <T> List<T> swapElementsAsNewList(List<T> sourceList, int indexToSwap, T newValue) {
@@ -284,12 +285,13 @@ public final class CollectionUtils {
 
     /**
      * It returns first element from list if present.
+     *
      * @param list as source
-     * @param <T> generic type
+     * @param <T>  generic type
      * @return returns first element if present.
      */
     public static <T> T getFirst(List<T> list) {
-        if(list.isEmpty()) {
+        if (list.isEmpty()) {
             throw new CollectionUtilsException("cannot get first element from empty list: " + list);
         }
         return list.get(0);
@@ -297,12 +299,13 @@ public final class CollectionUtils {
 
     /**
      * It returns last element from list if present.
+     *
      * @param list as source
-     * @param <T> generic type
+     * @param <T>  generic type
      * @return returns last element if present.
      */
     public static <T> T getLast(List<T> list) {
-        if(list.isEmpty()) {
+        if (list.isEmpty()) {
             throw new CollectionUtilsException("cannot get last element from empty list: " + list);
         }
         return list.get(list.size() - 1);
@@ -310,13 +313,14 @@ public final class CollectionUtils {
 
     /**
      * It add to list if is not present already.
-     * @param list where will be added element.
+     *
+     * @param list    where will be added element.
      * @param element to add.
-     * @param <T> generic type of list and tried add element.
+     * @param <T>     generic type of list and tried add element.
      * @return return true when element was added.
      */
     public static <T> boolean addWhenNotExist(List<T> list, T element) {
-        if(!list.contains(element)) {
+        if (!list.contains(element)) {
             return list.add(element);
         }
         return false;
@@ -324,9 +328,10 @@ public final class CollectionUtils {
 
     /**
      * It return true when provided collections have the same elements. Order or elements is not important here.
-     * @param first collection
+     *
+     * @param first  collection
      * @param second collection
-     * @param <T> generic type of collections.
+     * @param <T>    generic type of collections.
      * @return true when has the same elements.
      */
     public static <T extends Comparable<? super T>> boolean hasTheSameElements(Collection<T> first, Collection<T> second) {
@@ -334,27 +339,39 @@ public final class CollectionUtils {
     }
 
     /**
-     * It returns true only when list is not null, and if not empty.
+     * It returns true when list is null or empty.
+     *
      * @param list to verify.
-     * @param <T> generic type.
+     * @param <T>  generic type.
+     * @return boolean value.
+     */
+    public static <T> boolean isEmpty(List<T> list) {
+        return list == null || list.isEmpty();
+    }
+
+    /**
+     * It returns true only when list is not null, and if not empty.
+     *
+     * @param list to verify.
+     * @param <T>  generic type.
      * @return boolean value.
      */
     public static <T> boolean isNotEmpty(List<T> list) {
-        return list != null && !list.isEmpty();
+        return !isEmpty(list);
     }
-
 
     /**
      * It return intersection for two given collections.
-     * @param first collection.
+     *
+     * @param first  collection.
      * @param second collection.
-     * @param <E> generic type.
+     * @param <E>    generic type.
      * @return return intersected elements.
      */
     public static <E> List<E> intersection(Collection<E> first, Collection<E> second) {
         List<E> list = new ArrayList<>();
-        for(E element : first) {
-            if(second.contains(element)) {
+        for (E element : first) {
+            if (second.contains(element)) {
                 list.add(element);
             }
         }

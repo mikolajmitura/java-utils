@@ -31,6 +31,10 @@ public class FileCursor implements Iterator<String> {
         return currentLine;
     }
 
+    /**
+     * First line number will be equals 1.
+     * @return
+     */
     public Long getLineNumber() {
         return currentLineNumber;
     }
