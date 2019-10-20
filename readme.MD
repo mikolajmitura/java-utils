@@ -23,7 +23,9 @@ This project contains some utils code for java for:
  1) <h5>collection package</h5>
  
     - <h6>CollectionUtils class</h6>
-        - Contains methods for get last index from list or array or checks that is last index... 
+         
+        Contains methods for get last index from list or array or checks that is last index...
+         
         ```java
            public static boolean isLastIndex(List<?> list, int index);
            
