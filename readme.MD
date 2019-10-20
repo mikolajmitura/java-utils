@@ -125,7 +125,8 @@ This project contains some utils code for java for:
                             .asSet(); // it can return List, or Array or Stream<T>                     
         ```
  2) <h5>file package</h5>
-    - <h6>FileCursor class implements Iterator<String>, you can read line by line</h6>
+ 
+    <h6>FileCursor class implements Iterator<String>, you can read line by line</h6>
         ```java
           FileCursor fileCursor = new FileCursor("/path/to/file");
           Long lineNumber = fileCursor.getLineNumber();
@@ -133,7 +134,7 @@ This project contains some utils code for java for:
           String next = fileCursor.next(); // it get next line from file. 
           boolean hasNext = fileCursor.hasNext(); // verify that have next line
         ```
-    - <h6>FileUtils class</h6>
+    <h6>FileUtils class</h6>
       - Simply you can read from file to String, to List or to Consumer<String> without problematic checked exception.
       below example for read from file to String
       ```java
@@ -145,6 +146,7 @@ This project contains some utils code for java for:
 
       public static void appendToFile(String filePath, String fileContent)
       ```
+      
 3) <h5>random package</h5> 
     You can get random number, random element from list, random index for array or list. Random true. 
     code examples:
