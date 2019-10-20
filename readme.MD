@@ -126,7 +126,7 @@ This project contains some utils code for java for:
         ```
  2) <h5>file package</h5>
  
-    <h6>FileCursor class implements Iterator<String>, you can read line by line</h6>
+    - <h6>FileCursor class implements Iterator<String>, you can read line by line</h6>
     
     ```java
         FileCursor fileCursor = new FileCursor("/path/to/file");
@@ -136,15 +136,15 @@ This project contains some utils code for java for:
         boolean hasNext = fileCursor.hasNext(); // verify that have next line
     ```
         
-    <h6>FileUtils class</h6>
-      - Simply you can read from file to String, to List or to Consumer<String> without problematic checked exception.
+    - <h6>FileUtils class</h6>
+      Simply you can read from file to String, to List or to Consumer<String> without problematic checked exception.
       below example for read from file to String
       
       ```java
         String fileContent = FileUtils.loadFileFromPathAsText("path/to/file");
       ```
       
-      - simple you can write String or List<String> to file or append to existed file.
+      simple you can write String or List<String> to file or append to existed file.
       
       ```java
       public static void writeToFile(String filePath, String fileContent);
@@ -176,7 +176,7 @@ This project contains some utils code for java for:
     
 4) <h5>reflection package</h5>
 
-   - InvokableReflectionUtils class
+   - <h6>InvokableReflectionUtils class</h6>
      - You can set new value for field by, it will change field for super class when necessary
      
        ```java
@@ -199,7 +199,7 @@ This project contains some utils code for java for:
             T result = InvokableReflectionUtils.newInstance(targetClass, args)
         ```     
          
-   - MetadataReflectionUtils class
+   - <h6>MetadataReflectionUtils class</h6>
      - can get java.lang.reflect.Field (you can provide some concrete class, it can gets Field from super class)
      - can get java.lang.reflect.Method (you can provide some concrete class, it can gets Method from super class)
      - can get Parametrized Type from some object by index
