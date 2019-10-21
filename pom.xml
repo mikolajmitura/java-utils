@@ -253,8 +253,7 @@
             <id>release</id>
             <build>
                 <plugins>
-                    <!--run with -Prun-gpg for deploy to central repo maven-->
-                    <!--    mvn clean deploy -Prelease  -->
+                    <!--mvn clean deploy -Prelease  -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
