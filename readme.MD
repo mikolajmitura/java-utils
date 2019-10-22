@@ -322,6 +322,7 @@ how to test exception in test with test-utils module? (class ExpectedErrorUtilBu
         <groupId>pl.jalokim.utils</groupId>
         <artifactId>test-utils</artifactId>
         <version>1.0.0</version>
+        <scope>test</scope>
     </dependency>
 ```     
      
