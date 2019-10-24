@@ -13,7 +13,6 @@ import static pl.jalokim.utils.test.AssertionErrorUtils.EMPTY_MESSAGE_BUILDER;
 /**
  * Useful after correct assertion of exception. In then you can get thrown exception and check others things in this exception.
  */
-@SuppressWarnings("PMD.AccessorMethodGeneration")
 @RequiredArgsConstructor
 public class AfterAssertion {
     private final Throwable caughtException;

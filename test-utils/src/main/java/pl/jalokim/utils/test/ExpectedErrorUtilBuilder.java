@@ -12,7 +12,6 @@ import static pl.jalokim.utils.test.AssertionErrorUtils.EMPTY_MESSAGE_BUILDER;
 /**
  * Builder for ExpectedErrorUtil.
  */
-@SuppressWarnings("PMD.AccessorMethodGeneration")
 @RequiredArgsConstructor
 public class ExpectedErrorUtilBuilder {
 

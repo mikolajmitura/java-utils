@@ -24,6 +24,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <jacoco-plugin.version>0.8.2</jacoco-plugin.version>
         <spock.version>1.1-groovy-2.4-rc-4</spock.version>
+        <org.assertj.version>3.13.2</org.assertj.version>
     </properties>
 
     <licenses>
@@ -76,19 +77,13 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.13.2</version>
+            <version>${org.assertj.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>3.0.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>2.6.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>

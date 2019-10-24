@@ -1,10 +1,10 @@
 package pl.jalokim.utils.collection;
 
-import lombok.Data;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-@Data
+@Getter
 public class IndexedElement<T> {
     private final int index;
     private final T value;
