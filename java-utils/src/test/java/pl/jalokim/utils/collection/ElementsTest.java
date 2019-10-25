@@ -3,12 +3,14 @@ package pl.jalokim.utils.collection;
 
 import org.junit.Test;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static pl.jalokim.utils.collection.Elements.elements;
 
@@ -46,7 +48,7 @@ public class ElementsTest {
     @Test
     public void filterNumbersNextMapAsTextAndReturnsAsSet() {
         // given
-        List<Integer> numbers = Arrays.asList(1, 2, 4, 5, 10, 20);
+        List<Integer> numbers = asList(1, 2, 4, 5, 10, 20);
         // when
         Set<String> numberAsText = elements(numbers)
                 .filter(number -> number > 9)
@@ -59,7 +61,7 @@ public class ElementsTest {
     @Test
     public void filterSetMapToStringAndReturnAsArray() {
         // given
-        Set<Integer> numbers = new HashSet<>(Arrays.asList(1, 2, 4, 5, 10, 20));
+        Set<Integer> numbers = new HashSet<>(asList(1, 2, 4, 5, 10, 20));
         // when
         String[] strings = elements(numbers)
                 .filter(number -> number > 9)
@@ -80,5 +82,49 @@ public class ElementsTest {
                 .mapToInt(number -> number).sum();
         // then
         assertThat(sum).isEqualTo(12);
+    }
+
+    @Test
+    public void forEachReturnsElementsAsExpected() {
+        // given
+        List<String> sourceList = asList("element1", "element2", "element3", "element4");
+        // when
+        List<String> collectedElements = new ArrayList<>();
+        List<Integer> collectedIndexes = new ArrayList<>();
+        elements(sourceList).forEach((index, element) -> {
+            collectedElements.add(element);
+            collectedIndexes.add(index);
+        });
+        // then
+        assertThat(sourceList).containsExactlyElementsOf(collectedElements);
+        assertThat(collectedIndexes).containsExactlyElementsOf(asList(0, 1, 2, 3));
+    }
+
+    @Test
+    public void forEachWithIndexedElements() {
+        // given
+        List<String> sourceList = asList("element1", "element2", "element3", "element4");
+        // when
+        List<String> collectedElements = new ArrayList<>();
+        List<Integer> collectedIndexes = new ArrayList<>();
+        AtomicInteger index = new AtomicInteger();
+        elements(sourceList).forEach(element -> {
+            collectedElements.add(element.getValue());
+            collectedIndexes.add(element.getIndex());
+            int currentIndex = index.getAndIncrement();
+            if (currentIndex == 0) {
+                assertThat(element.isFirst()).isTrue();
+            } else {
+                assertThat(element.isFirst()).isFalse();
+            }
+            if (currentIndex == 3) {
+                assertThat(element.isLast()).isTrue();
+            } else {
+                assertThat(element.isLast()).isFalse();
+            }
+        });
+        // then
+        assertThat(sourceList).containsExactlyElementsOf(collectedElements);
+        assertThat(collectedIndexes).containsExactlyElementsOf(asList(0, 1, 2, 3));
     }
 }

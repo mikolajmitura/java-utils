@@ -23,7 +23,10 @@ import static java.util.Collections.unmodifiableSet;
 import static pl.jalokim.utils.collection.CollectionUtils.filterToSet;
 import static pl.jalokim.utils.collection.CollectionUtils.mapToList;
 
-public class MetadataReflectionUtils {
+/**
+ * Gather some metadata about classes.
+ */
+public final class MetadataReflectionUtils {
 
     private static final List<Class<?>> SIMPLE_CLASSES = createSimpleClassesList();
     private static final List<Class<?>> SIMPLE_NUMBERS = createPrimitiveClassesList();
@@ -80,19 +83,19 @@ public class MetadataReflectionUtils {
         Field foundField = null;
         Class<?> currentClass = targetClass;
         List<Class<?>> searchedClasses = new ArrayList<>();
-        while(currentClass != null) {
+        while (currentClass != null) {
             try {
                 foundField = currentClass.getDeclaredField(fieldName);
-            } catch(NoSuchFieldException e) {
+            } catch (NoSuchFieldException e) {
                 searchedClasses.add(currentClass);
             }
-            if(foundField != null) {
+            if (foundField != null) {
                 break;
             }
             currentClass = currentClass.getSuperclass();
         }
 
-        if(foundField == null) {
+        if (foundField == null) {
             throw new ReflectionOperationException("field '" + fieldName + "' not exist in classes: " + mapToList(searchedClasses, Class::getCanonicalName));
         }
         return foundField;
@@ -105,7 +108,7 @@ public class MetadataReflectionUtils {
      * @return type which stores a array field.
      */
     public static Class<?> getTypeOfArrayField(Field field) {
-        if(!isArrayType(field.getType())) {
+        if (!isArrayType(field.getType())) {
             throw new ReflectionOperationException(format("field: '%s' is not array type, is type: %s", field, field.getType()));
         }
         return field.getType().getComponentType();
@@ -113,7 +116,7 @@ public class MetadataReflectionUtils {
 
 
     /**
-     * It returns method for given target object,
+     * It returns method for given target object.
      *
      * @param targetObject instance for which will start looking for method in object hierarchy.
      * @param methodName   method name.
@@ -126,7 +129,7 @@ public class MetadataReflectionUtils {
     }
 
     /**
-     * It returns method for given target object,
+     * It returns method for given target object.
      *
      * @param targetClass target class for which will start looking for method in object hierarchy.
      * @param methodName  method name.
@@ -138,19 +141,19 @@ public class MetadataReflectionUtils {
         Method method = null;
         Class<?> currentClass = targetClass;
         List<String> noSuchMethodExceptions = new ArrayList<>();
-        while(currentClass != null) {
+        while (currentClass != null) {
             try {
                 method = currentClass.getDeclaredMethod(methodName, argClasses);
-            } catch(NoSuchMethodException e) {
+            } catch (NoSuchMethodException e) {
                 noSuchMethodExceptions.add(e.getMessage());
             }
-            if(method != null) {
+            if (method != null) {
                 break;
             }
             currentClass = currentClass.getSuperclass();
         }
 
-        if(method == null) {
+        if (method == null) {
             throw new ReflectionOperationException(new NoSuchMethodException(StringUtils.concatElementsAsLines(noSuchMethodExceptions)));
         }
         return method;
@@ -174,7 +177,7 @@ public class MetadataReflectionUtils {
         Reflections reflections = new Reflections(packageDefinition);
 
         Set<Class<? extends T>> findAllClassesInClassPath = reflections.getSubTypesOf(superType);
-        if(!withAbstractClasses) {
+        if (!withAbstractClasses) {
             findAllClassesInClassPath = filterToSet(findAllClassesInClassPath,
                                                     classMeta -> !Modifier.isAbstract(classMeta.getModifiers()));
         }
@@ -355,7 +358,7 @@ public class MetadataReflectionUtils {
     public static Class<?> getParametrizedType(Field field, int index) {
         try {
             return (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[index];
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             throw new ReflectionOperationException(format("Cannot find parametrized type for field with class: '%s', at: %s index", field.getType(), index), ex);
         }
     }
@@ -364,7 +367,7 @@ public class MetadataReflectionUtils {
      * It returns a type of generic object by given index.
      *
      * @param targetObject instance object for which will be returned class for generic type.
-     * @param index of wanted generic type
+     * @param index        of wanted generic type
      * @return type of generic type from field from specified index.
      */
     public static Class<?> getParametrizedType(Object targetObject, int index) {
@@ -375,17 +378,17 @@ public class MetadataReflectionUtils {
      * It returns a type of generic class by given index.
      *
      * @param originalClass class for which will be returned class for generic type.
-     * @param index of wanted generic type
+     * @param index         of wanted generic type
      * @return type of generic type from field from specified index.
      */
     public static Class<?> getParametrizedType(Class<?> originalClass, int index) {
         Class<?> currentClass = originalClass;
         Exception exception = null;
-        while(currentClass != null) {
+        while (currentClass != null) {
             try {
                 return (Class<?>) ((ParameterizedType) currentClass
                         .getGenericSuperclass()).getActualTypeArguments()[index];
-            } catch(Exception ex) {
+            } catch (Exception ex) {
                 currentClass = currentClass.getSuperclass();
                 exception = ex;
             }

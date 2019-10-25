@@ -12,7 +12,6 @@ import static pl.jalokim.utils.test.AssertionErrorUtils.EMPTY_MESSAGE_BUILDER;
 /**
  * Builder for ExpectedErrorUtil.
  */
-@SuppressWarnings("PMD.AccessorMethodGeneration")
 @RequiredArgsConstructor
 public class ExpectedErrorUtilBuilder {
 
@@ -65,19 +64,6 @@ public class ExpectedErrorUtilBuilder {
     }
 
     /**
-     * This method checks that expected exception is the same type, and contains some text from containsText arg.
-     *
-     * @param exceptionType type of expected exception.
-     * @param containsText  message which is expected in thrown exception.
-     * @return instance of AfterAssertion on which you can check nested exception etc...
-     */
-    public AfterAssertion thenExceptionContainsMsg(Class<? extends Throwable> exceptionType, String containsText) {
-        return buildExpectedErrorUtil(exceptionType, containsText,
-                                      AssertionErrorUtils::buildExpectedExContainsMessage,
-                                      AssertionErrorUtils::assertCaughtExceptionContainsMessage);
-    }
-
-    /**
      * This method checks that expected exception is the same type, and contains all provided message lines.
      *
      * @param exceptionType           type of expected exception.
@@ -88,6 +74,19 @@ public class ExpectedErrorUtilBuilder {
         return buildExpectedErrorUtil(exceptionType, asList(expectedLinesInAnyOrder),
                                       AssertionErrorUtils::buildExpectedExMessage,
                                       AssertionErrorUtils::assertExceptionAndMessageLines);
+    }
+
+    /**
+     * This method checks that expected exception is the same type, and contains some text from containsText arg.
+     *
+     * @param exceptionType type of expected exception.
+     * @param containsText  message which is expected in thrown exception.
+     * @return instance of AfterAssertion on which you can check nested exception etc...
+     */
+    public AfterAssertion thenExceptionContainsMsg(Class<? extends Throwable> exceptionType, String containsText) {
+        return buildExpectedErrorUtil(exceptionType, containsText,
+                                      AssertionErrorUtils::buildExpectedExContainsMessage,
+                                      AssertionErrorUtils::assertCaughtExceptionContainsMessage);
     }
 
     /**
@@ -126,19 +125,6 @@ public class ExpectedErrorUtilBuilder {
     }
 
     /**
-     * This method checks that thrown exception contains expected exception with the expected type and contains some text from containsText arg.
-     *
-     * @param exceptionType type of expected exception.
-     * @param containsText  message which is expected in thrown exception.
-     * @return instance of AfterAssertion on which you can check nested exception etc...
-     */
-    public AfterAssertion thenNestedExceptionContainsMsg(Class<? extends Throwable> exceptionType, String containsText) {
-        return buildNestedExpectedErrorUtil(exceptionType, containsText,
-                                            AssertionErrorUtils::buildExpectedExContainsMessage,
-                                            AssertionErrorUtils::assertCaughtExceptionContainsMessage);
-    }
-
-    /**
      * This method checks that thrown exception contains expected exception with the same type and contains all provided message lines.
      *
      * @param exceptionType           type of nested exception.
@@ -149,6 +135,19 @@ public class ExpectedErrorUtilBuilder {
         return buildNestedExpectedErrorUtil(exceptionType, asList(expectedLinesInAnyOrder),
                                             AssertionErrorUtils::buildExpectedExMessage,
                                             AssertionErrorUtils::assertExceptionAndMessageLines);
+    }
+
+    /**
+     * This method checks that thrown exception contains expected exception with the expected type and contains some text from containsText arg.
+     *
+     * @param exceptionType type of expected exception.
+     * @param containsText  message which is expected in thrown exception.
+     * @return instance of AfterAssertion on which you can check nested exception etc...
+     */
+    public AfterAssertion thenNestedExceptionContainsMsg(Class<? extends Throwable> exceptionType, String containsText) {
+        return buildNestedExpectedErrorUtil(exceptionType, containsText,
+                                            AssertionErrorUtils::buildExpectedExContainsMessage,
+                                            AssertionErrorUtils::assertCaughtExceptionContainsMessage);
     }
 
     private <T> AfterAssertion buildExpectedErrorUtil(Class<? extends Throwable> expectedExceptionType, T expectedMessage,

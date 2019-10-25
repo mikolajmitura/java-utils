@@ -5,26 +5,27 @@ import java.util.function.Function;
 
 import static java.util.Optional.ofNullable;
 
-public class ExpectedNestedErrorUtil<T> extends ExpectedErrorUtil<T> {
+class ExpectedNestedErrorUtil<T> extends ExpectedErrorUtil<T> {
 
-    public ExpectedNestedErrorUtil(ThrowableRunnable instruction,
-                                   Class<? extends Throwable> expectedExceptionType,
-                                   T expectedMessage,
-                                   Function<T, String> messageBuilder,
-                                   BiConsumer<Throwable, T> assertionFunction) {
+    ExpectedNestedErrorUtil(ThrowableRunnable instruction,
+                            Class<? extends Throwable> expectedExceptionType,
+                            T expectedMessage,
+                            Function<T, String> messageBuilder,
+                            BiConsumer<Throwable, T> assertionFunction) {
         super(instruction, expectedExceptionType, expectedMessage, messageBuilder, assertionFunction);
     }
 
+    @SuppressWarnings("PMD.SystemPrintln")
     void assertCaughtException(Throwable exception) {
         Throwable currentEx = exception;
         WrappedAssertionError assertionErrorForMessage = null;
-        while(currentEx != null) {
-            if(expectedExceptionType.isInstance(currentEx)) {
+        while (currentEx != null) {
+            if (getExpectedExceptionType().isInstance(currentEx)) {
                 try {
-                    assertionFunction.accept(currentEx, expectedMessage);
-                    caughtException = currentEx;
+                    getAssertionFunction().accept(currentEx, getExpectedMessage());
+                    setCaughtException(currentEx);
                     return;
-                } catch(WrappedAssertionError original) {
+                } catch (WrappedAssertionError original) {
                     assertionErrorForMessage = original;
                 }
             }
@@ -38,7 +39,7 @@ public class ExpectedNestedErrorUtil<T> extends ExpectedErrorUtil<T> {
                     throw assertionError;
                 });
 
-        throw new AssertionError("Cannot find any nested expected type : " + expectedExceptionType.getCanonicalName()
+        throw new AssertionError("Cannot find any nested expected type : " + getExpectedExceptionType().getCanonicalName()
                                  + " for caught exception: ", exception);
     }
 }

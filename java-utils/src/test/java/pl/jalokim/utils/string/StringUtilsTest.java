@@ -62,6 +62,22 @@ public class StringUtilsTest {
     }
 
     @Test
+    public void testConcatElementsAsLinesFromArray() {
+        // when
+        String result = StringUtils.concatElementsAsLines("10", "11", "12", 13);
+        // then
+        Assert.assertEquals(String.format("10%n11%n12%n13"), result);
+    }
+
+    @Test
+    public void testConcatElementsAsLinesFromArrayWithMapper() {
+        // when
+        String result = StringUtils.concatElementsAsLines(number-> Integer.toString(number),10, 11, 12, 13);
+        // then
+        Assert.assertEquals(String.format("10%n11%n12%n13"), result);
+    }
+
+    @Test
     public void testConcatElementsAsLines2() {
         // given
         List<Integer> numbers = Arrays.asList(10, 12, 11, 6542, 234);

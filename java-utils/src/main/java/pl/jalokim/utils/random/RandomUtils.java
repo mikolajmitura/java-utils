@@ -47,12 +47,12 @@ public final class RandomUtils {
      * @param <T> generic type for array argument.
      * @return random index.
      */
-    public static <T> int randomIndex(T[] elements) {
+    public static <T> int randomIndex(T... elements) {
         return randomInRange(0, elements.length - 1);
     }
 
     /**
-     * It returns random element from collection
+     * It returns random element from collection.
      * @param elements from which will be found random element.
      * @param <T> generic type for collection argument.
      * @return random element.
@@ -63,12 +63,12 @@ public final class RandomUtils {
     }
 
     /**
-     * It returns random element from array
+     * It returns random element from array.
      * @param elements from which will be found random element.
      * @param <T> generic type for array.
      * @return random element.
      */
-    public static <T> T randomElement(T[] elements) {
+    public static <T> T randomElement(T... elements) {
         return impl.randomElementImpl(Arrays.asList(elements));
     }
 

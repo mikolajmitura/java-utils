@@ -13,7 +13,6 @@ import static pl.jalokim.utils.test.AssertionErrorUtils.EMPTY_MESSAGE_BUILDER;
 /**
  * Useful after correct assertion of exception. In then you can get thrown exception and check others things in this exception.
  */
-@SuppressWarnings("PMD.AccessorMethodGeneration")
 @RequiredArgsConstructor
 public class AfterAssertion {
     private final Throwable caughtException;
@@ -60,6 +59,19 @@ public class AfterAssertion {
     }
 
     /**
+     * This method checks that thrown exception contains expected exception with the same type and contains all provided message lines.
+     *
+     * @param exceptionType           type of nested exception.
+     * @param expectedLinesInAnyOrder message lines of nested expected in thrown exception.
+     * @return instance of AfterAssertion on which you can check nested exception etc...
+     */
+    public AfterAssertion thenNestedException(Class<? extends Throwable> exceptionType, String... expectedLinesInAnyOrder) {
+        return createExpectedNestedErrorUtil(exceptionType, asList(expectedLinesInAnyOrder),
+                                             AssertionErrorUtils::buildExpectedExMessage,
+                                             AssertionErrorUtils::assertExceptionAndMessageLines);
+    }
+
+    /**
      * This method checks that thrown exception contains expected exception with the expected type and contains some text from containsText arg.
      *
      * @param exceptionType type of expected exception.
@@ -70,19 +82,6 @@ public class AfterAssertion {
         return createExpectedNestedErrorUtil(exceptionType, containsText,
                                             AssertionErrorUtils::buildExpectedExContainsMessage,
                                             AssertionErrorUtils::assertCaughtExceptionContainsMessage);
-    }
-
-    /**
-     * This method checks that thrown exception contains expected exception with the same type and contains all provided message lines.
-     *
-     * @param exceptionType           type of nested exception.
-     * @param expectedLinesInAnyOrder message lines of nested expected in thrown exception.
-     * @return instance of AfterAssertion on which you can check nested exception etc...
-     */
-    public AfterAssertion thenNestedException(Class<? extends Throwable> exceptionType, String... expectedLinesInAnyOrder) {
-        return createExpectedNestedErrorUtil(exceptionType, asList(expectedLinesInAnyOrder),
-                                            AssertionErrorUtils::buildExpectedExMessage,
-                                            AssertionErrorUtils::assertExceptionAndMessageLines);
     }
 
     private <T> AfterAssertion createExpectedNestedErrorUtil(Class<? extends Throwable> exceptionType,

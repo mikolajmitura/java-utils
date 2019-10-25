@@ -12,7 +12,10 @@ import static pl.jalokim.utils.collection.CollectionUtils.mapToList;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getField;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getMethod;
 
-@SuppressWarnings("unchecked")
+/**
+ * Set of utils methods for set value, get value for field, invoke methods etc by reflection.
+ */
+@SuppressWarnings({"SuppressWarnings", "unchecked"})
 public final class InvokableReflectionUtils {
 
     private InvokableReflectionUtils() {
@@ -62,7 +65,7 @@ public final class InvokableReflectionUtils {
             modifiersField.setInt(foundField, oldModifiers);
             modifiersField.setAccessible(false);
             foundField.setAccessible(false);
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new ReflectionOperationException(e);
         }
     }
@@ -109,7 +112,7 @@ public final class InvokableReflectionUtils {
      */
     public static <T> T getValueOfField(Object targetObject, Class targetClass, String fieldName) {
         Field field = getField(targetClass, fieldName);
-        if(!Modifier.isStatic(field.getModifiers()) && targetObject == null) {
+        if (!Modifier.isStatic(field.getModifiers()) && targetObject == null) {
             throw new ReflectionOperationException("Cannot find non static field on null target object");
         }
 
@@ -118,7 +121,7 @@ public final class InvokableReflectionUtils {
             Object result = field.get(targetObject);
             field.setAccessible(false);
             return (T) result;
-        } catch(IllegalAccessException e) {
+        } catch (IllegalAccessException e) {
             throw new ReflectionOperationException(e);
         }
     }
@@ -253,7 +256,7 @@ public final class InvokableReflectionUtils {
     public static <T> T invokeMethod(Object target, Class<?> targetClass, String methodName,
                                      List<Class<?>> argClasses, List<Object> args) {
         Method method = getMethod(targetClass, methodName, argClasses.toArray(new Class[0]));
-        if(!Modifier.isStatic(method.getModifiers()) && target == null) {
+        if (!Modifier.isStatic(method.getModifiers()) && target == null) {
             throw new ReflectionOperationException("Cannot invoke non static method on null target object");
         }
         try {
@@ -261,7 +264,7 @@ public final class InvokableReflectionUtils {
             T result = (T) method.invoke(target, args.toArray(new Object[0]));
             method.setAccessible(false);
             return result;
-        } catch(ReflectiveOperationException e) {
+        } catch (ReflectiveOperationException e) {
             throw new ReflectionOperationException(e);
         }
     }
@@ -345,7 +348,7 @@ public final class InvokableReflectionUtils {
             T instance = constructor.newInstance(args);
             constructor.setAccessible(false);
             return instance;
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new ReflectionOperationException(e);
         }
     }
@@ -382,6 +385,7 @@ public final class InvokableReflectionUtils {
      * @param <T>  expected type of create object
      * @return instance of new object
      */
+
     public static <T> T newInstance(Class<T> type) {
         return newInstance(type, new ArrayList[0]);
     }

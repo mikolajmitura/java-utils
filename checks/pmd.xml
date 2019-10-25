@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+<ruleset name="java utils ruleset" xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+
+    <description>
+        This is a custom ruleset for Java utils project.
+    </description>
+
+    <!-- https://pmd.github.io/pmd/pmd_rules_java.html -->
+
+    <rule ref="category/java/errorprone.xml">
+        <exclude name="NonStaticInitializer"/>
+        <exclude name="ProperLogger"/>
+        <exclude name="UseCorrectExceptionLogging"/>
+        <exclude name="BeanMembersShouldSerialize"/>
+        <exclude name="CallSuperFirst"/>
+        <exclude name="CallSuperLast"/>
+        <exclude name="DoNotHardCodeSDCard"/>
+        <exclude name="AvoidAssertAsIdentifier"/>
+        <exclude name="AssignmentInOperand"/>
+        <exclude name="NullAssignment"/>
+        <exclude name="DataflowAnomalyAnalysis"/> <!-- low-quality false-positives -->
+        <exclude name="TestClassWithoutTestCases"/>
+        <exclude name="AvoidEnumAsIdentifier"/>
+        <exclude name="AvoidCatchingThrowable"/>
+    </rule>
+
+    <rule ref="category/java/design.xml">
+        <exclude name="SignatureDeclareThrowsException"/>
+        <exclude name="LawOfDemeter"/>
+        <exclude name="LoosePackageCoupling"/>
+        <exclude name="ExcessiveImports"/>
+        <exclude name="TooManyMethods"/> <!--does not make sense as we have a lot of them in mappers, may have in other projects -->
+        <exclude name="CyclomaticComplexity"/>
+        <exclude name="AvoidCatchingGenericException"/>
+        <exclude name="DataClass"/>
+    </rule>
+
+    <rule ref="category/java/documentation.xml">
+        <exclude name="CommentContent"/>
+        <exclude name="CommentRequired"/>
+        <exclude name="CommentSize"/>
+        <exclude name="UncommentedEmptyConstructor"/>
+    </rule>
+
+    <rule ref="category/java/multithreading.xml">
+        <exclude name="AvoidSynchronizedAtMethodLevel"/>
+        <exclude name="AvoidUsingVolatile"/> <!--volatile is used often as a memory barrier -->
+        <exclude name="DoNotUseThreads"/>
+    </rule>
+
+    <rule ref="category/java/bestpractices.xml">
+
+        <exclude name="ReplaceEnumerationWithIterator"/>
+        <exclude name="ReplaceHashtableWithMap"/>
+        <exclude name="ReplaceVectorWithList"/>
+        <exclude name="AbstractClassWithoutAbstractMethod"/> <!-- This is required for CDM -->
+        <exclude name="ConstantsInInterface"/>
+        <exclude name="GuardLogStatement"/>
+        <exclude name="UnusedPrivateMethod"/> <!--too many false-positives -->
+        <exclude name="JUnitTestContainsTooManyAsserts"/>
+        <exclude name="JUnitTestsShouldIncludeAssert"/>
+        <exclude name="JUnitAssertionsShouldIncludeMessage"/>
+        <exclude name="JUnit4SuitesShouldUseSuiteAnnotation"/>
+        <exclude name="JUnit4TestShouldUseAfterAnnotation"/>
+        <exclude name="JUnit4TestShouldUseBeforeAnnotation"/>
+        <exclude name="JUnit4TestShouldUseTestAnnotation"/>
+        <exclude name="JUnitUseExpected"/>
+    </rule>
+
+    <rule ref="category/java/codestyle.xml/LinguisticNaming">
+        <properties>
+            <property name="checkSetters" value="false"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/java/codestyle.xml/ClassNamingConventions">
+        <properties>
+            <!-- overwritten because default value was "[A-Z][a-zA-Z0-9]+(Utils?|Helper)" -->
+            <property name="utilityClassPattern" value="[A-Z][a-zA-Z0-9]*"/>
+        </properties>
+    </rule>
+
+    <rule ref="category/java/performance.xml">
+        <exclude name="AvoidUsingShortType"/>
+        <exclude name="ByteInstantiation"/>
+        <exclude name="IntegerInstantiation"/>
+        <exclude name="LongInstantiation"/>
+        <exclude name="ShortInstantiation"/>
+        <exclude name="AvoidInstantiatingObjectsInLoops"/>
+    </rule>
+
+    <rule ref="category/java/security.xml"/>
+
+    <rule ref="category/java/codestyle.xml">
+        <exclude name="CommentDefaultAccessModifier"/>
+        <exclude name="TooManyStaticImports"/>
+        <exclude name="OnlyOneReturn"/>
+        <exclude name="DefaultPackage"/> <!--use of package level improves encapsulation -->
+        <exclude name="AtLeastOneConstructor"/>
+        <exclude name="AvoidPrefixingMethodParameters"/> <!-- Required for CDM -->
+        <exclude name="MethodArgumentCouldBeFinal"/>
+        <exclude name="LocalVariableCouldBeFinal"/>
+        <exclude name="LongVariable"/> <!--explicit is better than implicit -->
+        <exclude name="ShortVariable"/> <!--does not make sense in Java8, often used in lambdas -->
+        <exclude name="ShortMethodName"/>
+        <exclude name="AbstractNaming"/>
+        <exclude name="ShortClassName"/> <!-- Required for CDM -->
+        <exclude name="CallSuperInConstructor"/>
+    </rule>
+</ruleset>

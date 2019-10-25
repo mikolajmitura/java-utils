@@ -8,8 +8,13 @@ import java.util.Random;
 
 import static pl.jalokim.utils.random.RandomUtils.randomIndex;
 
+/**
+ * Implementation of random API.
+ */
 public class RandomUtilImpl {
 
+    private static final int FIFTY_PERCENT = 50;
+    private static final int ONE_HUNDRED_PERCENT = 100;
     private final Random random;
 
     public RandomUtilImpl() {
@@ -44,11 +49,12 @@ public class RandomUtilImpl {
         return RandomUtils.randomElement(generateProbabilityArray(probabilityOfTrueInPercent));
     }
 
-    protected List<Boolean> generateProbabilityArray(int probabilityOfTrueInPercent) {
+    protected List<Boolean> generateProbabilityArray(int probabilityOfTrueInPercentOriginal) {
+        int probabilityOfTrueInPercent = probabilityOfTrueInPercentOriginal;
         List<Boolean> probabilityOfTrueList = new ArrayList<>();
-        boolean defaultValue = probabilityOfTrueInPercent <= 50;
-        probabilityOfTrueInPercent = probabilityOfTrueInPercent <= 50 ? probabilityOfTrueInPercent : 100 - probabilityOfTrueInPercent;
-        int size = 100 / probabilityOfTrueInPercent;
+        boolean defaultValue = probabilityOfTrueInPercent <= FIFTY_PERCENT;
+        probabilityOfTrueInPercent = probabilityOfTrueInPercent <= FIFTY_PERCENT ? probabilityOfTrueInPercent : ONE_HUNDRED_PERCENT - probabilityOfTrueInPercent;
+        int size = ONE_HUNDRED_PERCENT / probabilityOfTrueInPercent;
         for (int i = 0; i < size; i++) {
             probabilityOfTrueList.add(!defaultValue);
         }

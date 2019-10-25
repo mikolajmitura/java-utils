@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static java.util.Objects.requireNonNull;
 import static pl.jalokim.utils.collection.CollectionUtils.isNotEmpty;
 import static pl.jalokim.utils.file.FileUtils.loadFileFromClassPathAsText;
 import static pl.jalokim.utils.file.FileUtils.loadFileFromPathAsText;
@@ -18,7 +19,7 @@ import static pl.jalokim.utils.file.FileUtils.loadFileFromPathAsText;
  * will be recognized as placeholder when name of place holder contains [a-zA-Z_0-9]
  * when contains all letters from 'a' to 'z' and from 'A' to 'Z' and contains number, or sign '_' and '-'
  */
-public class TemplateAsText {
+public final class TemplateAsText {
 
     private static final String VAR_PATTERN = "\\$\\{%s}";
 
@@ -100,7 +101,6 @@ public class TemplateAsText {
         return new TemplateAsText(templateText, throwExceptionForNotResolved);
     }
 
-
     /**
      * Override some placeholder.
      *
@@ -108,9 +108,8 @@ public class TemplateAsText {
      * @param value   value for setup.
      */
     public void overrideVariable(String varName, String value) {
-        if(value == null) {
-            throw new NullPointerException("Value for variable: '" + varName + "' cannot be null");
-        }
+        requireNonNull(value, "Value for variable: '" + varName + "' cannot be null");
+
         templateText = templateText.replaceAll(
                 String.format(VAR_PATTERN, varName),
                 value.replace("$", "\\$"));
@@ -123,16 +122,16 @@ public class TemplateAsText {
      * only when throwExceptionForNotResolved is set to true.
      */
     public String getCurrentTemplateText() {
-        if(throwExceptionForNotResolved) {
+        if (throwExceptionForNotResolved) {
             Pattern pattern = Pattern.compile(String.format(VAR_PATTERN, "(\\w|-)+"));
             Matcher matcher = pattern.matcher(templateText);
 
             List<String> notResolved = new ArrayList<>();
 
-            while(matcher.find()) {
+            while (matcher.find()) {
                 notResolved.add(matcher.group(0));
             }
-            if(isNotEmpty(notResolved)) {
+            if (isNotEmpty(notResolved)) {
                 throw new IllegalArgumentException("Not resolved placeholders: " + notResolved);
             }
         }

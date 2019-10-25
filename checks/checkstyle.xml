@@ -1,0 +1,296 @@
+<!DOCTYPE module PUBLIC
+    "-//Puppy Crawl//DTD Check Configuration 1.2//EN"
+    "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
+
+<module name="Checker">
+
+	<module name="SuppressWarningsFilter" />
+	<!-- Package documentation is an overkill currently <module name="JavadocPackage" 
+		/> -->
+	<module name="NewlineAtEndOfFile">
+		<property name="lineSeparator" value="lf_cr_crlf" /> <!--system-agnostic -->
+		<property name="fileExtensions" value="properties, xml, sql, java" /> <!--ignore .java -->
+	</module>
+	<module name="Translation" />
+	<module name="UniqueProperties" />
+	<!-- No limitation on file size (especially properties file) <module name="FileLength" 
+		/> -->
+	<!-- Tab characters are prefered <module name="FileTabCharacter" /> -->
+
+	<module name="TreeWalker">
+
+		<!-- Annotations -->
+		<module name="AnnotationLocation" />
+		<module name="AnnotationUseStyle" />
+		<!-- Specifying deprecation annotation and deprecation tag in javadoc is 
+			redundant <module name="MissingDeprecated"/> -->
+		<module name="MissingOverride" />
+		<module name="PackageAnnotation" />
+		<module name="SuppressWarnings">
+			<!-- configure the check so that the "unchecked" and "unused" warnings 
+				cannot be suppressed on anything but variable and parameter declarations. -->
+			<property name="format" value="^unchecked$|^unused$" />
+			<property name="tokens"
+				value="
+          CLASS_DEF,INTERFACE_DEF,ENUM_DEF,
+          ANNOTATION_DEF,ANNOTATION_FIELD_DEF,
+          ENUM_CONSTANT_DEF,METHOD_DEF,CTOR_DEF
+          " />
+		</module>
+		<module name="SuppressWarningsHolder" />
+
+		<!-- Block Checks -->
+		<module name="AvoidNestedBlocks" />
+		<module name="EmptyBlock" />
+		<module name="EmptyCatchBlock" />
+		<module name="LeftCurly" />
+		<module name="NeedBraces" />
+		<module name="RightCurly" />
+
+		<!-- Class Design -->
+		<!-- Many frameworks, like spring, does not recommend final classes. <module 
+			name="DesignForExtension" /> -->
+		<module name="FinalClass" />
+		<module name="HideUtilityClassConstructor" />
+		<module name="InnerTypeLast" />
+		<!-- <module name="InterfaceIsType" /> -->
+		<module name="MutableException" />
+		<module name="OneTopLevelClass" />
+		<module name="ThrowsCount" />
+		<module name="VisibilityModifier" />
+
+		<!-- Coding -->
+		<!-- It does not look pretty <module name="ArrayTrailingComma" /> -->
+		<!-- The code is much less verbose with inlines <module name="AvoidInlineConditionals" 
+			/> -->
+		<module name="CovariantEquals" />
+		<module name="DeclarationOrder">
+			<!-- This enforces some refactoring, but makes code more readable in the 
+				long run by grouping and pushing public statics to the top. See also: OverloadMethodsDeclarationOrder -->
+		</module>
+		<module name="DefaultComesLast" />
+		<module name="EmptyStatement" />
+		<module name="EqualsAvoidNull" />
+		<module name="EqualsHashCode" />
+		<module name="ExplicitInitialization" />
+		<module name="FallThrough" />
+		<!-- The code is too verbose with finals everywhere <module name="FinalLocalVariable" 
+			/> -->
+		<!-- <module name="HiddenField">
+			<property name="ignoreConstructorParameter" value="true" />
+			<property name="ignoreSetter" value="true" />
+		</module> -->
+		<module name="IllegalCatch">
+			<property name="illegalClassNames"
+				value="java.lang.RuntimeException,java.lang.Error" />
+		</module>
+		<module name="IllegalInstantiation">
+			<!-- For performance reasons, it is preferable to use the predefined constants 
+				or constructing objects via caching methods like Integer.valueOf -->
+			<property name="classes" value="java.lang.Boolean" />
+			<property name="classes" value="java.lang.Integer" />
+			<property name="classes" value="java.lang.Short" />
+			<property name="classes" value="java.lang.Long" />
+		</module>
+		<module name="IllegalThrows">
+			<!--enforce more specific exceptions -->
+			<property name="illegalClassNames"
+				value="java.lang.Throwable, java.lang.RuntimeException, java.lang.Error" />
+		</module>
+		<module name="IllegalToken" />
+		<module name="IllegalTokenText" />
+		<module name="IllegalType" />
+		<!-- If it is problem it should be prohibited in the language <module name="InnerAssignment" 
+			/> -->
+		<module name="MagicNumber" />
+		<!-- Default constructor is perfectly fine - even better <module name="MissingCtor" 
+			/> -->
+		<module name="MissingSwitchDefault" />
+		<module name="ModifiedControlVariable" />
+		<module name="MultipleStringLiterals">
+			<!-- Fix for auto-generated toString() -->
+			<property name="ignoreStringsRegexp" value='^(("")|("\\"")|(", "))$' />
+		</module>
+		<module name="MultipleVariableDeclarations" />
+		<module name="NestedForDepth">
+			<!-- Incentive to use Streams for advanced pipelines -->
+			<property name="max" value="1" />
+		</module>
+		<module name="NestedIfDepth">
+			<property name="max" value="1" />
+		</module>
+		<module name="NestedTryDepth">
+			<property name="max" value="1" />
+		</module>
+		<module name="NoClone" />
+		<module name="NoFinalizer" />
+		<module name="OneStatementPerLine" />
+		<module name="OverloadMethodsDeclarationOrder">
+			<!--Improves readability by moving referenced methods AFTER the overloaded 
+				one -->
+		</module>
+		<module name="PackageDeclaration" />
+		<module name="ParameterAssignment" />
+		<module name="RequireThis">
+			<property name="validateOnlyOverlapping" value="true" />
+		</module>
+		<!-- Many returns are useful in mappers, which are a popular pattern in 
+			BUS <module name="ReturnCount" /> -->
+		<module name="SimplifyBooleanExpression" />
+		<module name="SimplifyBooleanReturn" />
+		<module name="StringLiteralEquality" />
+		<module name="SuperClone" />
+		<module name="SuperFinalize" />
+		<module name="UnnecessaryParentheses" />
+		<!-- It is often better to declare variables at the very beginning <module 
+			name="VariableDeclarationUsageDistance" /> -->
+
+		<!-- Headers -->
+		<!-- Disabled here, defined outside of TreeWalker <module name="Header" 
+			/> -->
+		<!-- No header regexp is defined <module name="RegexpHeader" /> -->
+
+		<!-- Imports -->
+		<module name="AvoidStarImport" />
+		<!-- Static imports are fine <module name="AvoidStaticImport" /> -->
+		<!-- Import section is ignored/collapsed by IDE these days, no point in 
+			bikeshedding it <module name="CustomImportOrder" /> -->
+		<module name="IllegalImport" />
+		<!-- No rules defined <module name="ImportControl" /> -->
+		<!-- Same note as CustomImportOrder <module name="ImportOrder" /> -->
+		<module name="RedundantImport" />
+		<module name="UnusedImports" />
+
+		<!-- Javadoc Comments -->
+		<!-- <module name="AtclauseOrder" /> -->
+		<!-- Not every method has to be documented <module name="JavadocMethod" 
+			/> -->
+		<!-- <module name="JavadocParagraph" /> -->
+		<module name="JavadocStyle">
+			<property name="checkEmptyJavadoc" value="true" />
+		</module>
+		<!--<module name="JavadocTagContinuationIndentation" /> -->
+		<module name="JavadocType">
+			<!--enforces presence of Javadoc comments for public class and interface 
+				definitions -->
+			<property name="scope" value="public" />
+		</module>
+		<!-- Variables does not have to be documented <module name="JavadocVariable" 
+			/> -->
+		<module name="NonEmptyAtclauseDescription" />
+		<module name="SingleLineJavadoc" />
+		<!-- <module name="SummaryJavadoc" /> -->
+		<!-- <module name="WriteTag" /> -->
+
+		<!-- Metrics -->
+		<module name="BooleanExpressionComplexity" />
+		<module name="ClassDataAbstractionCoupling">
+			<!--not that useful, we need to have a lot of types in mappers, picked 
+				high value as a fail-safe -->
+			<property name="max" value="15" />
+		</module>
+		<module name="ClassFanOutComplexity">
+			<!--not that useful, we need to have a lot of types in mappers, picked 
+				high value as a fail-safe -->
+			<property name="max" value="30" />
+		</module>
+		<module name="CyclomaticComplexity">
+			<!-- When it comes to code quality measurement by this metric level 10 
+				is very good level as a ultimate target (that is hard to archive). Do not 
+				be ashamed to have complexity level 15 or even higher, but keep it below 
+				20 to catch really bad designed code automatically. -->
+			<property name="max" value="15" />
+		</module>
+		<module name="JavaNCSS">
+			<property name="methodMaximum" value="50" />  <!--the maximum allowed number of non commenting lines in a method. -->
+		</module>
+		<module name="NPathComplexity">
+			<!-- Methods that exceed this value are strong candidates for further 
+				decomposition NPATH threshold of 200 is based on studies done at AT&T Bell 
+				Laboratories in 1988 -->
+			<property name="max" value="200" />
+		</module>
+
+		<!-- Miscellaneous -->
+		<module name="ArrayTypeStyle" />
+		<module name="AvoidEscapedUnicodeCharacters" />
+		<module name="CommentsIndentation" />
+		<!-- <module name="DescendantToken"/> -->
+		<!-- <module name="FileContentsHolder" /> -->
+
+		<module name="OuterTypeFilename" />
+		<module name="TodoComment">
+			<!-- Block build if there are any FIXMEs (note: regular TO DO  do not block) -->
+			<property name="format" value="(FIXME)" />
+		</module>
+		<!-- <module name="TrailingComment" /> -->
+		<!-- <module name="UncommentedMain" /> -->
+		<module name="UpperEll" />
+
+		<!-- Modifiers -->
+		<module name="ModifierOrder" />
+		<module name="RedundantModifier" />
+
+		<!-- Naming Conventions -->
+		<module name="AbbreviationAsWordInName" />
+		<module name="AbstractClassName">
+			<property name="ignoreName" value="true" /> <!--Abstract class names do not have to start with "Abstract" -->
+			<property name="ignoreModifier" value="false" /> <!--but if they do, they need to be actual abstract -->
+		</module>
+		<module name="CatchParameterName" />
+		<module name="ClassTypeParameterName" />
+		<module name="ConstantName" />
+		<module name="InterfaceTypeParameterName" />
+		<module name="LocalFinalVariableName" />
+		<module name="LocalVariableName" />
+		<module name="MemberName" />
+		<module name="MethodName" />
+		<module name="MethodTypeParameterName" />
+		<module name="PackageName" />
+		<module name="ParameterName" />
+		<module name="StaticVariableName" />
+		<module name="TypeName" />
+
+		<!-- Size Violations -->
+		<module name="AnonInnerLength" />
+		<module name="ExecutableStatementCount">
+			<property name="max" value="40" />
+		</module>
+		<!-- <module name="LineLength" /> -->
+		<module name="MethodCount" />
+		<module name="MethodLength" />
+		<module name="OuterTypeNumber" />
+		<module name="ParameterNumber">
+			<!-- Developer may need to override method with many parameters from 3-rd 
+				party library. In this case developer has no control over number of parameters. -->
+			<property name="ignoreOverriddenMethods" value="true" />
+			<property name="tokens" value="METHOD_DEF" />
+		</module>
+
+		<!-- Whitespace -->
+		<module name="EmptyForInitializerPad" />
+		<module name="EmptyForIteratorPad" />
+		<module name="EmptyLineSeparator"> <!--old value="INC, DEC, UNARY_MINUS, UNARY_PLUS, BNOT, LNOT, DOT, ARRAY_DECLARATOR" -->
+			<property name="tokens"
+				value="IMPORT, CLASS_DEF, INTERFACE_DEF, ENUM_DEF, STATIC_INIT, INSTANCE_INIT, METHOD_DEF, CTOR_DEF, VARIABLE_DEF" /> <!--all but PACKAGE_DEF -->
+			<property name="allowNoEmptyLineBetweenFields" value="true" />
+		</module>
+		<module name="GenericWhitespace" />
+		<module name="MethodParamPad" />
+		<module name="NoLineWrap" />
+		<module name="NoWhitespaceAfter" /><!--use defaults settings -->
+		<module name="NoWhitespaceBefore" />
+		<module name="OperatorWrap" />
+		<module name="ParenPad" />
+		<module name="SeparatorWrap">
+			<property name="tokens" value="DOT" /> <!--enforce proper style of Java8 pipelines -->
+			<property name="option" value="nl" />
+		</module>
+		<!-- Disabled to allow horizontal alignment. <module name="SingleSpaceSeparator" 
+			/> -->
+		<module name="TypecastParenPad" />
+		<module name="WhitespaceAfter" />
+		<module name="WhitespaceAround" />
+	</module>
+</module>
+
