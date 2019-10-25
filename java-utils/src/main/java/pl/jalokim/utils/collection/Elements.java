@@ -9,7 +9,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -61,8 +60,9 @@ public final class Elements<T> {
         return unmodifiableSet(new HashSet<>(stream.collect(toSet())));
     }
 
+    @SuppressWarnings("PMD.UseVarargs")
     public T[] asArray(T[] array) {
-        return stream.collect(Collectors.toList()).toArray(array);
+        return stream.collect(toList()).toArray(array);
     }
 
     public Stream<T> asStream() {

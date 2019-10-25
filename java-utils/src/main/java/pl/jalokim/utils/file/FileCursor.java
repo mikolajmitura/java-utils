@@ -1,9 +1,10 @@
 package pl.jalokim.utils.file;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.util.Iterator;
 
+import static java.nio.file.Files.newBufferedReader;
+import static java.nio.file.Paths.get;
 import static pl.jalokim.utils.file.FileUtils.catchIoEx;
 
 /**
@@ -23,7 +24,7 @@ public class FileCursor implements Iterator<String> {
      * @param filePath from system path.
      */
     public FileCursor(String filePath) {
-        bufferedReader = catchIoEx(() -> new BufferedReader(new FileReader(filePath)));
+        bufferedReader = catchIoEx(() -> newBufferedReader(get(filePath)));
         nextLine = catchIoEx(bufferedReader::readLine);
     }
 

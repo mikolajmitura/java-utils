@@ -7,8 +7,10 @@ import lombok.Getter;
  * which is thrown from test utils api.
  */
 @Getter
+@SuppressWarnings("PMD.DoNotExtendJavaLangError")
 public class WrappedAssertionError extends AssertionError {
 
+    private static final long serialVersionUID = 1L;
     private final Throwable originalCause;
 
     public WrappedAssertionError(String message, AssertionError cause, Throwable originalCause) {

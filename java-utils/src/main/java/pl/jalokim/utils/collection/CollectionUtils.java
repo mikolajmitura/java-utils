@@ -60,7 +60,7 @@ public final class CollectionUtils {
      * @param array for get last index.
      * @return last index for certain array.
      */
-    public static int getLastIndex(Object[] array) {
+    public static int getLastIndex(Object... array) {
         return array.length - 1;
     }
 

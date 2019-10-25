@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static java.util.Objects.requireNonNull;
 import static pl.jalokim.utils.collection.CollectionUtils.isNotEmpty;
 import static pl.jalokim.utils.file.FileUtils.loadFileFromClassPathAsText;
 import static pl.jalokim.utils.file.FileUtils.loadFileFromPathAsText;
@@ -107,9 +108,8 @@ public final class TemplateAsText {
      * @param value   value for setup.
      */
     public void overrideVariable(String varName, String value) {
-        if (value == null) {
-            throw new NullPointerException("Value for variable: '" + varName + "' cannot be null");
-        }
+        requireNonNull(value, "Value for variable: '" + varName + "' cannot be null");
+
         templateText = templateText.replaceAll(
                 String.format(VAR_PATTERN, varName),
                 value.replace("$", "\\$"));

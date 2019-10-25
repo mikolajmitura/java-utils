@@ -22,10 +22,11 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-
         <!-- code checks -->
         <jacoco-plugin.version>0.8.2</jacoco-plugin.version>
         <maven-checkstyle-plugin.version>3.0.0</maven-checkstyle-plugin.version>
+        <maven-pmd-plugin.version>3.11.0</maven-pmd-plugin.version>
+        <pmd.version>6.9.0</pmd.version>
 
         <!-- test -->
         <spock.version>1.3-groovy-2.5</spock.version>
@@ -239,6 +240,41 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <!-- PMD -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>${maven-pmd-plugin.version}</version>
+                <configuration>
+                    <linkXRef>false</linkXRef>
+                    <targetJdk>${maven.compiler.target}</targetJdk>
+                    <printFailingErrors>true</printFailingErrors>
+                    <rulesets>
+                        <ruleset>${project.parent.basedir}/checks/pmd.xml</ruleset>
+                    </rulesets>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>net.sourceforge.pmd</groupId>
+                        <artifactId>pmd-core</artifactId>
+                        <version>${pmd.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>net.sourceforge.pmd</groupId>
+                        <artifactId>pmd-java</artifactId>
+                        <version>${pmd.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>
