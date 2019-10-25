@@ -1,11 +1,11 @@
 package pl.jalokim.utils.string;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.nCopies;
 import static pl.jalokim.utils.constants.Constants.EMPTY;
 import static pl.jalokim.utils.constants.Constants.NEW_LINE;
@@ -79,8 +79,27 @@ public final class StringUtils {
      * @return concatenated text.
      */
     public static <E> String concatElementsAsLines(List<E> elements) {
-        return concatElements(elements,
-                              NEW_LINE);
+        return concatElements(elements, NEW_LINE);
+    }
+
+    /**
+     * Return concatenated text all array elements as new lines.
+     *
+     * @param elements to concatenate
+     * @return concatenated text.
+     */
+    public static String concatElementsAsLines(Object... elements) {
+        return concatElements(asList(elements), NEW_LINE);
+    }
+
+    /**
+     * Return concatenated text from mapped all array elements to text as new lines.
+     *
+     * @param elements to concatenate
+     * @return concatenated text.
+     */
+    public static <E> String concatElementsAsLines(Function<E, String> mapper, E... elements) {
+        return concatElements(asList(elements), mapper, NEW_LINE);
     }
 
     /**
@@ -193,7 +212,7 @@ public final class StringUtils {
      * @return concatenated text
      */
     public static String concatElements(String joinText, String... texts) {
-        return concatElements(Arrays.asList(texts), joinText);
+        return concatElements(asList(texts), joinText);
     }
 
     /**
@@ -203,6 +222,6 @@ public final class StringUtils {
      * @return concatenated text
      */
     public static String concat(String... texts) {
-        return concatElements(Arrays.asList(texts), EMPTY);
+        return concatElements(asList(texts), EMPTY);
     }
 }
