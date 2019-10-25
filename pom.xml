@@ -76,7 +76,6 @@
             <version>1.18.8</version>
         </dependency>
         <dependency>
-            <!-- TODO add find bugs, add pmd, and checkstyle -->
             <!-- test -->
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

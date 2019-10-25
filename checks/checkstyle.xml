@@ -218,22 +218,9 @@
 		<!-- <module name="DescendantToken"/> -->
 		<!-- <module name="FileContentsHolder" /> -->
 
-		<!-- TODO: Blocked by https://github.com/checkstyle/checkstyle/issues/334 
-			<module name="Indentation"> &lt;!&ndash;NEW &ndash;&gt; &lt;!&ndash; Ensure 
-			that a minimal set of indentation rules is followed. This is CRUCIAL if we 
-			want to avoid noise in commits introduced by tabs/spaces being replaced with 
-			each other or when using auto-formatting solution in different IDEs. Hard 
-			suggestion: 4 space indent is the default in both Checkstyle and IntelliJ 
-			IDEA and does not seem to be controversial. &ndash;&gt; <property name="basicOffset" 
-			value="4"/> <property name="braceAdjustment" value="0"/> <property name="caseIndent" 
-			value="4"/> <property name="throwsIndent" value="4"/> <property name="lineWrappingIndentation" 
-			value="4"/> <property name="arrayInitIndent" value="4"/> <property name="forceStrictCondition" 
-			value="false" /> &lt;!&ndash;allows custom indent on line wrap to improve 
-			readability&ndash;&gt; </module> -->
-
 		<module name="OuterTypeFilename" />
 		<module name="TodoComment">
-			<!-- Block build if there are any FIXMEs (note: regular TODOs do not block) -->
+			<!-- Block build if there are any FIXMEs (note: regular TO DO  do not block) -->
 			<property name="format" value="(FIXME)" />
 		</module>
 		<!-- <module name="TrailingComment" /> -->
