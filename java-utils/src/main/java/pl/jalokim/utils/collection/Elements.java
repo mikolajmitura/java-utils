@@ -23,9 +23,9 @@ import static pl.jalokim.utils.collection.CollectionUtils.isLastIndex;
  * Simpler API than native java Stream API.
  * Contains some shortcut methods for return some types.
  *
- * @param <T>
+ * @param <T> type of elements.
  */
-public class Elements<T> {
+public final class Elements<T> {
 
     private final Stream<T> stream;
 
@@ -80,7 +80,7 @@ public class Elements<T> {
     }
 
     /**
-     * For each with index and element and useful method isFirst, isLast
+     * For each with index and element and useful method isFirst, isLast.
      *
      * @param consumer for IndexedElement which holds element with T type and index
      */

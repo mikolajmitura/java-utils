@@ -30,7 +30,7 @@ public final class FileUtils {
     }
 
     /**
-     * It read from file and put all content to String
+     * It read from file and put all content to String.
      *
      * @param path to file
      * @return text with file content
@@ -51,7 +51,7 @@ public final class FileUtils {
     }
 
     /**
-     * It read from file from classpath and put all content to String
+     * It read from file from classpath and put all content to String.
      *
      * @param path to file
      * @return text with file content
@@ -96,9 +96,9 @@ public final class FileUtils {
      */
     public static void consumeEveryLineFromFile(String path, Consumer<String> consumerLine) {
         catchIoEx(() -> {
-            try(BufferedReader br = new BufferedReader(new FileReader(path))) {
+            try (BufferedReader br = new BufferedReader(new FileReader(path))) {
                 String line;
-                while((line = br.readLine()) != null) {
+                while ((line = br.readLine()) != null) {
                     consumerLine.accept(line);
                 }
             }
@@ -116,9 +116,9 @@ public final class FileUtils {
     public static void consumeEveryLineWitNumberFromFile(String path, BiConsumer<Long, String> consumerLineIndex) {
         catchIoEx(() -> {
             long index = 0;
-            try(BufferedReader br = new BufferedReader(new FileReader(path))) {
+            try (BufferedReader br = new BufferedReader(new FileReader(path))) {
                 String line;
-                while((line = br.readLine()) != null) {
+                while ((line = br.readLine()) != null) {
                     index++;
                     consumerLineIndex.accept(index, line);
                 }
@@ -152,7 +152,8 @@ public final class FileUtils {
 
     /**
      * Append some text to file.
-     * @param filePath system path to file
+     *
+     * @param filePath    system path to file
      * @param fileContent as String to append to file
      */
     public static void appendToFile(String filePath, String fileContent) {
@@ -163,7 +164,8 @@ public final class FileUtils {
 
     /**
      * It writes all list element to file, every as separated line.
-     * @param filePath system path to file
+     *
+     * @param filePath       system path to file
      * @param elementToWrite text lines write to file
      */
     public static void writeAllElementsAsLinesToFile(String filePath, List<String> elementToWrite) {
@@ -175,7 +177,8 @@ public final class FileUtils {
 
     /**
      * It append all list element to file, every as separated line.
-     * @param filePath system path to file
+     *
+     * @param filePath       system path to file
      * @param elementToWrite text lines write to file
      */
     public static void appendAllElementsAsLinesToFile(String filePath, List<String> elementToWrite) {
@@ -188,7 +191,7 @@ public final class FileUtils {
     static <T> T catchIoEx(IOExceptionSupplier<T> throwableSupplier) {
         try {
             return throwableSupplier.get();
-        } catch(IOException ex) {
+        } catch (IOException ex) {
             throw new FileException(ex);
         }
     }

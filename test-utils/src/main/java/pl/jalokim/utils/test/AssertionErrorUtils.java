@@ -11,18 +11,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 final class AssertionErrorUtils {
 
-    private AssertionErrorUtils() {
-
-    }
-
     static final Function<Object, String> EMPTY_MESSAGE_BUILDER = m -> "";
     static final BiConsumer<Throwable, Object> ASSERTION_NULL_MSG = (t, m) -> {
     };
     static final String WITH_MESSAGE = " with message: ";
     private static final String NEW_LINE = String.format("%n");
 
+    private AssertionErrorUtils() {
+
+    }
+
     static String buildExpectedExMessage(String msg) {
         return WITH_MESSAGE + msg;
+    }
+
+    static String buildExpectedExMessage(List<String> expectedLinesInAnyOrder) {
+        return " with message lines: " + messageLines(expectedLinesInAnyOrder);
     }
 
     static String buildExpectedExContainsMessage(String msg) {
@@ -32,21 +36,17 @@ final class AssertionErrorUtils {
     static void assertCaughtExceptionContainsMessage(Throwable caughtException, String containsText) {
         try {
             assertThat(caughtException.getMessage()).contains(containsText);
-        } catch(AssertionError original) {
+        } catch (AssertionError original) {
             throw new WrappedAssertionError(String.format("Caught expected exception type: %s but doesn't contain expected text",
                                                           caughtException.getClass().getCanonicalName()),
                                             original, caughtException);
         }
     }
 
-    static String buildExpectedExMessage(List<String> expectedLinesInAnyOrder) {
-        return " with message lines: " + messageLines(expectedLinesInAnyOrder);
-    }
-
     static void assertCaughtExceptionMessage(Throwable caughtException, String expectedMessage) {
         try {
             assertThat(expectedMessage).isEqualTo(caughtException.getMessage());
-        } catch(AssertionError original) {
+        } catch (AssertionError original) {
             throw new WrappedAssertionError(String.format("Caught expected exception type: %s but has another message than expected",
                                                           caughtException.getClass().getCanonicalName()),
                                             original, caughtException);
@@ -59,7 +59,7 @@ final class AssertionErrorUtils {
         Collections.sort(expectedLinesMessage);
         try {
             assertThat(linesFromException).isEqualTo(expectedLinesMessage);
-        } catch(AssertionError original) {
+        } catch (AssertionError original) {
             throw new WrappedAssertionError(String.format("Caught expected exception type: %s but has another message lines than expected",
                                                           thrownThrowable.getClass().getCanonicalName()),
                                             original, thrownThrowable);

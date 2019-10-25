@@ -79,6 +79,25 @@ public final class CollectionUtils {
     }
 
     /**
+     * This method get some collection and filter expected elements and map them  to new type and put results to new Set.
+     *
+     * @param collection source collection.
+     * @param filter     predicate for filter by source elements type.
+     * @param mapFunc    map to new type filtered result.
+     * @param <T>        type for source collection.
+     * @param <R>        type for result Set.
+     * @return Set with filtered source and another types than source collection.
+     */
+    public static <T, R> Set<R> filterToSet(Collection<T> collection,
+                                            Predicate<T> filter,
+                                            Function<T, R> mapFunc) {
+        return collection.stream()
+                         .filter(filter)
+                         .map(mapFunc)
+                         .collect(Collectors.toSet());
+    }
+
+    /**
      * This method return new Set with mapped values from source collection.
      *
      * @param collection source elements.
@@ -115,25 +134,6 @@ public final class CollectionUtils {
 
 
     /**
-     * This method get some collection and filter expected elements and map them  to new type and put results to new Set.
-     *
-     * @param collection source collection.
-     * @param filter     predicate for filter by source elements type.
-     * @param mapFunc    map to new type filtered result.
-     * @param <T>        type for source collection.
-     * @param <R>        type for result Set.
-     * @return Set with filtered source and another types than source collection.
-     */
-    public static <T, R> Set<R> filterToSet(Collection<T> collection,
-                                            Predicate<T> filter,
-                                            Function<T, R> mapFunc) {
-        return collection.stream()
-                         .filter(filter)
-                         .map(mapFunc)
-                         .collect(Collectors.toSet());
-    }
-
-    /**
      * This method return new List with mapped values from source collection.
      *
      * @param collection source elements.
@@ -145,20 +145,6 @@ public final class CollectionUtils {
     public static <T, R> List<R> mapToList(Collection<T> collection, Function<T, R> mapFunc) {
         return collection.stream()
                          .map(mapFunc)
-                         .collect(Collectors.toList());
-    }
-
-    /**
-     * This method get some collection and filter expected elements and put them to new List.
-     *
-     * @param collection source collection.
-     * @param filter     predicate for filter.
-     * @param <T>        generic type for collection and predicate.
-     * @return new List of filtered element from source collection.
-     */
-    public static <T> List<T> filterToList(Collection<T> collection, Predicate<T> filter) {
-        return collection.stream()
-                         .filter(filter)
                          .collect(Collectors.toList());
     }
 
@@ -179,25 +165,6 @@ public final class CollectionUtils {
         return collection.stream()
                          .map(mapFunc)
                          .filter(filter)
-                         .collect(Collectors.toList());
-    }
-
-    /**
-     * This method get some collection and filter expected elements and map them  to new type and put results to new List.
-     *
-     * @param collection source collection.
-     * @param filter     predicate for filter by source elements type.
-     * @param mapFunc    map to new type filtered result.
-     * @param <T>        type for source collection.
-     * @param <R>        type for result List.
-     * @return new List with filtered source and another types than source collection.
-     */
-    public static <T, R> List<R> filterToList(Collection<T> collection,
-                                              Predicate<T> filter,
-                                              Function<T, R> mapFunc) {
-        return collection.stream()
-                         .filter(filter)
-                         .map(mapFunc)
                          .collect(Collectors.toList());
     }
 
@@ -227,6 +194,40 @@ public final class CollectionUtils {
      */
     public static <T, R> List<R> mapToList(Function<T, R> mapFunc, Predicate<R> predicate, T... array) {
         return mapToList(asList(array), mapFunc, predicate);
+    }
+
+
+    /**
+     * This method get some collection and filter expected elements and put them to new List.
+     *
+     * @param collection source collection.
+     * @param filter     predicate for filter.
+     * @param <T>        generic type for collection and predicate.
+     * @return new List of filtered element from source collection.
+     */
+    public static <T> List<T> filterToList(Collection<T> collection, Predicate<T> filter) {
+        return collection.stream()
+                         .filter(filter)
+                         .collect(Collectors.toList());
+    }
+
+    /**
+     * This method get some collection and filter expected elements and map them  to new type and put results to new List.
+     *
+     * @param collection source collection.
+     * @param filter     predicate for filter by source elements type.
+     * @param mapFunc    map to new type filtered result.
+     * @param <T>        type for source collection.
+     * @param <R>        type for result List.
+     * @return new List with filtered source and another types than source collection.
+     */
+    public static <T, R> List<R> filterToList(Collection<T> collection,
+                                              Predicate<T> filter,
+                                              Function<T, R> mapFunc) {
+        return collection.stream()
+                         .filter(filter)
+                         .map(mapFunc)
+                         .collect(Collectors.toList());
     }
 
     /**

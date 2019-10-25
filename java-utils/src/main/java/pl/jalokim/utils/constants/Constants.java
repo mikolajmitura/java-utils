@@ -1,10 +1,9 @@
 package pl.jalokim.utils.constants;
 
-public class Constants {
-
-    private Constants() {
-
-    }
+/**
+ * Some useful constants.
+ */
+public final class Constants {
 
     public static final String DOT = ".";
     public static final String TAB = "\t";
@@ -14,4 +13,8 @@ public class Constants {
     public static final String COMMA = ",";
     public static final String SLASH = "/";
     public static final String BACK_SLASH = "\\";
+
+    private Constants() {
+
+    }
 }
