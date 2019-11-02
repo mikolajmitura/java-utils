@@ -11,8 +11,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import static java.lang.String.join;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.eq;
@@ -95,11 +97,17 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo(String.format("Caught expected exception type: %s but has another message than expected",
                                                                             SimpleException.class.getCanonicalName()));
-            assertThat(assertionError.getCause().getMessage()).isEqualTo("expected:<\"[another message (not expected)]\"> but was:<\"[expected Message]\">");
+
+            assertThat(assertionError.getCause().getMessage()).isEqualTo(concatAsNewLines("",
+                                                                                          "Expecting:",
+                                                                                          " <\"expected Message\">",
+                                                                                          "to be equal to:",
+                                                                                          " <\"another message (not expected)\">",
+                                                                                          "but was not."));
             assertThat(assertionError.getCause() instanceof AssertionError).isTrue();
             verify(assertionChecker, never()).invokeMethod();
             verify(mockInTestableInstance, never()).invokeMethod();
@@ -121,7 +129,7 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
 
             RuntimeException runtimeException = new RuntimeException(EXPECTED_AS_SET_MSG);
             AssertionError expected = new AssertionError("Expected exception type: " + SimpleException.class.getCanonicalName()
@@ -150,7 +158,7 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo("Nothing was thrown! Expected exception: " + SimpleException.class.getCanonicalName() + " with message: " + EXPECTED_MSG);
             verify(assertionChecker, never()).invokeMethod();
@@ -194,7 +202,7 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
 
             RuntimeException runtimeException = new RuntimeException(EXPECTED_AS_SET_MSG);
             AssertionError expected = new AssertionError("Expected exception type: " + SimpleException.class.getCanonicalName()
@@ -222,7 +230,7 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo("Nothing was thrown! Expected exception: " + SimpleException.class.getCanonicalName());
             verify(assertionChecker, never()).invokeMethod();
@@ -265,12 +273,20 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
 
             // then
             assertThat(assertionError.getMessage()).isEqualTo(String.format("Caught expected exception type: %s but has another message than expected",
                                                                             SimpleException.class.getCanonicalName()));
-            assertThat(assertionError.getCause().getMessage()).isEqualTo("expected:<\"[another message (not expected)]\"> but was:<\"[expected Message]\">");
+
+            assertThat(assertionError.getCause().getMessage())
+                    .isEqualTo(concatAsNewLines("",
+                                                "Expecting:",
+                                                " <\"expected Message\">",
+                                                "to be equal to:",
+                                                " <\"another message (not expected)\">",
+                                                "but was not."));
+
             assertThat(assertionError.getCause() instanceof AssertionError).isTrue();
             verify(assertionChecker, never()).invokeMethod();
             verify(mockInTestableInstance, never()).invokeMethod();
@@ -291,7 +307,7 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
 
             RuntimeException runtimeException = new RuntimeException(EXPECTED_AS_SET_MSG);
             AssertionError expected = new AssertionError("Expected exception type: " + SimpleException.class.getCanonicalName()
@@ -319,7 +335,7 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo("Nothing was thrown! Expected exception: " + SimpleException.class.getCanonicalName() + " with message: " + EXPECTED_MSG);
             verify(assertionChecker, never()).invokeMethod();
@@ -362,7 +378,7 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
 
             // then
             assertThat(assertionError.getMessage()).isEqualTo(String.format("Caught expected exception type: %s but doesn't contain expected text",
@@ -393,7 +409,7 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
 
             RuntimeException runtimeException = new RuntimeException(EXPECTED_AS_SET_MSG);
             AssertionError expected = new AssertionError("Expected exception type: " + SimpleException.class.getCanonicalName()
@@ -421,7 +437,7 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo("Nothing was thrown! Expected exception: " + SimpleException.class.getCanonicalName() + " which contains text: " + EXPECTED_MSG_PART);
             verify(assertionChecker, never()).invokeMethod();
@@ -472,10 +488,21 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo("Caught expected exception type: pl.jalokim.utils.test.ExpectedErrorUtilTest.SimpleException but has another message lines than expected");
-            assertThat(assertionError.getCause().getMessage()).isEqualTo("expected:<[\"first line\", \"[]third line\"]> but was:<[\"first line\", \"[second line\", \"]third line\"]>");
+
+            assertThat(assertionError.getCause().getMessage())
+                    .isEqualTo(concatAsNewLines("",
+                                                "Expecting:",
+                                                " <\"first line",
+                                                "second line",
+                                                "third line\">",
+                                                "to be equal to:",
+                                                " <\"first line",
+                                                "third line\">",
+                                                "but was not."));
+
             assertThat(assertionError.getCause() instanceof AssertionError).isTrue();
             verify(assertionChecker, never()).invokeMethod();
             verify(mockInTestableInstance, never()).invokeMethod();
@@ -497,7 +524,7 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
 
             RuntimeException runtimeException = new RuntimeException(EXPECTED_AS_SET_MSG);
             AssertionError expected = new AssertionError("Expected exception type: " + SimpleException.class.getCanonicalName()
@@ -525,7 +552,7 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo("Nothing was thrown! Expected exception: " + SimpleException.class.getCanonicalName()
                                                               + " with message lines: " + String.format("first line%n,third line%n,second line"));
@@ -622,11 +649,19 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo(String.format("Caught expected exception type: %s but has another message than expected",
                                                                             SimpleException.class.getCanonicalName()));
-            assertThat(assertionError.getCause().getMessage()).isEqualTo("expected:<\"[another message (not expected)]\"> but was:<\"[expected Message]\">");
+
+            assertThat(assertionError.getCause().getMessage()).isEqualTo(
+                    concatAsNewLines("",
+                                     "Expecting:",
+                                     " <\"expected Message\">",
+                                     "to be equal to:",
+                                     " <\"another message (not expected)\">",
+                                     "but was not."));
+
             assertThat(assertionError.getCause() instanceof AssertionError).isTrue();
             verify(assertionChecker, never()).invokeMethod();
             verify(mockInTestableInstance, never()).invokeMethod();
@@ -648,7 +683,7 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo("Cannot find any nested expected type : java.lang.IllegalArgumentException for caught exception: ");
             assertThat(assertionError.getCause() instanceof ComposedException).isTrue();
@@ -672,7 +707,7 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo("Nothing was thrown! Expected exception: " + SimpleException.class.getCanonicalName() + " with message: expected Message");
             verify(assertionChecker, never()).invokeMethod();
@@ -738,7 +773,7 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo("Cannot find any nested expected type : java.lang.IllegalArgumentException for caught exception: ");
             assertThat(assertionError.getCause() instanceof ComposedException).isTrue();
@@ -761,7 +796,7 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo("Nothing was thrown! Expected exception: " + SimpleException.class.getCanonicalName());
             verify(assertionChecker, never()).invokeMethod();
@@ -825,11 +860,19 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo(String.format("Caught expected exception type: %s but has another message than expected",
                                                                             SimpleException.class.getCanonicalName()));
-            assertThat(assertionError.getCause().getMessage()).isEqualTo("expected:<\"[another message (not expected)]\"> but was:<\"[expected Message]\">");
+
+            assertThat(assertionError.getCause().getMessage())
+                    .isEqualTo(concatAsNewLines("",
+                                                "Expecting:",
+                                                " <\"expected Message\">",
+                                                "to be equal to:",
+                                                " <\"another message (not expected)\">",
+                                                "but was not."));
+
             assertThat(assertionError.getCause() instanceof AssertionError).isTrue();
             verify(assertionChecker, never()).invokeMethod();
             verify(mockInTestableInstance, never()).invokeMethod();
@@ -850,7 +893,7 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo("Cannot find any nested expected type : java.lang.IllegalArgumentException for caught exception: ");
             assertThat(assertionError.getCause() instanceof ComposedException).isTrue();
@@ -873,7 +916,7 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo("Nothing was thrown! Expected exception: " + SimpleException.class.getCanonicalName() + " with message: expected Message");
             verify(assertionChecker, never()).invokeMethod();
@@ -936,7 +979,7 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo(String.format("Caught expected exception type: %s but doesn't contain expected text",
                                                                             SimpleException.class.getCanonicalName()));
@@ -965,7 +1008,7 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo("Cannot find any nested expected type : java.lang.IllegalArgumentException for caught exception: ");
             assertThat(assertionError.getCause() instanceof ComposedException).isTrue();
@@ -988,7 +1031,7 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo("Nothing was thrown! Expected exception: " + SimpleException.class.getCanonicalName() + " which contains text: " + EXPECTED_MSG_PART);
             verify(assertionChecker, never()).invokeMethod();
@@ -1060,11 +1103,21 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo(String.format("Caught expected exception type: %s but has another message lines than expected",
                                                                             SimpleException.class.getCanonicalName()));
-            assertThat(assertionError.getCause().getMessage()).isEqualTo("expected:<[\"first line\", \"[]third line\"]> but was:<[\"first line\", \"[second line\", \"]third line\"]>");
+
+            assertThat(assertionError.getCause().getMessage()).isEqualTo(concatAsNewLines("",
+                                                                                          "Expecting:",
+                                                                                          " <\"first line",
+                                                                                          "second line",
+                                                                                          "third line\">",
+                                                                                          "to be equal to:",
+                                                                                          " <\"first line",
+                                                                                          "third line\">",
+                                                                                          "but was not."));
+
             assertThat(assertionError.getCause() instanceof AssertionError).isTrue();
             verify(assertionChecker, never()).invokeMethod();
             verify(mockInTestableInstance, never()).invokeMethod();
@@ -1086,7 +1139,7 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo("Cannot find any nested expected type : java.lang.IllegalArgumentException for caught exception: ");
             assertThat(assertionError.getCause() instanceof ComposedException).isTrue();
@@ -1109,7 +1162,7 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo("Nothing was thrown! Expected exception: " + SimpleException.class.getCanonicalName() + " with message: expected Message");
             verify(assertionChecker, never()).invokeMethod();
@@ -1192,11 +1245,19 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo(String.format("Caught expected exception type: %s but has another message than expected",
                                                                             SimpleException.class.getCanonicalName()));
-            assertThat(assertionError.getCause().getMessage()).isEqualTo("expected:<\"[another message (not expected)]\"> but was:<\"[expected Message]\">");
+
+            assertThat(assertionError.getCause().getMessage()).isEqualTo(concatAsNewLines("",
+                                                                                          "Expecting:",
+                                                                                          " <\"expected Message\">",
+                                                                                          "to be equal to:",
+                                                                                          " <\"another message (not expected)\">",
+                                                                                          "but was not."));
+
+
             assertThat(assertionError.getCause() instanceof AssertionError).isTrue();
             verify(assertionChecker).invokeMethod();
             verify(mockInTestableInstance, never()).invokeMethod();
@@ -1225,7 +1286,7 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo("Cannot find any nested expected type : java.lang.IllegalArgumentException for caught exception: ");
             assertThat(assertionError.getCause() instanceof ComposedException).isTrue();
@@ -1305,7 +1366,7 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo("Cannot find any nested expected type : java.lang.IllegalArgumentException for caught exception: ");
             assertThat(assertionError.getCause() instanceof ComposedException).isTrue();
@@ -1383,11 +1444,17 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo(String.format("Caught expected exception type: %s but has another message than expected",
                                                                             SimpleException.class.getCanonicalName()));
-            assertThat(assertionError.getCause().getMessage()).isEqualTo("expected:<\"[another message (not expected)]\"> but was:<\"[expected Message]\">");
+
+            assertThat(assertionError.getCause().getMessage()).isEqualTo(concatAsNewLines("",
+                                                                                          "Expecting:",
+                                                                                          " <\"expected Message\">",
+                                                                                          "to be equal to:",
+                                                                                          " <\"another message (not expected)\">",
+                                                                                          "but was not."));
             assertThat(assertionError.getCause() instanceof AssertionError).isTrue();
             verify(assertionChecker).invokeMethod();
             verify(mockInTestableInstance, never()).invokeMethod();
@@ -1414,7 +1481,7 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo("Cannot find any nested expected type : java.lang.IllegalArgumentException for caught exception: ");
             assertThat(assertionError.getCause() instanceof ComposedException).isTrue();
@@ -1493,7 +1560,7 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo(String.format("Caught expected exception type: %s but doesn't contain expected text",
                                                                             SimpleException.class.getCanonicalName()));
@@ -1528,7 +1595,7 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo("Cannot find any nested expected type : java.lang.IllegalArgumentException for caught exception: ");
             assertThat(assertionError.getCause() instanceof ComposedException).isTrue();
@@ -1614,11 +1681,21 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo(String.format("Caught expected exception type: %s but has another message lines than expected",
                                                                             SimpleException.class.getCanonicalName()));
-            assertThat(assertionError.getCause().getMessage()).isEqualTo("expected:<...line\", \"second line\"[]]> but was:<...line\", \"second line\"[, \"third line\"]]>");
+
+            assertThat(assertionError.getCause().getMessage()).isEqualTo(concatAsNewLines("",
+                                                                                          "Expecting:",
+                                                                                          " <\"first line",
+                                                                                          "second line",
+                                                                                          "third line\">",
+                                                                                          "to be equal to:",
+                                                                                          " <\"first line",
+                                                                                          "second line\">",
+                                                                                          "but was not."));
+
             assertThat(assertionError.getCause() instanceof AssertionError).isTrue();
             verify(assertionChecker).invokeMethod();
             verify(mockInTestableInstance, never()).invokeMethod();
@@ -1647,7 +1724,7 @@ public class ExpectedErrorUtilTest {
                                   assertionChecker.invokeMethod()
                          );
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo("Cannot find any nested expected type : java.lang.IllegalArgumentException for caught exception: ");
             assertThat(assertionError.getCause() instanceof ComposedException).isTrue();
@@ -1710,7 +1787,7 @@ public class ExpectedErrorUtilTest {
                          );
 
             fail("should not occurred");
-        } catch(AssertionError assertionError) {
+        } catch (AssertionError assertionError) {
             // then
             assertThat(assertionError.getMessage()).isEqualTo("Nothing was thrown! Expected exception: " + ComposedException.class.getCanonicalName() + " with message: " + COMPOSED_EXCEPTION_MESSAGE);
             verify(assertionChecker, never()).invokeMethod();
@@ -1733,20 +1810,20 @@ public class ExpectedErrorUtilTest {
         private final MockObject mockObject;
 
         void validate(ResultType resultType, String message) throws SimpleException, ComposedException {
-            if(resultType == ResultType.NONE) {
+            if (resultType == ResultType.NONE) {
                 mockObject.invokeMethod();
                 return;
             }
 
-            if(resultType == ResultType.COMPOSED_EX) {
+            if (resultType == ResultType.COMPOSED_EX) {
                 throw new ComposedException(new AnotherException(ANOTHER_MSG, new SimpleException(message)));
             }
 
-            if(resultType == ResultType.SUPER_COMPOSED_EX) {
+            if (resultType == ResultType.SUPER_COMPOSED_EX) {
                 throw new ComposedException(new AnotherException(ANOTHER_MSG, new SimpleException(PROBLEMATIC_ONE, new SimpleException(message))));
             }
 
-            if(resultType == ResultType.SIMPLE_EX) {
+            if (resultType == ResultType.SIMPLE_EX) {
                 throw new SimpleException(message);
 
             }
@@ -1814,7 +1891,7 @@ public class ExpectedErrorUtilTest {
         }
 
         void assertThatChecked() {
-            if(!(checkedPrintln && checkedPrint)) {
+            if (!(checkedPrintln && checkedPrint)) {
                 throw new AssertionError("Should be checked, not invoked method containsExceptionAndMessage and containsInfoAboutStackTrace");
             }
         }
@@ -1835,5 +1912,9 @@ public class ExpectedErrorUtilTest {
             checkedPrint = true;
             return caughtPrint.isEmpty();
         }
+    }
+
+    String concatAsNewLines(String... lines) {
+        return join(String.format("%n"), Arrays.asList(lines));
     }
 }

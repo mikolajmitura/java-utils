@@ -58,7 +58,8 @@ final class AssertionErrorUtils {
         Collections.sort(linesFromException);
         Collections.sort(expectedLinesMessage);
         try {
-            assertThat(linesFromException).isEqualTo(expectedLinesMessage);
+            assertThat(concatElementsAsNewLines(linesFromException))
+                    .isEqualTo(concatElementsAsNewLines(expectedLinesMessage));
         } catch (AssertionError original) {
             throw new WrappedAssertionError(String.format("Caught expected exception type: %s but has another message lines than expected",
                                                           thrownThrowable.getClass().getCanonicalName()),
@@ -68,5 +69,9 @@ final class AssertionErrorUtils {
 
     static String messageLines(List<String> lines) {
         return join(NEW_LINE + ",", lines);
+    }
+
+    private static String concatElementsAsNewLines(List<String> lines) {
+        return join(NEW_LINE, lines);
     }
 }
