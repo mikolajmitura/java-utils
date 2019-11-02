@@ -3,6 +3,7 @@ package pl.jalokim.utils.file;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import pl.jalokim.utils.test.TemporaryTestResources;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,12 +18,16 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static pl.jalokim.utils.file.FileUtils.consumeEveryLineFromFile;
 import static pl.jalokim.utils.file.FileUtils.consumeEveryLineWitNumberFromFile;
+import static pl.jalokim.utils.file.FileUtils.createDirectories;
+import static pl.jalokim.utils.file.FileUtils.createDirectoriesForFile;
+import static pl.jalokim.utils.file.FileUtils.listOfFiles;
 import static pl.jalokim.utils.file.FileUtils.loadFileFromClassPathAsText;
 import static pl.jalokim.utils.file.FileUtils.loadFileFromPathAsText;
 import static pl.jalokim.utils.file.FileUtils.loadFileFromPathToList;
+import static pl.jalokim.utils.file.FileUtils.writeToFile;
 import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.when;
 
-public class FileUtilsTest {
+public class FileUtilsTest extends TemporaryTestResources {
 
     @Rule
     public TemporaryFolder testFolder = new TemporaryFolder();
@@ -108,8 +113,8 @@ public class FileUtilsTest {
         File newFile = testFolder.newFile("new_file_to_save");
         String contentToSave = String.format("line first%nsecond Line__%nend line.......");
         // when
-        FileUtils.writeToFile(newFile.getAbsolutePath(), "old value");
-        FileUtils.writeToFile(newFile.getAbsolutePath(), contentToSave);
+        writeToFile(newFile.getAbsolutePath(), "old value");
+        writeToFile(newFile.getAbsolutePath(), contentToSave);
         // then
         String readContent = loadFileFromPathAsText(newFile.getAbsolutePath());
         assertThat(readContent).isEqualTo(contentToSave);
@@ -120,7 +125,7 @@ public class FileUtilsTest {
         // given
         File newFile = testFolder.newFile("new_file_to_save");
         String contentToSave = String.format("line first%nsecond Line__%nend line.......");
-        FileUtils.writeToFile(newFile.getAbsolutePath(), contentToSave);
+        writeToFile(newFile.getAbsolutePath(), contentToSave);
         // when
         FileUtils.appendToFile(newFile.getAbsolutePath(), String.format("%nnext line%nlast line..."));
         // then
@@ -149,7 +154,7 @@ public class FileUtilsTest {
         // given
         File newFile = testFolder.newFile("new_file_to_save");
         String contentToSave = String.format("line first%nsecond Line__%nend line.......");
-        FileUtils.writeToFile(newFile.getAbsolutePath(), contentToSave);
+        writeToFile(newFile.getAbsolutePath(), contentToSave);
         // when
         FileUtils.writeAllElementsAsLinesToFile(newFile.getAbsolutePath(), Arrays.asList("line first",
                                                                                          "second Line__",
@@ -170,7 +175,7 @@ public class FileUtilsTest {
         // given
         File newFile = testFolder.newFile("new_file_to_save");
         String contentToSave = String.format("line first%nsecond Line__%nend line.......%n");
-        FileUtils.writeToFile(newFile.getAbsolutePath(), contentToSave);
+        writeToFile(newFile.getAbsolutePath(), contentToSave);
         // when
         FileUtils.appendAllElementsAsLinesToFile(newFile.getAbsolutePath(), Arrays.asList("line first",
                                                                                           "second Line__",
@@ -192,8 +197,56 @@ public class FileUtilsTest {
     @Test
     public void cannotReadFromFile() {
         when(() ->
-                     FileUtils.loadFileFromPathAsText("/some_folder_which_not_exist"))
+                     loadFileFromPathAsText("/some_folder_which_not_exist"))
                 .thenException(FileException.class)
                 .thenNestedException(NoSuchFileException.class);
+    }
+
+    @Test
+    public void createFoldersForFile() {
+        // given
+        String pathForFileInTempFolder = getPathForFileInTempFolder("folder/folder2/fileName");
+        // when
+        createDirectoriesForFile(pathForFileInTempFolder);
+        String fileContent = "some_value1";
+        writeToFile(pathForFileInTempFolder, fileContent);
+        // then
+        File file = new File(pathForFileInTempFolder);
+        assertThat(file.isDirectory()).isFalse();
+        String readValue = loadFileFromPathAsText(pathForFileInTempFolder);
+        assertThat(readValue).isEqualTo(fileContent);
+    }
+
+    @Test
+    public void createFoldersAsExpected() {
+        // given
+        String pathForFolder = getPathForFileInTempFolder("folder/folder2");
+        // when
+        createDirectories(pathForFolder);
+        // then
+        File file = new File(pathForFolder);
+        assertThat(file.isDirectory()).isTrue();
+    }
+
+    @Test
+    public void listOfFilesTest() throws IOException {
+        // given
+        tempFolder.newFile("file1");
+        tempFolder.newFile("file2");
+        tempFolder.newFile("file3");
+        tempFolder.newFolder("folder1");
+        tempFolder.newFolder("folder2");
+        // when
+        List<File> fileList = listOfFiles(getPathForTempFolder());
+        List<File> fileListOnlyFolders = listOfFiles(getPathForTempFolder(), File::isDirectory);
+        // then
+        assertThat(fileList).hasSize(5);
+        assertThat(fileListOnlyFolders).hasSize(2);
+    }
+
+    @Test
+    public void emptyListOfFiles() {
+        when(()-> listOfFiles("notExist"))
+                .thenException(FileException.class, "Provided path: notExist does not exist");
     }
 }

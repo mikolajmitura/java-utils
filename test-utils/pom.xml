@@ -17,6 +17,12 @@
             <artifactId>assertj-core</artifactId>
             <version>${org.assertj.version}</version>
         </dependency>
+        <dependency>
+            <!-- test -->
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

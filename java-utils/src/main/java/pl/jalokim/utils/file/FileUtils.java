@@ -5,6 +5,8 @@ import com.google.common.io.Resources;
 import pl.jalokim.utils.string.StringUtils;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -19,6 +21,7 @@ import java.util.function.Consumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.newBufferedReader;
 import static java.nio.file.Paths.get;
+import static pl.jalokim.utils.collection.Elements.elements;
 
 /**
  * Useful class for Files.
@@ -186,6 +189,44 @@ public final class FileUtils {
         String fileContent = StringUtils.concatElementsAsLines(elementToWrite);
         byte[] strToBytes = fileContent.getBytes(UTF_8);
         catchIoEx(() -> Files.write(path, strToBytes, StandardOpenOption.APPEND));
+    }
+
+    /**
+     * It creates directories recursively, leaf of provided path is expected as file name.
+     *
+     * @param pathToFile as String.
+     */
+    public static void createDirectoriesForFile(String pathToFile) {
+        Path folderPath = get(pathToFile).getParent();
+        if (folderPath != null) {
+            catchIoEx(() -> Files.createDirectories(folderPath));
+        }
+    }
+
+    /**
+     * It creates directories recursively, all path part will be a folder type.
+     *
+     * @param folderPath as String.
+     */
+    public static void createDirectories(String folderPath) {
+        if (folderPath != null) {
+            catchIoEx(() -> Files.createDirectories(get(folderPath)));
+        }
+    }
+
+    public static List<File> listOfFiles(String pathToFile) {
+        return listOfFiles(pathToFile, file -> true);
+    }
+
+    public static List<File> listOfFiles(String pathToFile, FileFilter fileFilter) {
+        File rootFile = new File(pathToFile);
+        File[] files = rootFile.listFiles();
+        if (files == null) {
+            throw new FileException("Provided path: " + pathToFile + " does not exist");
+        }
+        return elements(files)
+                .filter(fileFilter::accept)
+                .asList();
     }
 
     static <T> T catchIoEx(IOExceptionSupplier<T> throwableSupplier) {

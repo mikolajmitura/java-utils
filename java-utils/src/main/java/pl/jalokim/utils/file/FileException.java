@@ -12,4 +12,8 @@ public class FileException extends RuntimeException {
     public FileException(IOException cause) {
         super(cause);
     }
+
+    public FileException(String message) {
+        super(message);
+    }
 }
