@@ -6,7 +6,7 @@
 
     <groupId>pl.jalokim.utils</groupId>
     <artifactId>java-utils-parent</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -28,6 +28,7 @@
         <maven-pmd-plugin.version>3.11.0</maven-pmd-plugin.version>
         <pmd.version>6.9.0</pmd.version>
         <findbugs-maven-plugin.version>3.0.5</findbugs-maven-plugin.version>
+        <enforcer.version>3.0.0-M2</enforcer.version>
 
         <!-- test -->
         <junit.version>4.12</junit.version>
@@ -205,7 +206,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
-                <version>3.0.0-M2</version>
+                <version>${enforcer.version}</version>
                 <executions>
                     <execution>
                         <id>enforce</id>
@@ -345,6 +346,50 @@
                 </plugins>
             </build>
         </profile>
+
+        <profile>
+            <id>skip-code-review</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>${enforcer.version}</version>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-checkstyle-plugin</artifactId>
+                        <version>${maven-checkstyle-plugin.version}</version>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-pmd-plugin</artifactId>
+                        <version>${maven-pmd-plugin.version}</version>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>findbugs-maven-plugin</artifactId>
+                        <version>${findbugs-maven-plugin.version}</version>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+
         <profile>
             <id>release</id>
             <build>
