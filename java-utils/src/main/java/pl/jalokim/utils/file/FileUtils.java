@@ -50,7 +50,7 @@ public final class FileUtils {
      * @return text with file content
      */
     public static String loadFileFromPathAsText(String path, Charset charset) {
-        return catchIoEx(() -> new String(Files.readAllBytes(get(path)), charset));
+        return catchIoExAndReturn(() -> new String(Files.readAllBytes(get(path)), charset));
     }
 
     /**
@@ -71,7 +71,7 @@ public final class FileUtils {
      * @return text with file content
      */
     public static String loadFileFromClassPathAsText(String path, Charset charset) {
-        return catchIoEx(() -> {
+        return catchIoExAndReturn(() -> {
             URL url = Resources.getResource(path);
             return Resources.toString(url, charset);
         });
@@ -98,7 +98,7 @@ public final class FileUtils {
      * @param consumerLine which consume every line
      */
     public static void consumeEveryLineFromFile(String path, Consumer<String> consumerLine) {
-        catchIoEx(() -> {
+        catchIoExAndReturn(() -> {
             try (BufferedReader br = newBufferedReader(get(path))) {
                 String line;
                 while ((line = br.readLine()) != null) {
@@ -117,7 +117,7 @@ public final class FileUtils {
      * @param consumerLineIndex which consume every line with index of them in file
      */
     public static void consumeEveryLineWitNumberFromFile(String path, BiConsumer<Long, String> consumerLineIndex) {
-        catchIoEx(() -> {
+        catchIoExAndReturn(() -> {
             long index = 0;
             try (BufferedReader br = newBufferedReader(get(path))) {
                 String line;
@@ -150,7 +150,7 @@ public final class FileUtils {
     public static void writeToFile(String filePath, String fileContent) {
         Path path = get(filePath);
         byte[] strToBytes = fileContent.getBytes(UTF_8);
-        catchIoEx(() -> Files.write(path, strToBytes));
+        catchIoExAndReturn(() -> Files.write(path, strToBytes));
     }
 
     /**
@@ -162,7 +162,7 @@ public final class FileUtils {
     public static void appendToFile(String filePath, String fileContent) {
         Path path = get(filePath);
         byte[] strToBytes = fileContent.getBytes(UTF_8);
-        catchIoEx(() -> Files.write(path, strToBytes, StandardOpenOption.APPEND));
+        catchIoExAndReturn(() -> Files.write(path, strToBytes, StandardOpenOption.APPEND));
     }
 
     /**
@@ -175,7 +175,7 @@ public final class FileUtils {
         Path path = get(filePath);
         String fileContent = StringUtils.concatElementsAsLines(elementToWrite);
         byte[] strToBytes = fileContent.getBytes(UTF_8);
-        catchIoEx(() -> Files.write(path, strToBytes));
+        catchIoExAndReturn(() -> Files.write(path, strToBytes));
     }
 
     /**
@@ -188,7 +188,7 @@ public final class FileUtils {
         Path path = get(filePath);
         String fileContent = StringUtils.concatElementsAsLines(elementToWrite);
         byte[] strToBytes = fileContent.getBytes(UTF_8);
-        catchIoEx(() -> Files.write(path, strToBytes, StandardOpenOption.APPEND));
+        catchIoExAndReturn(() -> Files.write(path, strToBytes, StandardOpenOption.APPEND));
     }
 
     /**
@@ -199,7 +199,7 @@ public final class FileUtils {
     public static void createDirectoriesForFile(String pathToFile) {
         Path folderPath = get(pathToFile).getParent();
         if (folderPath != null) {
-            catchIoEx(() -> Files.createDirectories(folderPath));
+            catchIoExAndReturn(() -> Files.createDirectories(folderPath));
         }
     }
 
@@ -210,7 +210,7 @@ public final class FileUtils {
      */
     public static void createDirectories(String folderPath) {
         if (folderPath != null) {
-            catchIoEx(() -> Files.createDirectories(get(folderPath)));
+            catchIoExAndReturn(() -> Files.createDirectories(get(folderPath)));
         }
     }
 
@@ -229,9 +229,17 @@ public final class FileUtils {
                 .asList();
     }
 
-    static <T> T catchIoEx(IOExceptionSupplier<T> throwableSupplier) {
+    static <T> T catchIoExAndReturn(IOExceptionSupplier<T> throwableSupplier) {
         try {
             return throwableSupplier.get();
+        } catch (IOException ex) {
+            throw new FileException(ex);
+        }
+    }
+
+    static void catchIoEx(IOExceptionRunnable ioExceptionRunnable) {
+        try {
+             ioExceptionRunnable.run();
         } catch (IOException ex) {
             throw new FileException(ex);
         }
@@ -248,4 +256,8 @@ public final class FileUtils {
         T get() throws IOException;
     }
 
+    @FunctionalInterface
+    interface IOExceptionRunnable {
+        void run() throws IOException;
+    }
 }

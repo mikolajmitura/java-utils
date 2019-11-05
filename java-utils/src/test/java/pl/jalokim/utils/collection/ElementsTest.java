@@ -2,6 +2,8 @@ package pl.jalokim.utils.collection;
 
 
 import org.junit.Test;
+import pl.jalokim.utils.reflection.beans.inheritiance.ClassForTest;
+import pl.jalokim.utils.reflection.beans.inheritiance.Event;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -126,5 +128,36 @@ public class ElementsTest {
         // then
         assertThat(sourceList).containsExactlyElementsOf(collectedElements);
         assertThat(collectedIndexes).containsExactlyElementsOf(asList(0, 1, 2, 3));
+    }
+
+    @Test
+    public void flatMapTest() {
+        // given
+        List<ClassForTest> classesForTest = new ArrayList<>();
+        classesForTest.add(createClassForTest(createEvent("type1"), createEvent("type2"), createEvent("type3")));
+        classesForTest.add(createClassForTest(createEvent("type4"), createEvent("type5"), createEvent("type6")));
+        classesForTest.add(createClassForTest(createEvent("type7"), createEvent("type8"), createEvent("type9")));
+        // when
+        Elements<Event> eventElements = elements(classesForTest).flatMap(classForTest -> classForTest.getEventsAsList().stream());
+        List<Event> events = eventElements.asList();
+        // then
+        assertThat(events).hasSize(9);
+        assertThat(events.get(0)).isEqualTo(createEvent("type1"));
+        assertThat(events.get(3)).isEqualTo(createEvent("type4"));
+        assertThat(events.get(8)).isEqualTo(createEvent("type9"));
+        assertThat(eventElements.getFirst()).isEqualTo(createEvent("type1"));
+        assertThat(eventElements.getLast()).isEqualTo(createEvent("type9"));
+    }
+
+    private ClassForTest createClassForTest(Event... events) {
+        ClassForTest classForTest = new ClassForTest();
+        classForTest.setEventsAsList(asList(events));
+        return classForTest;
+    }
+
+    private Event createEvent(String typeName) {
+        Event event = new Event();
+        event.setTypeName(typeName);
+        return event;
     }
 }

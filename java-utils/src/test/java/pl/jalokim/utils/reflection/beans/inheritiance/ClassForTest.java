@@ -1,6 +1,8 @@
 package pl.jalokim.utils.reflection.beans.inheritiance;
 
 
+import lombok.Data;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -9,6 +11,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 
+@Data
 public class ClassForTest {
     private Event[] events;
     private List<Event> eventsAsList;

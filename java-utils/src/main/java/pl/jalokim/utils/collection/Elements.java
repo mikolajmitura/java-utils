@@ -52,6 +52,18 @@ public final class Elements<T> {
         return new Elements<>(this.stream.map(mapper));
     }
 
+    public <R> Elements<R> flatMap(Function<? super T, ? extends Stream<? extends R>> mapper) {
+        return new Elements<>(this.stream.flatMap(mapper));
+    }
+
+    public T getFirst() {
+        return stream.findFirst().get();
+    }
+
+    public T getLast() {
+        return CollectionUtils.getLast(asList());
+    }
+
     public List<T> asList() {
         return unmodifiableList(new ArrayList<>(stream.collect(toList())));
     }
