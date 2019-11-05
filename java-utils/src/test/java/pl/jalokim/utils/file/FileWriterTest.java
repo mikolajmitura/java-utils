@@ -20,6 +20,9 @@ public class FileWriterTest extends TemporaryTestResources {
         try (FileWriter fileWriter = new FileWriter(tempFile)) {
             fileWriter.append("text1");
             fileWriter.appendAndNextLine("text2");
+            fileWriter.flush();
+            String fileContent = loadFileFromPathAsText(tempFile);
+            assertThat(fileContent).isEqualTo(String.format("text1text2%n"));
             fileWriter.appendNextLine();
             fileWriter.appendAndNextLine("text3");
         }

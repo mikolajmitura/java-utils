@@ -145,8 +145,8 @@ public class ElementsTest {
         assertThat(events.get(0)).isEqualTo(createEvent("type1"));
         assertThat(events.get(3)).isEqualTo(createEvent("type4"));
         assertThat(events.get(8)).isEqualTo(createEvent("type9"));
-        assertThat(eventElements.getFirst()).isEqualTo(createEvent("type1"));
-        assertThat(eventElements.getLast()).isEqualTo(createEvent("type9"));
+        assertThat(elements(events).getFirst()).isEqualTo(createEvent("type1"));
+        assertThat(elements(events).getLast()).isEqualTo(createEvent("type9"));
     }
 
     private ClassForTest createClassForTest(Event... events) {

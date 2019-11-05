@@ -209,9 +209,7 @@ public final class FileUtils {
      * @param folderPath as String.
      */
     public static void createDirectories(String folderPath) {
-        if (folderPath != null) {
-            catchIoExAndReturn(() -> Files.createDirectories(get(folderPath)));
-        }
+        catchIoExAndReturn(() -> Files.createDirectories(get(folderPath)));
     }
 
     public static List<File> listOfFiles(String pathToFile) {
@@ -239,7 +237,7 @@ public final class FileUtils {
 
     static void catchIoEx(IOExceptionRunnable ioExceptionRunnable) {
         try {
-             ioExceptionRunnable.run();
+            ioExceptionRunnable.run();
         } catch (IOException ex) {
             throw new FileException(ex);
         }

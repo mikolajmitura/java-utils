@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static pl.jalokim.utils.file.FileUtils.catchIoEx;
 import static pl.jalokim.utils.file.FileUtils.consumeEveryLineFromFile;
 import static pl.jalokim.utils.file.FileUtils.consumeEveryLineWitNumberFromFile;
 import static pl.jalokim.utils.file.FileUtils.createDirectories;
@@ -218,6 +219,23 @@ public class FileUtilsTest extends TemporaryTestResources {
     }
 
     @Test
+    public void willNotThrowException() {
+        createDirectoriesForFile("test");
+    }
+
+    @Test
+    public void catchIoExReturnFileException() {
+        when(
+                () -> catchIoEx(
+                        () -> {
+                            throw new NoSuchFileException("some text");
+                        })
+            )
+                .thenException(FileException.class)
+                .thenNestedException(new NoSuchFileException("some text"));
+    }
+
+    @Test
     public void createFoldersAsExpected() {
         // given
         String pathForFolder = getPathForFileInTempFolder("folder/folder2");
@@ -246,7 +264,7 @@ public class FileUtilsTest extends TemporaryTestResources {
 
     @Test
     public void emptyListOfFiles() {
-        when(()-> listOfFiles("notExist"))
+        when(() -> listOfFiles("notExist"))
                 .thenException(FileException.class, "Provided path: notExist does not exist");
     }
 }

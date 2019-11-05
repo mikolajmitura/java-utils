@@ -13,15 +13,17 @@ import java.util.function.Function;
  * Useful for assert test which throws exception with certain text, with certain lines of test or exactly expected message.
  */
 @RequiredArgsConstructor
-@Getter
 @Setter
 class ExpectedErrorUtil<T> {
 
     private final AtomicBoolean exceptionNotThrown = new AtomicBoolean(false);
     private final ThrowableRunnable instruction;
+    @Getter
     private final Class<? extends Throwable> expectedExceptionType;
+    @Getter
     private final T expectedMessage;
     private final Function<T, String> messageBuilder;
+    @Getter
     private final BiConsumer<Throwable, T> assertionFunction;
     private Throwable caughtException;
 

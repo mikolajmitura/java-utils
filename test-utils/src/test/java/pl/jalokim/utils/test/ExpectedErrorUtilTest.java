@@ -102,12 +102,7 @@ public class ExpectedErrorUtilTest {
             assertThat(assertionError.getMessage()).isEqualTo(String.format("Caught expected exception type: %s but has another message than expected",
                                                                             SimpleException.class.getCanonicalName()));
 
-            assertThat(assertionError.getCause().getMessage()).isEqualTo(concatAsNewLines("",
-                                                                                          "Expecting:",
-                                                                                          " <\"expected Message\">",
-                                                                                          "to be equal to:",
-                                                                                          " <\"another message (not expected)\">",
-                                                                                          "but was not."));
+            assertThat(assertionError.getCause().getMessage()).isEqualTo("expected:<\"[another message (not expected)]\"> but was:<\"[expected Message]\">");
             assertThat(assertionError.getCause() instanceof AssertionError).isTrue();
             verify(assertionChecker, never()).invokeMethod();
             verify(mockInTestableInstance, never()).invokeMethod();
@@ -280,12 +275,7 @@ public class ExpectedErrorUtilTest {
                                                                             SimpleException.class.getCanonicalName()));
 
             assertThat(assertionError.getCause().getMessage())
-                    .isEqualTo(concatAsNewLines("",
-                                                "Expecting:",
-                                                " <\"expected Message\">",
-                                                "to be equal to:",
-                                                " <\"another message (not expected)\">",
-                                                "but was not."));
+                    .isEqualTo("expected:<\"[another message (not expected)]\"> but was:<\"[expected Message]\">");
 
             assertThat(assertionError.getCause() instanceof AssertionError).isTrue();
             verify(assertionChecker, never()).invokeMethod();
@@ -493,15 +483,10 @@ public class ExpectedErrorUtilTest {
             assertThat(assertionError.getMessage()).isEqualTo("Caught expected exception type: pl.jalokim.utils.test.ExpectedErrorUtilTest.SimpleException but has another message lines than expected");
 
             assertThat(assertionError.getCause().getMessage())
-                    .isEqualTo(concatAsNewLines("",
-                                                "Expecting:",
-                                                " <\"first line",
-                                                "second line",
-                                                "third line\">",
-                                                "to be equal to:",
-                                                " <\"first line",
-                                                "third line\">",
-                                                "but was not."));
+                    .isEqualTo(concatAsNewLines("expected:<\"first line",
+                                                "[]third line\"> but was:<\"first line",
+                                                "[second line",
+                                                "]third line\">"));
 
             assertThat(assertionError.getCause() instanceof AssertionError).isTrue();
             verify(assertionChecker, never()).invokeMethod();
@@ -654,13 +639,7 @@ public class ExpectedErrorUtilTest {
             assertThat(assertionError.getMessage()).isEqualTo(String.format("Caught expected exception type: %s but has another message than expected",
                                                                             SimpleException.class.getCanonicalName()));
 
-            assertThat(assertionError.getCause().getMessage()).isEqualTo(
-                    concatAsNewLines("",
-                                     "Expecting:",
-                                     " <\"expected Message\">",
-                                     "to be equal to:",
-                                     " <\"another message (not expected)\">",
-                                     "but was not."));
+            assertThat(assertionError.getCause().getMessage()).isEqualTo("expected:<\"[another message (not expected)]\"> but was:<\"[expected Message]\">");
 
             assertThat(assertionError.getCause() instanceof AssertionError).isTrue();
             verify(assertionChecker, never()).invokeMethod();
@@ -866,12 +845,7 @@ public class ExpectedErrorUtilTest {
                                                                             SimpleException.class.getCanonicalName()));
 
             assertThat(assertionError.getCause().getMessage())
-                    .isEqualTo(concatAsNewLines("",
-                                                "Expecting:",
-                                                " <\"expected Message\">",
-                                                "to be equal to:",
-                                                " <\"another message (not expected)\">",
-                                                "but was not."));
+                    .isEqualTo("expected:<\"[another message (not expected)]\"> but was:<\"[expected Message]\">");
 
             assertThat(assertionError.getCause() instanceof AssertionError).isTrue();
             verify(assertionChecker, never()).invokeMethod();
@@ -1108,15 +1082,10 @@ public class ExpectedErrorUtilTest {
             assertThat(assertionError.getMessage()).isEqualTo(String.format("Caught expected exception type: %s but has another message lines than expected",
                                                                             SimpleException.class.getCanonicalName()));
 
-            assertThat(assertionError.getCause().getMessage()).isEqualTo(concatAsNewLines("",
-                                                                                          "Expecting:",
-                                                                                          " <\"first line",
-                                                                                          "second line",
-                                                                                          "third line\">",
-                                                                                          "to be equal to:",
-                                                                                          " <\"first line",
-                                                                                          "third line\">",
-                                                                                          "but was not."));
+            assertThat(assertionError.getCause().getMessage()).isEqualTo(concatAsNewLines("expected:<\"first line",
+                                                                                          "[]third line\"> but was:<\"first line",
+                                                                                          "[second line",
+                                                                                          "]third line\">"));
 
             assertThat(assertionError.getCause() instanceof AssertionError).isTrue();
             verify(assertionChecker, never()).invokeMethod();
@@ -1250,12 +1219,7 @@ public class ExpectedErrorUtilTest {
             assertThat(assertionError.getMessage()).isEqualTo(String.format("Caught expected exception type: %s but has another message than expected",
                                                                             SimpleException.class.getCanonicalName()));
 
-            assertThat(assertionError.getCause().getMessage()).isEqualTo(concatAsNewLines("",
-                                                                                          "Expecting:",
-                                                                                          " <\"expected Message\">",
-                                                                                          "to be equal to:",
-                                                                                          " <\"another message (not expected)\">",
-                                                                                          "but was not."));
+            assertThat(assertionError.getCause().getMessage()).isEqualTo("expected:<\"[another message (not expected)]\"> but was:<\"[expected Message]\">");
 
 
             assertThat(assertionError.getCause() instanceof AssertionError).isTrue();
@@ -1449,12 +1413,7 @@ public class ExpectedErrorUtilTest {
             assertThat(assertionError.getMessage()).isEqualTo(String.format("Caught expected exception type: %s but has another message than expected",
                                                                             SimpleException.class.getCanonicalName()));
 
-            assertThat(assertionError.getCause().getMessage()).isEqualTo(concatAsNewLines("",
-                                                                                          "Expecting:",
-                                                                                          " <\"expected Message\">",
-                                                                                          "to be equal to:",
-                                                                                          " <\"another message (not expected)\">",
-                                                                                          "but was not."));
+            assertThat(assertionError.getCause().getMessage()).isEqualTo("expected:<\"[another message (not expected)]\"> but was:<\"[expected Message]\">");
             assertThat(assertionError.getCause() instanceof AssertionError).isTrue();
             verify(assertionChecker).invokeMethod();
             verify(mockInTestableInstance, never()).invokeMethod();
@@ -1686,15 +1645,10 @@ public class ExpectedErrorUtilTest {
             assertThat(assertionError.getMessage()).isEqualTo(String.format("Caught expected exception type: %s but has another message lines than expected",
                                                                             SimpleException.class.getCanonicalName()));
 
-            assertThat(assertionError.getCause().getMessage()).isEqualTo(concatAsNewLines("",
-                                                                                          "Expecting:",
-                                                                                          " <\"first line",
-                                                                                          "second line",
-                                                                                          "third line\">",
-                                                                                          "to be equal to:",
-                                                                                          " <\"first line",
-                                                                                          "second line\">",
-                                                                                          "but was not."));
+            assertThat(assertionError.getCause().getMessage()).isEqualTo(concatAsNewLines("expected:<...st line",
+                                                                                          "second line[]\"> but was:<...st line",
+                                                                                          "second line[",
+                                                                                          "third line]\">"));
 
             assertThat(assertionError.getCause() instanceof AssertionError).isTrue();
             verify(assertionChecker).invokeMethod();

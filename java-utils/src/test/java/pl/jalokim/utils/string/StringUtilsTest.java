@@ -33,11 +33,15 @@ public class StringUtilsTest {
     public void testIsBlank() {
         boolean result = StringUtils.isBlank("text");
         Assert.assertFalse(result);
+        result = StringUtils.isBlank("  text");
+        Assert.assertFalse(result);
         result = StringUtils.isBlank("              ");
         Assert.assertTrue(result);
         result = StringUtils.isBlank("");
         Assert.assertTrue(result);
         result = StringUtils.isBlank(" ");
+        Assert.assertTrue(result);
+        result = StringUtils.isBlank(null);
         Assert.assertTrue(result);
     }
 
