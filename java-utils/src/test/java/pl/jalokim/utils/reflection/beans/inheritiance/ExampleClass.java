@@ -58,7 +58,6 @@ public class ExampleClass {
     private TupleClass<NextObject[], String> tupleNextObjectArray;
     private StringTuple<Integer, Map<Number, String>> stringTupleIntegerNumber;
     private StringTuple<NextObject, Map<Number, List<String>>> stringTupleNexObject;
-    private ConcreteClass concreteClass;
     private ConcreteClass[][][] threeDimConcreteArray;
 
     public void checkTypesOfStringTupleNexObject() {
@@ -89,12 +88,6 @@ public class ExampleClass {
         private Map<Integer, IntegerInfo> integerInfoByNumber;
         private Map<String, IntegerInfo> integerInfoByText;
         private NextObject someObject;
-        private FinalClass finalClass;
-    }
-
-    public static final class FinalClass {
-        private String text;
-        private NextObject _$nextObject;
     }
 
     public static class ClassForTest2 {
