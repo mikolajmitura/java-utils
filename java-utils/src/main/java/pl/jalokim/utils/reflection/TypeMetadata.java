@@ -24,6 +24,7 @@ import static pl.jalokim.utils.string.StringUtils.concatElements;
 /**
  * Class which represents real types for generic types.
  * This can store information about real generic nested type in classes and in fields.
+ * This needs all generic types resolved as real types.
  */
 @Data
 public class TypeMetadata {
@@ -32,7 +33,6 @@ public class TypeMetadata {
     private final Class<?> rawType;
     private final Map<String, TypeMetadata> genericTypesByRawLabel = new ConcurrentHashMap<>();
     private final TypeMetadata parentTypeMetadata;
-    private final TypeMetadata childMetadata;
 
     TypeMetadata(Class<?> rawType, List<TypeMetadata> genericTypes) {
         this(rawType, genericTypes, null);
@@ -41,7 +41,6 @@ public class TypeMetadata {
     private TypeMetadata(Class<?> rawType, List<TypeMetadata> genericTypes, TypeMetadata childTypeMetadata) {
         this.genericTypes = genericTypes;
         this.rawType = rawType;
-        this.childMetadata = childTypeMetadata;
         List<Type> parametrizedTypesForClass = getParametrizedRawTypes(rawType);
 
         elements(parametrizedTypesForClass)
@@ -77,14 +76,31 @@ public class TypeMetadata {
         return new TypeMetadata(parentClass, types, childMetadata);
     }
 
+    /**
+     * If raw class is generic types then this will return true.
+     * And if raw class is array then it has generic types too.
+     *
+     * @return boolean
+     */
     public boolean hasGenericTypes() {
         return isNotEmpty(genericTypes);
     }
 
+    /**
+     * It returns canonical class name for current raw type.
+     * @return canonical class name
+     */
     public String getCanonicalName() {
         return rawType.getCanonicalName();
     }
 
+    /**
+     * It returns resolved metadata for some raw generic type when exists one.
+     *
+     * @param fieldOwner real owner of raw generic field.
+     * @param typeName real name of label from generic class.
+     * @return instance of TypeMetadata
+     */
     public TypeMetadata getTypeMetadataForField(Class<?> fieldOwner, String typeName) {
         TypeMetadata currentMeta = this;
         while (currentMeta != null) {
@@ -99,6 +115,12 @@ public class TypeMetadata {
         return null;
     }
 
+    /**
+     * It returns metadata for raw generic label for current class, it not search in parents classes.
+     * @param genericLabel real name of generic raw type. For example raw type is List<E>
+     *                     It Returns real metadata for E label in List.
+     * @return instance of TypeMetadata
+     */
     public TypeMetadata getByGenericLabel(String genericLabel) {
         return genericTypesByRawLabel.get(genericLabel);
     }
@@ -115,22 +137,37 @@ public class TypeMetadata {
         return !isArrayType() && MetadataReflectionUtils.isMapType(getRawType());
     }
 
+    /**
+     * When is some bag, it means when is array type or some collection.
+     * @return true when is array type or some collection.
+     */
     public boolean isHavingElementsType() {
         return isArrayType() || MetadataReflectionUtils.isHavingElementsType(getRawType());
     }
 
+    /**
+     * When is simple primitive type.
+     * @return true when is simple primitive type.
+     */
     public boolean isSimpleType() {
         return !isArrayType() && MetadataReflectionUtils.isSimpleType(getRawType());
     }
 
+    /**
+     * When raw class have parent class which is not raw Object.
+     * @return boolean value
+     */
     public boolean hasParent() {
         return parentTypeMetadata != null;
     }
 
-    public boolean hasChild() {
-        return childMetadata != null;
-    }
-
+    /**
+     * It returns metadata for field stored in current raw class
+     * It searches for field in whole raw class hierarchy.
+     *
+     * @param fieldName real field name
+     * @return metadata for field
+     */
     public TypeMetadata getMetaForField(String fieldName) {
         Field field = getField(rawType, fieldName);
         if (field.getGenericType() instanceof Class) {
@@ -140,6 +177,14 @@ public class TypeMetadata {
         }
     }
 
+    /**
+     * It returns metadata for generic type under provided index.
+     * For arrays type, type of array it stored under first index.
+     * Array is treated as generic list.
+     *
+     * @param index of generic type for current raw type.
+     * @return metadata of generic type under provided index.
+     */
     public TypeMetadata getGenericType(int index) {
         if (hasGenericTypes() && getGenericTypes().size() - 1 >= index) {
             return genericTypes.get(index);

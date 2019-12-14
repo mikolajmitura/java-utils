@@ -1,5 +1,8 @@
 package pl.jalokim.utils.reflection;
 
+/**
+ * Fix type to string where for inner classes open jdk build in invalid way...
+ */
 final class ClassNameFixer {
 
     private static final char DOLLAR_CHAR = '$';

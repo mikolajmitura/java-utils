@@ -408,6 +408,13 @@ public final class MetadataReflectionUtils {
         throw new ReflectionOperationException(format("Cannot find parametrized type for class: '%s', at: %s index", originalClass, index), exception);
     }
 
+    /**
+     * It returns raw class, under the hood is used apache lang3.
+     * When cannot find class name then throws ReflectionOperationException
+     *
+     * @param className name of class
+     * @return instance Of class
+     */
     public static Class<?> getClassForName(String className) {
         try {
             return ClassUtils.getClass(fixClassName(className));
@@ -416,6 +423,14 @@ public final class MetadataReflectionUtils {
         }
     }
 
+    /**
+     * It returns some parametrized types for given class.
+     * But it not search in whole hierarchy of provided class.
+     * It returns only for certain class.
+     *
+     * @param someClass instance of certain class
+     * @return list of parametrized types.
+     */
     public static List<Type> getParametrizedRawTypes(Class<?> someClass) {
         TypeVariable<? extends Class<?>>[] typeParameters = someClass.getTypeParameters();
         if (!isEnumType(someClass) && typeParameters.length > 0) {
@@ -426,10 +441,23 @@ public final class MetadataReflectionUtils {
         return emptyList();
     }
 
+    /**
+     * It builds metadata for provided class.
+     * It resolves generic types for this class and for them super classes.
+     * But it cannot be used for class which doesn't have parametrized real types.
+     *
+     * @param someClass instance of class which has provided all generic types as real class
+     * @return instance of TypeMetadata
+     */
     public static TypeMetadata getTypeMetadataFromClass(Class<?> someClass) {
         return buildFromClass(someClass);
     }
 
+    /**
+     * It build metadata from provided field but field needs to have all generic types as real classes.
+     * @param field field with all generic types as real classes.
+     * @return instance of TypeMetadata built upon field
+     */
     public static TypeMetadata getTypeMetadataFromField(Field field) {
         try {
             return buildFromField(field);
@@ -440,11 +468,22 @@ public final class MetadataReflectionUtils {
         }
     }
 
+    /**
+     * It returns generic type from certain field by index.
+     * @param field for which should be resolved instance of type metadata under provided index.
+     * @param index index of generic type in field.
+     * @return instance of TypeMetadata from generic type under provided index in provided field.
+     */
     public static TypeMetadata getTypeMetadataFromField(Field field, int index) {
         TypeMetadata parametrizedField = getTypeMetadataFromField(field);
         return parametrizedField.getGenericType(index);
     }
 
+    /**
+     * It build metadata from simple type. Type should contains already info about real classes.
+     * @param type type with real class name for generic types.
+     * @return metadata built on provided type.
+     */
     public static TypeMetadata getTypeMetadataFromType(Type type) {
         if (type instanceof Class) {
             return buildFromClass((Class<?>) type);
@@ -453,6 +492,14 @@ public final class MetadataReflectionUtils {
         }
     }
 
+
+    /**
+     * It returns metadata of type stored in field which is array type.
+     * It returns metadata for type of array.
+     *
+     * @param field array field
+     * @return metadata for stored type in provided array field.
+     */
     public static TypeMetadata getTypeMetadataOfArray(Field field) {
         if (!isArrayType(field.getType())) {
             throw new ReflectionOperationException(format(FIELD_IS_NOT_ARRAY_MSG, field, field.getType()));
