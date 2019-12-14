@@ -2,7 +2,7 @@ package pl.jalokim.utils.collection;
 
 
 import org.junit.Test;
-import pl.jalokim.utils.reflection.beans.inheritiance.ClassForTest;
+import pl.jalokim.utils.reflection.beans.inheritiance.ExampleClass;
 import pl.jalokim.utils.reflection.beans.inheritiance.Event;
 
 import java.util.ArrayList;
@@ -133,7 +133,7 @@ public class ElementsTest {
     @Test
     public void flatMapTest() {
         // given
-        List<ClassForTest> classesForTest = new ArrayList<>();
+        List<ExampleClass> classesForTest = new ArrayList<>();
         classesForTest.add(createClassForTest(createEvent("type1"), createEvent("type2"), createEvent("type3")));
         classesForTest.add(createClassForTest(createEvent("type4"), createEvent("type5"), createEvent("type6")));
         classesForTest.add(createClassForTest(createEvent("type7"), createEvent("type8"), createEvent("type9")));
@@ -149,8 +149,8 @@ public class ElementsTest {
         assertThat(elements(events).getLast()).isEqualTo(createEvent("type9"));
     }
 
-    private ClassForTest createClassForTest(Event... events) {
-        ClassForTest classForTest = new ClassForTest();
+    private ExampleClass createClassForTest(Event... events) {
+        ExampleClass classForTest = new ExampleClass();
         classForTest.setEventsAsList(asList(events));
         return classForTest;
     }

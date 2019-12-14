@@ -1,5 +1,6 @@
 package pl.jalokim.utils.reflection;
 
+import org.apache.commons.lang3.ClassUtils;
 import org.reflections.Reflections;
 import pl.jalokim.utils.string.StringUtils;
 
@@ -7,29 +8,40 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static java.lang.String.format;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableSet;
 import static pl.jalokim.utils.collection.CollectionUtils.filterToSet;
 import static pl.jalokim.utils.collection.CollectionUtils.mapToList;
+import static pl.jalokim.utils.collection.Elements.elements;
+import static pl.jalokim.utils.reflection.ClassNameFixer.fixClassName;
+import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildForArrayField;
+import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildFromClass;
+import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildFromField;
+import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildFromType;
 
 /**
  * Gather some metadata about classes.
  */
+@SuppressWarnings("PMD.GodClass")
 public final class MetadataReflectionUtils {
 
     private static final List<Class<?>> SIMPLE_CLASSES = createSimpleClassesList();
     private static final List<Class<?>> SIMPLE_NUMBERS = createPrimitiveClassesList();
+    private static final String FIELD_IS_NOT_ARRAY_MSG = "field: '%s' is not array type, is type: %s";
 
     private MetadataReflectionUtils() {
 
@@ -46,7 +58,7 @@ public final class MetadataReflectionUtils {
         classes.add(LocalDateTime.class);
         classes.add(LocalTime.class);
         classes.add(ZonedDateTime.class);
-        return Collections.unmodifiableList(classes);
+        return unmodifiableList(classes);
     }
 
     private static List<Class<?>> createPrimitiveClassesList() {
@@ -56,7 +68,7 @@ public final class MetadataReflectionUtils {
         classes.add(byte.class);
         classes.add(long.class);
         classes.add(float.class);
-        return Collections.unmodifiableList(classes);
+        return unmodifiableList(classes);
     }
 
     /**
@@ -109,7 +121,7 @@ public final class MetadataReflectionUtils {
      */
     public static Class<?> getTypeOfArrayField(Field field) {
         if (!isArrayType(field.getType())) {
-            throw new ReflectionOperationException(format("field: '%s' is not array type, is type: %s", field, field.getType()));
+            throw new ReflectionOperationException(format(FIELD_IS_NOT_ARRAY_MSG, field, field.getType()));
         }
         return field.getType().getComponentType();
     }
@@ -394,5 +406,58 @@ public final class MetadataReflectionUtils {
             }
         }
         throw new ReflectionOperationException(format("Cannot find parametrized type for class: '%s', at: %s index", originalClass, index), exception);
+    }
+
+    public static Class<?> getClassForName(String className) {
+        try {
+            return ClassUtils.getClass(fixClassName(className));
+        } catch (ClassNotFoundException e) {
+            throw new ReflectionOperationException(e);
+        }
+    }
+
+    public static List<Type> getParametrizedRawTypes(Class<?> someClass) {
+        TypeVariable<? extends Class<?>>[] typeParameters = someClass.getTypeParameters();
+        if (!isEnumType(someClass) && typeParameters.length > 0) {
+            List<Type> types = new ArrayList<>(elements(typeParameters)
+                                                       .asList());
+            return unmodifiableList(types);
+        }
+        return emptyList();
+    }
+
+    public static TypeMetadata getTypeMetadataFromClass(Class<?> someClass) {
+        return buildFromClass(someClass);
+    }
+
+    public static TypeMetadata getTypeMetadataFromField(Field field) {
+        try {
+            return buildFromField(field);
+        } catch (UnresolvedRealClassException ex) {
+            throw new UnresolvedRealClassException(
+                    format("Cannot resolve some type for field: %s for class: %s",
+                                  field.getName(), field.getDeclaringClass()), ex);
+        }
+    }
+
+    public static TypeMetadata getTypeMetadataFromField(Field field, int index) {
+        TypeMetadata parametrizedField = getTypeMetadataFromField(field);
+        return parametrizedField.getGenericType(index);
+    }
+
+    public static TypeMetadata getTypeMetadataFromType(Type type) {
+        if (type instanceof Class) {
+            return buildFromClass((Class<?>) type);
+        } else {
+            return buildFromType(type);
+        }
+    }
+
+    public static TypeMetadata getTypeMetadataOfArray(Field field) {
+        if (!isArrayType(field.getType())) {
+            throw new ReflectionOperationException(format(FIELD_IS_NOT_ARRAY_MSG, field, field.getType()));
+        }
+        TypeMetadata typeMetadata = buildForArrayField(field);
+        return typeMetadata.getGenericType(0);
     }
 }
