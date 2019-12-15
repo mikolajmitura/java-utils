@@ -2,6 +2,7 @@ package pl.jalokim.utils.string;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -205,6 +206,21 @@ public final class StringUtils {
     }
 
     /**
+     * Concatenate elements with prefix, join text between all elements and with suffix value with mapper from E type to String.
+     *
+     * @param textPrefix text before all concatenated text
+     * @param collection elements to concatenate
+     * @param joinText   value between all texts.
+     * @param textSuffix text after all concatenated text
+     * @param <E>        generic type of collection.
+     * @return concatenated text with empty text.
+     */
+    public static <E> String concatElements(String textPrefix, Collection<E> collection,
+                                            String joinText, String textSuffix) {
+        return concatElements(textPrefix, collection, Objects::toString, joinText, textSuffix);
+    }
+
+    /**
      * This method concatenate all texts from array with join Text.
      *
      * @param joinText between all varargs.
@@ -223,5 +239,33 @@ public final class StringUtils {
      */
     public static String concat(String... texts) {
         return concatElements(asList(texts), EMPTY);
+    }
+
+    /**
+     * concatenate all object with empty string value.
+     *
+     * @param texts to concatenate
+     * @return concatenated text
+     */
+    public static String concatObjects(Object... texts) {
+        return concatElements(asList(texts), EMPTY);
+    }
+
+    /**
+     * It returns number of searched char in provided text.
+     *
+     * @param text         for search
+     * @param searchedChar char which is searched
+     * @return number how many times it is in this text
+     */
+    public static int countSearchedChar(String text, char searchedChar) {
+        char[] chars = text.toCharArray();
+        int counter = 0;
+        for (char aChar : chars) {
+            if (aChar == searchedChar) {
+                counter++;
+            }
+        }
+        return counter;
     }
 }

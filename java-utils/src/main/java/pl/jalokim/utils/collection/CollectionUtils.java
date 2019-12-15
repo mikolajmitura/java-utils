@@ -313,14 +313,14 @@ public final class CollectionUtils {
     }
 
     /**
-     * It add to list if is not present already.
+     * It add to collection if is not present already.
      *
      * @param list    where will be added element.
      * @param element to add.
-     * @param <T>     generic type of list and tried add element.
+     * @param <T>     generic type of collection and tried add element.
      * @return return true when element was added.
      */
-    public static <T> boolean addWhenNotExist(List<T> list, T element) {
+    public static <T> boolean addWhenNotExist(Collection<T> list, T element) {
         if (!list.contains(element)) {
             return list.add(element);
         }
@@ -340,24 +340,24 @@ public final class CollectionUtils {
     }
 
     /**
-     * It returns true when list is null or empty.
+     * It returns true when collection is null or empty.
      *
      * @param list to verify.
      * @param <T>  generic type.
      * @return boolean value.
      */
-    public static <T> boolean isEmpty(List<T> list) {
+    public static <T> boolean isEmpty(Collection<T> list) {
         return list == null || list.isEmpty();
     }
 
     /**
-     * It returns true only when list is not null, and if not empty.
+     * It returns true only when collection is not null, and if not empty.
      *
      * @param list to verify.
      * @param <T>  generic type.
      * @return boolean value.
      */
-    public static <T> boolean isNotEmpty(List<T> list) {
+    public static <T> boolean isNotEmpty(Collection<T> list) {
         return !isEmpty(list);
     }
 
