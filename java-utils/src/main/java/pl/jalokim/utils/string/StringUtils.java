@@ -2,6 +2,7 @@ package pl.jalokim.utils.string;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -202,6 +203,21 @@ public final class StringUtils {
                                            .map(mapper)
                                            .collect(Collectors.joining(joinText))
                                 ).concat(textSuffix);
+    }
+
+    /**
+     * Concatenate elements with prefix, join text between all elements and with suffix value with mapper from E type to String.
+     *
+     * @param textPrefix text before all concatenated text
+     * @param collection elements to concatenate
+     * @param joinText   value between all texts.
+     * @param textSuffix text after all concatenated text
+     * @param <E>        generic type of collection.
+     * @return concatenated text with empty text.
+     */
+    public static <E> String concatElements(String textPrefix, Collection<E> collection,
+                                            String joinText, String textSuffix) {
+        return concatElements(textPrefix, collection, Objects::toString, joinText, textSuffix);
     }
 
     /**
