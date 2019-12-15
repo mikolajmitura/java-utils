@@ -323,6 +323,41 @@ public class TypeWrapperBuilderTest {
         .getGenericType(0).isEqualTo(rootContextAssert.getGenericType(1));
     }
 
+    @Test
+    public void testToStringOnInnerTypeMetaData() {
+        // given
+        TypeWrapperBuilder.InnerTypeMetaData innerTypeMetaData = new TypeWrapperBuilder.InnerTypeMetaData(null, null);
+        String simpleClassName = "pl.jalokim.test.ClassName";
+        populateInnerMetadata(innerTypeMetaData, simpleClassName);
+        // when
+        String text = innerTypeMetaData.toString();
+        // then
+        assertThat(text).isEqualTo("InnerTypeMetaData{parent=null, className=" + simpleClassName + ", genericTypes=[]}");
+    }
+
+    @Test
+    public void testToStringOnInnerTypeMetaDataWithParentData() {
+        // given
+        TypeWrapperBuilder.InnerTypeMetaData innerTypeMetaData = new TypeWrapperBuilder.InnerTypeMetaData(null, null);
+        String simpleClassName = "pl.jalokim.test.ClassName";
+        populateInnerMetadata(innerTypeMetaData, simpleClassName);
+
+        TypeWrapperBuilder.InnerTypeMetaData parentMetadata = new TypeWrapperBuilder.InnerTypeMetaData(null, null);
+        String parentClassName = "pl.jalokim.ParentMeta";
+        populateInnerMetadata(parentMetadata, parentClassName);
+        innerTypeMetaData.setParent(parentMetadata);
+        // when
+        String text = innerTypeMetaData.toString();
+        // then
+        assertThat(text).isEqualTo("InnerTypeMetaData{parent=" + parentClassName + ", className=" + simpleClassName + ", genericTypes=[]}");
+    }
+
+    private void populateInnerMetadata(TypeWrapperBuilder.InnerTypeMetaData innerTypeMetaData, String text) {
+        for (char currentChar : text.toCharArray()) {
+            innerTypeMetaData.appendToClassName(currentChar);
+        }
+    }
+
     @Data
     public static class SomeGenericClass<R, T> {
         R objectR;

@@ -5,6 +5,7 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import pl.jalokim.utils.constants.Constants;
 import pl.jalokim.utils.reflection.beans.SuperObject2;
 import pl.jalokim.utils.reflection.beans.inheritiance.AbstractClassExSuperObject;
 import pl.jalokim.utils.reflection.beans.inheritiance.ExampleClass;
@@ -25,6 +26,7 @@ import java.util.Set;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static pl.jalokim.utils.constants.Constants.COMMA;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getAllChildClassesForClass;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getField;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getMethod;
@@ -44,6 +46,8 @@ import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isSimpleType;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isTextType;
 import static pl.jalokim.utils.reflection.TypeMetadataAssertionUtils.TypeMetadataKind.MAP;
 import static pl.jalokim.utils.reflection.TypeMetadataAssertionUtils.assertTypeMetadata;
+import static pl.jalokim.utils.string.StringUtils.concat;
+import static pl.jalokim.utils.string.StringUtils.concatElements;
 import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.when;
 
 public class MetadataReflectionUtilsTest {
@@ -611,6 +615,64 @@ public class MetadataReflectionUtilsTest {
         // then
         assertThat(fieldMetadata.getRawType()).isEqualTo(Map.class);
         assertThat(fieldMetadata.getGenericTypes()).hasSize(2);
+    }
+
+    @Test
+    public void buildFromSomeOwnTypeImpl() {
+        // given
+        Type type = new Type() {
+            @Override
+            public String getTypeName() {
+                return buildTypeName(ExampleClass.class, buildTypeName(List.class), buildTypeName(Map.class, buildTypeName(String.class), buildTypeName(Object.class)));
+            }
+        };
+        // when
+        when(()-> getTypeMetadataFromType(type))
+                // then
+                .thenException(ReflectionOperationException.class,
+                               format("raw class: %s doesn't have any parametrized types, but tried put generic types:", ExampleClass.class.getCanonicalName()),
+                               "0. List<Object>",
+                               "1. Map<String,Object>"
+                              );
+    }
+
+    @Test
+    public void cannotFindSomeClassInType() {
+        // given
+        Type type = new Type() {
+            @Override
+            public String getTypeName() {
+                return buildTypeName(ExampleClass.class, buildTypeName(List.class), buildTypeName(Map.class, "pl.test.test.SomeClassName", buildTypeName(Object.class)));
+            }
+        };
+        // when
+        when(()-> getTypeMetadataFromType(type))
+                // then
+                .thenException(UnresolvedRealClassException.class,
+                               "pl.jalokim.utils.reflection.ReflectionOperationException: java.lang.ClassNotFoundException: pl.test.test.SomeClassName");
+    }
+
+    @Test
+    public void invalidLabelNameInClass() {
+        // given
+        Type type = new Type() {
+            @Override
+            public String getTypeName() {
+                return buildTypeName(Map.class, buildTypeName(List.class), "VALUE");
+            }
+        };
+        // when
+        when(()-> getTypeMetadataFromType(type))
+                // then
+                .thenException(UnresolvedRealClassException.class,
+                               "pl.jalokim.utils.reflection.ReflectionOperationException: java.lang.ClassNotFoundException: VALUE");
+    }
+
+    private static String buildTypeName(Class<?> rawClass, String... genericTypes) {
+        if (genericTypes.length > 0) {
+            return concat(rawClass.getCanonicalName(), "<", concatElements(Constants.COMMA, genericTypes),  ">");
+        }
+        return rawClass.getCanonicalName();
     }
 
     @Test

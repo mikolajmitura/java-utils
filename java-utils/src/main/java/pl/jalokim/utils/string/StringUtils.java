@@ -231,7 +231,7 @@ public final class StringUtils {
      * @param texts to concatenate
      * @return concatenated text
      */
-    public static String concat(Object... texts) {
+    public static String concatObjects(Object... texts) {
         return concatElements(asList(texts), EMPTY);
     }
 

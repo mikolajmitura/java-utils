@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.String.format;
 import static java.util.Collections.unmodifiableList;
@@ -17,7 +18,9 @@ import static pl.jalokim.utils.collection.CollectionUtils.isEmpty;
 import static pl.jalokim.utils.collection.CollectionUtils.isNotEmpty;
 import static pl.jalokim.utils.collection.Elements.elements;
 import static pl.jalokim.utils.constants.Constants.COMMA;
+import static pl.jalokim.utils.constants.Constants.DOT;
 import static pl.jalokim.utils.constants.Constants.EMPTY;
+import static pl.jalokim.utils.constants.Constants.SPACE;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getField;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getParametrizedRawTypes;
 import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildFromClass;
@@ -25,6 +28,8 @@ import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildFromField;
 import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildFromType;
 import static pl.jalokim.utils.string.StringUtils.concat;
 import static pl.jalokim.utils.string.StringUtils.concatElements;
+import static pl.jalokim.utils.string.StringUtils.concatElementsAsLines;
+import static pl.jalokim.utils.string.StringUtils.concatObjects;
 
 /**
  * Class which represents real types for generic types.
@@ -45,6 +50,13 @@ public class TypeMetadata {
         List<TypeMetadata> tempGenerics = isEmpty(genericTypes) ? new ArrayList<>() : genericTypes;
         this.rawType = rawType;
         List<Type> parametrizedTypesForClass = getParametrizedRawTypes(rawType);
+        if (isEmpty(parametrizedTypesForClass) && isNotEmpty(tempGenerics) && !rawType.isArray()) {
+            AtomicInteger index = new AtomicInteger();
+            throw new ReflectionOperationException(format("raw class: %s doesn't have any parametrized types, but tried put generic types:%n%s",
+                                                          rawType.getCanonicalName(),
+                                                          concatElementsAsLines(tempGenerics, text -> concatObjects(index.getAndIncrement(), DOT, SPACE, text))
+                                                         ));
+        }
 
         Map<String, TypeMetadata> tempMap = new ConcurrentHashMap<>();
         elements(parametrizedTypesForClass)
