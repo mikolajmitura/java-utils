@@ -7,6 +7,8 @@ import pl.jalokim.utils.constants.Constants;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class StringUtilsTest {
 
     @Test
@@ -169,5 +171,14 @@ public class StringUtilsTest {
         String result = StringUtils.concat("text1", "text2", "_2");
         // then
         Assert.assertEquals("text1text2_2", result);
+    }
+
+    @Test
+    public void concatObjects() {
+        // when
+        String result = StringUtils
+                .concatObjects(1, 2, 3, 1.1, " test");
+        // then
+        assertThat(result).isEqualTo("1231.1 test");
     }
 }

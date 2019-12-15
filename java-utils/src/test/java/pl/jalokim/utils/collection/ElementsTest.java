@@ -2,12 +2,13 @@ package pl.jalokim.utils.collection;
 
 
 import org.junit.Test;
-import pl.jalokim.utils.reflection.beans.inheritiance.ClassForTest;
+import pl.jalokim.utils.reflection.beans.inheritiance.ExampleClass;
 import pl.jalokim.utils.reflection.beans.inheritiance.Event;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
@@ -133,7 +134,7 @@ public class ElementsTest {
     @Test
     public void flatMapTest() {
         // given
-        List<ClassForTest> classesForTest = new ArrayList<>();
+        List<ExampleClass> classesForTest = new ArrayList<>();
         classesForTest.add(createClassForTest(createEvent("type1"), createEvent("type2"), createEvent("type3")));
         classesForTest.add(createClassForTest(createEvent("type4"), createEvent("type5"), createEvent("type6")));
         classesForTest.add(createClassForTest(createEvent("type7"), createEvent("type8"), createEvent("type9")));
@@ -149,15 +150,78 @@ public class ElementsTest {
         assertThat(elements(events).getLast()).isEqualTo(createEvent("type9"));
     }
 
-    private ClassForTest createClassForTest(Event... events) {
-        ClassForTest classForTest = new ClassForTest();
+    @Test
+    public void simpleToStringOnElements() {
+        Object[] objects = {1, 2, 3, 4, "test"};
+        // when
+        String elementsAsText = elements(objects).toString();
+        // then
+        assertThat(elementsAsText).isEqualTo("[1, 2, 3, 4, test]");
+        assertThat(elementsAsText).isEqualTo(elements(objects).asText());
+        assertThat(elementsAsText).isEqualTo(elements(objects).asText(", "));
+    }
+
+    @Test
+    public void asTextWithJoinTextOnElements() {
+        Object[] objects = {1, 2, 3, 4, "test"};
+        // when
+        String elementsAsText = elements(objects).asText("#");
+        // then
+        assertThat(elementsAsText).isEqualTo("[1#2#3#4#test]");
+    }
+
+    @Test
+    public void simpleAsMap() {
+        Event event1 = createEvent("event1");
+        Event event2 = createEvent("event2");
+        Event event3 = createEvent("event3");
+
+        // when
+        Map<String, Event> eventByName = elements(event1, event2, event3)
+                .asMap(Event::getTypeName);
+        // then
+        assertEventMap(eventByName, "event1");
+        assertEventMap(eventByName, "event2");
+        assertEventMap(eventByName, "event3");
+    }
+
+    @Test
+    public void extendedAsMap() {
+        Event event1 = createEvent("event1", 1);
+        Event event2 = createEvent("event2", 2);
+        Event event3 = createEvent("event3", 3);
+
+        // when
+        Map<String, Integer> eventByName = elements(event1, event2, event3)
+                .asMap(Event::getTypeName, Event::getIndex);
+        // then
+        assertEventMap(eventByName, "event1", 1);
+        assertEventMap(eventByName, "event2", 2);
+        assertEventMap(eventByName, "event3", 3);
+    }
+
+    private void assertEventMap(Map<String, Event> eventByName, String mapKey) {
+        assertThat(eventByName.get(mapKey).getTypeName()).isEqualTo(mapKey);
+    }
+
+    private void assertEventMap(Map<String, Integer> eventByName, String mapKey, Integer expectedIndex) {
+        assertThat(eventByName.get(mapKey)).isEqualTo(expectedIndex);
+    }
+
+    private ExampleClass createClassForTest(Event... events) {
+        ExampleClass classForTest = new ExampleClass();
         classForTest.setEventsAsList(asList(events));
         return classForTest;
     }
 
     private Event createEvent(String typeName) {
+        return createEvent(typeName, null);
+    }
+
+    private Event createEvent(String typeName, Integer index) {
         Event event = new Event();
         event.setTypeName(typeName);
+        event.setIndex(index);
         return event;
     }
 }

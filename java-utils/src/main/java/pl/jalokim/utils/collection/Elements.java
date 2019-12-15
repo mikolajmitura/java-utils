@@ -3,12 +3,14 @@ package pl.jalokim.utils.collection;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -17,6 +19,10 @@ import static java.util.Collections.unmodifiableSet;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static pl.jalokim.utils.collection.CollectionUtils.isLastIndex;
+import static pl.jalokim.utils.constants.Constants.COMMA;
+import static pl.jalokim.utils.constants.Constants.SPACE;
+import static pl.jalokim.utils.string.StringUtils.concat;
+import static pl.jalokim.utils.string.StringUtils.concatElements;
 
 /**
  * Simpler API than native java Stream API.
@@ -72,6 +78,15 @@ public final class Elements<T> {
         return unmodifiableSet(new HashSet<>(stream.collect(toSet())));
     }
 
+    public <K> Map<K, T> asMap(Function<? super T, ? extends K> keyMapper) {
+        return stream.collect(Collectors.toMap(keyMapper, Function.identity()));
+    }
+
+    public <K, V> Map<K, V> asMap(Function<? super T, ? extends K> keyMapper,
+                                  Function<? super T, ? extends V> valueMapper) {
+        return stream.collect(Collectors.toMap(keyMapper, valueMapper));
+    }
+
     @SuppressWarnings("PMD.UseVarargs")
     public T[] asArray(T[] array) {
         return stream.collect(toList()).toArray(array);
@@ -79,6 +94,35 @@ public final class Elements<T> {
 
     public Stream<T> asStream() {
         return stream;
+    }
+
+    /**
+     * Concatenate all elements in stream to String.
+     *
+     * @return elements separated ', ' (comma and space) argument within '[element[0], element[1]...]'
+     */
+    @Override
+    public String toString() {
+        return asText();
+    }
+
+    /**
+     * Concatenate all elements in stream to String with join text.
+     *
+     * @param joinText text between every element
+     * @return elements separated join text argument within '[element[0]${JOIN_TEXT}element[1]...]'
+     */
+    public String asText(String joinText) {
+        return concatElements("[", asList(), joinText, "]");
+    }
+
+    /**
+     * Concatenate all elements in stream to String.
+     *
+     * @return elements separated ', ' (comma and space) argument within '[element[0], element[1]...]'
+     */
+    public String asText() {
+        return asText(concat(COMMA, SPACE));
     }
 
     /**
