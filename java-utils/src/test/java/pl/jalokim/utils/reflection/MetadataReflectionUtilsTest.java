@@ -31,6 +31,7 @@ import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getMethod;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getParametrizedRawTypes;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getParametrizedType;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getTypeMetadataFromField;
+import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getTypeMetadataFromType;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getTypeMetadataOfArray;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getTypeOfArrayField;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isArrayType;
@@ -41,6 +42,8 @@ import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isMapType;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isNumberType;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isSimpleType;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isTextType;
+import static pl.jalokim.utils.reflection.TypeMetadataAssertionUtils.TypeMetadataKind.MAP;
+import static pl.jalokim.utils.reflection.TypeMetadataAssertionUtils.assertTypeMetadata;
 import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.when;
 
 public class MetadataReflectionUtilsTest {
@@ -379,7 +382,6 @@ public class MetadataReflectionUtilsTest {
     }
 
 
-
     @Test
     public void getParametrizedTypeTest() {
         // given
@@ -585,6 +587,60 @@ public class MetadataReflectionUtilsTest {
         assertThat(parametrizedTypesForClass).hasSize(2);
         assertThat(parametrizedTypesForClass.get(0).getTypeName()).isEqualTo("R");
         assertThat(parametrizedTypesForClass.get(1).getTypeName()).isEqualTo("T");
+    }
+
+    @Test
+    public void getTypeMetadataFromFieldUnresolvedFieldType() {
+        // given
+        Field field = getField(ExampleClass.TupleClass.class, "valueOfT");
+        when(() ->
+                     getTypeMetadataFromField(field))
+                .thenException(UnresolvedRealClassException.class,
+                               format("Cannot resolve some type for field: %s for class: %s",
+                                      "valueOfT",
+                                      ExampleClass.TupleClass.class.getCanonicalName()));
+        // then
+    }
+
+    @Test
+    public void buildMetadataFromGenericTypeOfField() {
+        // given
+        Field field = getField(ExampleClass.class, "integerInfoByText");
+        // when
+        TypeMetadata fieldMetadata = getTypeMetadataFromType(field.getGenericType());
+        // then
+        assertThat(fieldMetadata.getRawType()).isEqualTo(Map.class);
+        assertThat(fieldMetadata.getGenericTypes()).hasSize(2);
+    }
+
+    @Test
+    public void buildMetadataFromGenericTypeWhenWasRawClass() {
+        // given
+        Type type = Map.class;
+        // when
+        TypeMetadata rawMapMetadata = getTypeMetadataFromType(type);
+        // then
+        assertTypeMetadata(rawMapMetadata, Map.class, 2, MAP)
+                .assertGenericTypesAsRawObject();
+    }
+
+    @Test
+    public void buildMetadataFromGenericTypeWhenWasClass() {
+        // given
+        Type type = ExampleClass.ConcreteClass.class;
+        // when
+        TypeMetadata typeMetadataFromType = getTypeMetadataFromType(type);
+        assertThat(typeMetadataFromType.hasParent()).isTrue();
+        assertThat(typeMetadataFromType.getRawType()).isEqualTo(ExampleClass.ConcreteClass.class);
+    }
+
+    @Test
+    public void cannotGetTypeOfArrayWhenIsNotArrayField() {
+        // given
+        Field field = getField(ExampleClass.class, "eventsAsList");
+        when(() -> getTypeMetadataOfArray(field))
+                .thenException(ReflectionOperationException.class,
+                               "field: '" + field + "' is not array type, is type: " + List.class);
     }
 
     private static FieldExpectation create(Class<?> type, String fieldName, boolean expectedResult) {

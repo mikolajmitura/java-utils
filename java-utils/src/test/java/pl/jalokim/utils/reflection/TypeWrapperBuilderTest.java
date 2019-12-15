@@ -13,9 +13,15 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getField;
+import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getTypeMetadataFromClass;
+import static pl.jalokim.utils.reflection.TypeMetadataAssertionUtils.TypeMetadataKind.ENUM;
+import static pl.jalokim.utils.reflection.TypeMetadataAssertionUtils.TypeMetadataKind.HAVING_ELEMENTS;
+import static pl.jalokim.utils.reflection.TypeMetadataAssertionUtils.TypeMetadataKind.MAP;
+import static pl.jalokim.utils.reflection.TypeMetadataAssertionUtils.TypeMetadataKind.NATIVE_ARRAY;
+import static pl.jalokim.utils.reflection.TypeMetadataAssertionUtils.TypeMetadataKind.NORMAL_BEAN;
+import static pl.jalokim.utils.reflection.TypeMetadataAssertionUtils.assertTypeMetadata;
 import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildFromClass;
 import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildFromField;
-import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.when;
 
 public class TypeWrapperBuilderTest {
 
@@ -23,56 +29,40 @@ public class TypeWrapperBuilderTest {
     public void gatherTypeMetadataForImplSomeGenericClassClass() {
         // given
         // when
-        TypeMetadata typeMetadata = buildFromClass(ImplSomeGenericClass.class);
+        TypeMetadata implSomeGenericClass = buildFromClass(ImplSomeGenericClass.class);
+        TypeMetadata typeMetadataFromMetaUtils = getTypeMetadataFromClass(ImplSomeGenericClass.class);
         // then
-        assertThat(typeMetadata.isArrayType()).isFalse();
-        assertThat(typeMetadata.getRawType()).isEqualTo(ImplSomeGenericClass.class);
-        assertThat(typeMetadata.hasGenericTypes()).isFalse();
+        assertThat(implSomeGenericClass).isEqualTo(typeMetadataFromMetaUtils);
 
-        List<TypeMetadata> genericTypesForParent = typeMetadata.getParentTypeMetadata().getGenericTypes();
-
-        assertThat(genericTypesForParent.get(0).getRawType()).isEqualTo(Number.class);
-        assertThat(genericTypesForParent.get(0).hasGenericTypes()).isFalse();
-
-        TypeMetadata metadataForArrayOfList = genericTypesForParent.get(1);
-        assertThat(metadataForArrayOfList.getRawType()).isEqualTo(List[].class);
-        assertThat(metadataForArrayOfList.hasGenericTypes()).isTrue();
-        assertThat(metadataForArrayOfList.isArrayType()).isTrue();
-        assertThat(metadataForArrayOfList.hasParent()).isFalse();
-        assertThat(metadataForArrayOfList.hasChild()).isFalse();
-
-        TypeMetadata metadataForList = metadataForArrayOfList.getGenericTypes().get(0);
-
-        assertThat(metadataForList.isArrayType()).isFalse();
-        assertThat(metadataForList.getRawType()).isEqualTo(List.class);
-        assertThat(metadataForList.hasGenericTypes()).isTrue();
-
-        TypeMetadata metadataForSet = metadataForList.getGenericTypes().get(0);
-
-        assertThat(metadataForSet.isArrayType()).isFalse();
-        assertThat(metadataForSet.hasGenericTypes()).isTrue();
-
-        TypeMetadata metadataArrayOfSomeBean = metadataForSet.getGenericTypes().get(0);
-
-        assertThat(metadataArrayOfSomeBean.isArrayType()).isTrue();
-        assertThat(metadataArrayOfSomeBean.isHavingElementsType()).isTrue();
-        assertThat(metadataArrayOfSomeBean.getRawType()).isEqualTo(ExampleClass[].class);
-        assertThat(metadataArrayOfSomeBean.hasGenericTypes()).isTrue();
-
-        TypeMetadata metadataOfSomeBean = metadataArrayOfSomeBean.getGenericTypes().get(0);
-        assertThat(metadataOfSomeBean.getRawType()).isEqualTo(ExampleClass.class);
-        assertThat(metadataOfSomeBean.hasGenericTypes()).isFalse();
-        assertThat(metadataOfSomeBean.isArrayType()).isFalse();
+        assertTypeMetadata(implSomeGenericClass,
+                           ImplSomeGenericClass.class,
+                           true,
+                           NORMAL_BEAN)
+                .getParent()
+                .assertGenericType(0, Number.class)
+                .getGenericType(1)
+                .assertTypeMetadata(List[].class, 1, NATIVE_ARRAY)
+                .getGenericType(0)
+                .assertTypeMetadata(List.class, 1, HAVING_ELEMENTS)
+                .getGenericType(0)
+                .assertTypeMetadata(Set.class, 1, HAVING_ELEMENTS)
+                .getGenericType(0)
+                .assertTypeMetadata(ExampleClass[].class, 1, NATIVE_ARRAY)
+                .getGenericType(0)
+                .assertTypeMetadata(ExampleClass.class, NORMAL_BEAN);
     }
 
     @Test
     public void gatherTypeMetadataForSomeGenericClass() {
         // given
         // when
-        when(() -> buildFromClass(SomeGenericClass.class)
-            ).thenException(UnresolvedRealClassException.class,
-                            "Cannot find class for 'R' for class: "
-                            + TypeWrapperBuilderTest.SomeGenericClass.class.getCanonicalName());
+        TypeMetadata someGenericClass = buildFromClass(SomeGenericClass.class);
+        // then
+        assertTypeMetadata(someGenericClass, SomeGenericClass.class,
+                           2,
+                           NORMAL_BEAN)
+                .assertGenericType(0, Object.class, false, 0, NORMAL_BEAN)
+                .assertGenericType(1, Object.class, false, 0, NORMAL_BEAN);
     }
 
     @Test
@@ -81,11 +71,7 @@ public class TypeWrapperBuilderTest {
         // when
         TypeMetadata typeMetadata = buildFromClass(TransactionType.class);
         // then
-        assertThat(typeMetadata.isArrayType()).isFalse();
-        assertThat(typeMetadata.getRawType()).isEqualTo(TransactionType.class);
-        assertThat(typeMetadata.hasGenericTypes()).isFalse();
-        assertThat(typeMetadata.isEnumType()).isTrue();
-        assertThat(typeMetadata.isSimpleType()).isTrue();
+        assertTypeMetadata(typeMetadata, TransactionType.class, ENUM);
     }
 
     @Test
@@ -98,7 +84,6 @@ public class TypeWrapperBuilderTest {
         assertThat(rootMetadataSecondImpl.getRawType()).isEqualTo(SecondImplSomeGenericClass.class);
         assertThat(rootMetadataSecondImpl.hasGenericTypes()).isFalse();
 
-        assertThat(rootMetadataSecondImpl.getChildMetadata()).isNull();
         TypeMetadata someGenericClassMeta = rootMetadataSecondImpl.getParentTypeMetadata();
 
         List<TypeMetadata> genericTypes = someGenericClassMeta.getGenericTypes();
@@ -194,7 +179,6 @@ public class TypeWrapperBuilderTest {
         assertThat(typeMetadata.hasGenericTypes()).isFalse();
         assertThat(typeMetadata.isArrayType()).isFalse();
         assertThat(typeMetadata.getParentTypeMetadata()).isNull();
-        assertThat(typeMetadata.getChildMetadata()).isNull();
     }
 
     @Test
@@ -213,7 +197,6 @@ public class TypeWrapperBuilderTest {
         assertThat(mapMetadata.getGenericType(0).getRawType()).isEqualTo(Number.class);
         assertThat(mapMetadata.getGenericType(1).getRawType()).isEqualTo(String.class);
 
-        assertThat(metadataOfField.getChildMetadata()).isNull();
 
         TypeMetadata metadataOfTupleClass = metadataOfField.getParentTypeMetadata();
         assertThat(metadataOfTupleClass.getRawType()).isEqualTo(ExampleClass.TupleClass.class);
@@ -221,15 +204,12 @@ public class TypeWrapperBuilderTest {
         assertThat(metadataOfTupleClass.getGenericType(1).getRawType()).isEqualTo(Map.class);
         assertThat(mapMetadata == metadataOfTupleClass.getGenericType(1)).isTrue();
 
-        assertThat(metadataOfTupleClass.getChildMetadata() == metadataOfField).isTrue();
-
         TypeMetadata metaOfRawTuple = metadataOfTupleClass.getParentTypeMetadata();
         assertThat(metaOfRawTuple.getRawType()).isEqualTo(ExampleClass.RawTuple.class);
 
         assertThat(metaOfRawTuple.getParentTypeMetadata()).isNull();
         assertThat(metaOfRawTuple.getGenericType(0).getRawType()).isEqualTo(Map.class);
         assertThat(metaOfRawTuple.getGenericType(0) == mapMetadata).isTrue();
-        assertThat(metaOfRawTuple.getChildMetadata() == metadataOfTupleClass).isTrue();
     }
 
     @Test
@@ -297,7 +277,6 @@ public class TypeWrapperBuilderTest {
         assertThat(metaOd3DimArray.getRawType()).isEqualTo(ExampleClass.ConcreteClass[][][].class);
         assertThat(metaOd3DimArray.isArrayType()).isTrue();
         assertThat(metaOd3DimArray.hasParent()).isFalse();
-        assertThat(metaOd3DimArray.hasChild()).isFalse();
 
         TypeMetadata metaOd2DimArray = metaOd3DimArray.getGenericType(0);
         assertThat(metaOd2DimArray.isArrayType()).isTrue();
@@ -320,44 +299,28 @@ public class TypeWrapperBuilderTest {
     @Test
     public void buildMetadataForStringTupleNexObject() {
         // given
-        Field threeDimConcreteArray = getField(ExampleClass.class, "stringTupleNexObject");
+        Field stringTupleNexObjectField = getField(ExampleClass.class, "stringTupleNexObject");
         // when
-        TypeMetadata rootFieldMeta = buildFromField(threeDimConcreteArray);
+        TypeMetadata stringTupleNexObjectMeta = buildFromField(stringTupleNexObjectField);
         // then
-        assertThat(rootFieldMeta.getRawType()).isEqualTo(ExampleClass.StringTuple.class);
+        MetadataAssertionContext rootContextAssert = assertTypeMetadata(stringTupleNexObjectMeta, ExampleClass.StringTuple.class, true, 2, NORMAL_BEAN)
+                .assertGenericType(0, ExampleClass.NextObject.class, NORMAL_BEAN);
 
-        TypeMetadata nextObjectMeta = rootFieldMeta.getGenericType(0);
-        assertThat(nextObjectMeta.getRawType()).isEqualTo(ExampleClass.NextObject.class);
-        assertThat(nextObjectMeta.isArrayType()).isFalse();
-        assertThat(nextObjectMeta.hasGenericTypes()).isFalse();
+        rootContextAssert.getGenericType(1)
+                         .assertTypeMetadata(Map.class, 2, MAP)
+                         .assertGenericType(0, Number.class)
+                         .assertGenericType(1, List.class, 1, HAVING_ELEMENTS)
+                         .getGenericType(1)
+                         .assertGenericType(0, String.class);
 
-        TypeMetadata mapMetadata = rootFieldMeta.getGenericType(1);
-        assertThat(mapMetadata.getRawType()).isEqualTo(Map.class);
-        assertThat(mapMetadata.isArrayType()).isFalse();
-        assertThat(mapMetadata.isMapType()).isTrue();
-        assertThat(mapMetadata.hasGenericTypes()).isTrue();
-
-        TypeMetadata numberMetadata = mapMetadata.getGenericType(0);
-        assertThat(numberMetadata.getRawType()).isEqualTo(Number.class);
-        assertThat(numberMetadata.isSimpleType()).isTrue();
-        assertThat(numberMetadata.isHavingElementsType()).isFalse();
-        assertThat(numberMetadata.hasGenericTypes()).isFalse();
-
-        TypeMetadata listMetadata = mapMetadata.getGenericType(1);
-        assertThat(listMetadata.getRawType()).isEqualTo(List.class);
-        assertThat(listMetadata.isSimpleType()).isFalse();
-        assertThat(listMetadata.isHavingElementsType()).isTrue();
-        assertThat(listMetadata.hasGenericTypes()).isTrue();
-
-        TypeMetadata stringMetadata = listMetadata.getGenericType(0);
-        assertThat(stringMetadata.getRawType()).isEqualTo(String.class);
-        assertThat(stringMetadata.hasGenericTypes()).isFalse();
-        assertThat(stringMetadata.isSimpleType()).isTrue();
-
-        TypeMetadata parentTypeMetadata = rootFieldMeta.getParentTypeMetadata();
-        assertThat(parentTypeMetadata.getRawType()).isEqualTo(ExampleClass.TupleClass.class);
-        assertThat(parentTypeMetadata.getGenericType(0).getRawType()).isEqualTo(String.class);
-        assertThat(parentTypeMetadata.getGenericType(1)).isEqualTo(mapMetadata);
+        rootContextAssert.getParent()
+                         .assertTypeMetadata(ExampleClass.TupleClass.class, true, 2, NORMAL_BEAN)
+                         .assertGenericType(0, String.class)
+                         .getGenericType(1).isEqualTo(rootContextAssert.getGenericType(1))
+                         .getChildContext()
+                         .getParent()
+                         .assertTypeMetadata(ExampleClass.RawTuple.class, 1, NORMAL_BEAN)
+        .getGenericType(0).isEqualTo(rootContextAssert.getGenericType(1));
     }
 
     @Data

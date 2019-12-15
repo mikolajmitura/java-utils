@@ -7,6 +7,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import static java.util.Collections.singletonList;
 import static pl.jalokim.utils.collection.Elements.elements;
@@ -15,6 +16,8 @@ import static pl.jalokim.utils.constants.Constants.QUESTION_SIGN;
 import static pl.jalokim.utils.reflection.ClassNameFixer.fixClassName;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getClassForName;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getParametrizedRawTypes;
+import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getTypeMetadataFromType;
+import static pl.jalokim.utils.reflection.TypeMetadata.NATIVE_OBJECT_META;
 
 /**
  * Class for build TypeMetadata from class, type, field.
@@ -29,28 +32,40 @@ final class TypeWrapperBuilder {
 
     static TypeMetadata buildFromClass(Class<?> someClass) {
         List<Type> genericsTypes = getParametrizedRawTypes(someClass);
+
         if (genericsTypes.isEmpty()) {
             return new TypeMetadata(someClass, null);
         }
-        try {
-            List<TypeMetadata> typeMetadata = elements(genericsTypes)
-                    .map(MetadataReflectionUtils::getTypeMetadataFromType)
-                    .asList();
-            return new TypeMetadata(someClass, typeMetadata);
-        } catch (UnresolvedRealClassException exception) {
-            Throwable currentEx = exception;
-            String fieldName = "some type";
-            while (currentEx != null) {
-                if (currentEx instanceof ClassNotFoundException) {
-                    fieldName = String.format("class for '%s'", currentEx.getMessage());
-                }
-                currentEx = currentEx.getCause();
-            }
-            throw new UnresolvedRealClassException(String.format("Cannot find %s for class: %s",
-                                                                 fieldName,
-                                                                 someClass.getCanonicalName()),
-                                                   exception);
-        }
+
+        Set<String> genericLabels = elements(genericsTypes)
+                .map(Type::getTypeName)
+                .asSet();
+
+        List<TypeMetadata> typeMetadata = elements(genericsTypes)
+                .map(type -> {
+                    try {
+                        return getTypeMetadataFromType(type);
+                    } catch (UnresolvedRealClassException exception) {
+                        Throwable currentEx = exception;
+                        String fieldName = "some type";
+                        while (currentEx != null) {
+                            if (currentEx instanceof ClassNotFoundException) {
+                                fieldName = String.format("class for '%s'", currentEx.getMessage());
+                                String label = currentEx.getMessage();
+                                if (genericLabels.contains(label)) {
+                                    return NATIVE_OBJECT_META;
+                                }
+                            }
+                            currentEx = currentEx.getCause();
+                        }
+                        throw new UnresolvedRealClassException(String.format("Cannot find %s for class: %s",
+                                                                             fieldName,
+                                                                             someClass.getCanonicalName()),
+                                                               exception);
+                    }
+                })
+                .asList();
+        return new TypeMetadata(someClass, typeMetadata);
     }
 
     static TypeMetadata buildFromField(Field field) {
@@ -103,10 +118,7 @@ final class TypeWrapperBuilder {
                 Field originalField = typeWrapper.getOriginalField();
                 Class<?> fieldOwner = originalField.getDeclaringClass();
                 TypeMetadata availableContext = typeWrapper.getAvailableContext();
-                TypeMetadata typeMetadataForField = availableContext.getTypeMetadataForField(fieldOwner, typeName);
-                if (typeMetadataForField != null) {
-                    return typeMetadataForField;
-                }
+                return availableContext.getTypeMetadataForField(fieldOwner, typeName);
             }
             throw new UnresolvedRealClassException(exception);
         }

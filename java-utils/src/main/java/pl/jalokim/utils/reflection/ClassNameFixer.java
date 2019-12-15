@@ -1,5 +1,7 @@
 package pl.jalokim.utils.reflection;
 
+import static pl.jalokim.utils.string.StringUtils.countSearchedChar;
+
 /**
  * Fix type to string where for inner classes open jdk build in invalid way...
  */
@@ -14,7 +16,7 @@ final class ClassNameFixer {
     }
 
     static String fixClassName(String someClassName) {
-        int numberOfDollars = countSearchedChar(someClassName);
+        int numberOfDollars = countSearchedChar(someClassName, DOLLAR_CHAR);
         if (numberOfDollars == 0) {
             return someClassName;
         }
@@ -45,14 +47,4 @@ final class ClassNameFixer {
         return null;
     }
 
-    private static int countSearchedChar(String text) {
-        char[] chars = text.toCharArray();
-        int counter = 0;
-        for (char aChar : chars) {
-            if (aChar == DOLLAR_CHAR) {
-                counter++;
-            }
-        }
-        return counter;
-    }
 }

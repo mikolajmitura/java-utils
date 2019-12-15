@@ -464,7 +464,7 @@ public final class MetadataReflectionUtils {
         } catch (UnresolvedRealClassException ex) {
             throw new UnresolvedRealClassException(
                     format("Cannot resolve some type for field: %s for class: %s",
-                                  field.getName(), field.getDeclaringClass()), ex);
+                                  field.getName(), field.getDeclaringClass().getCanonicalName()), ex);
         }
     }
 
@@ -491,7 +491,6 @@ public final class MetadataReflectionUtils {
             return buildFromType(type);
         }
     }
-
 
     /**
      * It returns metadata of type stored in field which is array type.

@@ -224,4 +224,32 @@ public final class StringUtils {
     public static String concat(String... texts) {
         return concatElements(asList(texts), EMPTY);
     }
+
+    /**
+     * concatenate all object with empty string value.
+     *
+     * @param texts to concatenate
+     * @return concatenated text
+     */
+    public static String concat(Object... texts) {
+        return concatElements(asList(texts), EMPTY);
+    }
+
+    /**
+     * It returns number of searched char in provided text.
+     *
+     * @param text         for search
+     * @param searchedChar char which is searched
+     * @return number how many times it is in this text
+     */
+    public static int countSearchedChar(String text, char searchedChar) {
+        char[] chars = text.toCharArray();
+        int counter = 0;
+        for (char aChar : chars) {
+            if (aChar == searchedChar) {
+                counter++;
+            }
+        }
+        return counter;
+    }
 }

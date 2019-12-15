@@ -59,6 +59,7 @@ public class ExampleClass {
     private StringTuple<Integer, Map<Number, String>> stringTupleIntegerNumber;
     private StringTuple<NextObject, Map<Number, List<String>>> stringTupleNexObject;
     private ConcreteClass[][][] threeDimConcreteArray;
+    private StringTuple<RawTuple<List<Map<String, RawTuple<ConcreteClass[][][]>>>[][][]>, Map<Number, List<String>>>[][] superMixedArray;
 
     public void checkTypesOfStringTupleNexObject() {
         Map<Number, List<String>> rawValueE = stringTupleNexObject.getRawValueE();
@@ -108,6 +109,19 @@ public class ExampleClass {
     @Getter
     public static class RawTuple<E> {
         private E rawValueE;
+        private TupleClass tupleClassRaw;
+    }
+
+    public static class TupleClassImpl extends TupleClass<String, List<Number>> {
+
+    }
+
+    public static class InvalidTupleExtension extends TupleClass {
+
+    }
+
+    public static class InvalidRawTupleExtension extends RawTuple<TupleClass> {
+
     }
 
     @Getter

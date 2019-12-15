@@ -5,10 +5,15 @@ import lombok.Data;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static java.lang.String.format;
+import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableMap;
+import static pl.jalokim.utils.collection.CollectionUtils.isEmpty;
 import static pl.jalokim.utils.collection.CollectionUtils.isNotEmpty;
 import static pl.jalokim.utils.collection.Elements.elements;
 import static pl.jalokim.utils.constants.Constants.COMMA;
@@ -29,25 +34,32 @@ import static pl.jalokim.utils.string.StringUtils.concatElements;
 @Data
 public class TypeMetadata {
 
+    static final TypeMetadata NATIVE_OBJECT_META = buildFromClass(Object.class);
+    private static final String ARRAY_MARK = "[]";
     private final List<TypeMetadata> genericTypes;
     private final Class<?> rawType;
-    private final Map<String, TypeMetadata> genericTypesByRawLabel = new ConcurrentHashMap<>();
+    private final Map<String, TypeMetadata> genericTypesByRawLabel;
     private final TypeMetadata parentTypeMetadata;
 
     TypeMetadata(Class<?> rawType, List<TypeMetadata> genericTypes) {
-        this(rawType, genericTypes, null);
-    }
-
-    private TypeMetadata(Class<?> rawType, List<TypeMetadata> genericTypes, TypeMetadata childTypeMetadata) {
-        this.genericTypes = genericTypes;
+        List<TypeMetadata> tempGenerics = isEmpty(genericTypes) ? new ArrayList<>() : genericTypes;
         this.rawType = rawType;
         List<Type> parametrizedTypesForClass = getParametrizedRawTypes(rawType);
 
+        Map<String, TypeMetadata> tempMap = new ConcurrentHashMap<>();
         elements(parametrizedTypesForClass)
-                .forEach((index, type) ->
-                                 genericTypesByRawLabel.put(type.getTypeName(), genericTypes.get(index))
-
+                .forEach((index, type) -> {
+                             if (tempGenerics.size() == index) {
+                                 buildFromClass(Object.class);
+                                 tempGenerics.add(index, NATIVE_OBJECT_META);
+                                 tempMap.put(type.getTypeName(), NATIVE_OBJECT_META);
+                             } else {
+                                 tempMap.put(type.getTypeName(), tempGenerics.get(index));
+                             }
+                         }
                         );
+        this.genericTypes = unmodifiableList(tempGenerics);
+        genericTypesByRawLabel = unmodifiableMap(tempMap);
         parentTypeMetadata = buildParentMetadata(this, rawType, genericTypesByRawLabel);
     }
 
@@ -55,25 +67,35 @@ public class TypeMetadata {
                                              Class<?> childClass,
                                              Map<String, TypeMetadata> childGenericTypesByRawLabel) {
         Class<?> parentClass = childClass.getSuperclass();
-        Type genericSuperclass = childClass.getGenericSuperclass();
-        if (parentClass == null || genericSuperclass.equals(parentClass) || childMetadata.getRawType().isEnum() || childMetadata.isArrayType()) {
+        if (parentClass == null) {
             return null;
         }
 
-        List<TypeMetadata> types = elements(((ParameterizedType) genericSuperclass).getActualTypeArguments())
-                .map(type -> {
-                    if (type instanceof Class) {
-                        return buildFromClass((Class<?>) type);
-                    } else {
-                        TypeMetadata typeMetadata = childGenericTypesByRawLabel.get(type.getTypeName());
-                        if (typeMetadata == null) {
-                            typeMetadata = buildFromType(type);
-                        }
-                        return typeMetadata;
-                    }
-                })
-                .asList();
-        return new TypeMetadata(parentClass, types, childMetadata);
+        if (parentClass == Object.class || childMetadata.getRawType().isEnum() || childMetadata.isArrayType()) {
+            return null;
+        }
+
+        Type genericSuperclass = childClass.getGenericSuperclass();
+        if (genericSuperclass.equals(parentClass)) {
+            return new TypeMetadata(parentClass, null);
+        } else {
+            List<TypeMetadata> types = elements(((ParameterizedType) genericSuperclass).getActualTypeArguments())
+                    .map(type -> mapFromType(type, childGenericTypesByRawLabel))
+                    .asList();
+            return new TypeMetadata(parentClass, types);
+        }
+    }
+
+    private TypeMetadata mapFromType(Type type, Map<String, TypeMetadata> childGenericTypesByRawLabel) {
+        if (type instanceof Class) {
+            return buildFromClass((Class<?>) type);
+        } else {
+            TypeMetadata typeMetadata = childGenericTypesByRawLabel.get(type.getTypeName());
+            if (typeMetadata == null) {
+                typeMetadata = buildFromType(type);
+            }
+            return typeMetadata;
+        }
     }
 
     /**
@@ -88,6 +110,7 @@ public class TypeMetadata {
 
     /**
      * It returns canonical class name for current raw type.
+     *
      * @return canonical class name
      */
     public String getCanonicalName() {
@@ -98,7 +121,7 @@ public class TypeMetadata {
      * It returns resolved metadata for some raw generic type when exists one.
      *
      * @param fieldOwner real owner of raw generic field.
-     * @param typeName real name of label from generic class.
+     * @param typeName   real name of label from generic class.
      * @return instance of TypeMetadata
      */
     public TypeMetadata getTypeMetadataForField(Class<?> fieldOwner, String typeName) {
@@ -112,12 +135,16 @@ public class TypeMetadata {
             }
             currentMeta = currentMeta.getParentTypeMetadata();
         }
-        return null;
+        throw new ReflectionOperationException(
+                format("Cannot find raw type: '%s' for class: '%s' in current context: %s ",
+                       typeName, fieldOwner.getCanonicalName(), toString())
+        );
     }
 
     /**
      * It returns metadata for raw generic label for current class, it not search in parents classes.
-     * @param genericLabel real name of generic raw type. For example raw type is List<E>
+     *
+     * @param genericLabel real name of generic raw type. For example raw type is List&lt;E&gt;
      *                     It Returns real metadata for E label in List.
      * @return instance of TypeMetadata
      */
@@ -126,7 +153,7 @@ public class TypeMetadata {
     }
 
     public boolean isEnumType() {
-        return !isArrayType() && getRawType().isEnum();
+        return getRawType().isEnum();
     }
 
     public boolean isArrayType() {
@@ -134,11 +161,12 @@ public class TypeMetadata {
     }
 
     public boolean isMapType() {
-        return !isArrayType() && MetadataReflectionUtils.isMapType(getRawType());
+        return MetadataReflectionUtils.isMapType(getRawType());
     }
 
     /**
      * When is some bag, it means when is array type or some collection.
+     *
      * @return true when is array type or some collection.
      */
     public boolean isHavingElementsType() {
@@ -147,14 +175,16 @@ public class TypeMetadata {
 
     /**
      * When is simple primitive type.
+     *
      * @return true when is simple primitive type.
      */
     public boolean isSimpleType() {
-        return !isArrayType() && MetadataReflectionUtils.isSimpleType(getRawType());
+        return MetadataReflectionUtils.isSimpleType(getRawType());
     }
 
     /**
      * When raw class have parent class which is not raw Object.
+     *
      * @return boolean value
      */
     public boolean hasParent() {
@@ -194,17 +224,20 @@ public class TypeMetadata {
 
     @Override
     public String toString() {
-        String classType = rawType.getSimpleName();
+        if (isArrayType()) {
+            return concat(concatElements(getGenericTypes()), ARRAY_MARK);
+        }
 
         String genericsPart = EMPTY;
-        if (hasGenericTypes() && !isArrayType()) {
+        if (hasGenericTypes()) {
             genericsPart = concatElements("<", getGenericTypes(), TypeMetadata::toString, COMMA, ">");
         }
 
-        String parentPart = EMPTY;
+        String classType = rawType.getSimpleName();
         if (hasParent()) {
-            parentPart = " extends " + parentTypeMetadata.toString();
+            return concat("{", classType, " extends ", parentTypeMetadata.toString(), genericsPart, "}");
         }
-        return concat(classType, genericsPart, parentPart);
+
+        return concat(classType, genericsPart);
     }
 }
