@@ -23,12 +23,18 @@ import static pl.jalokim.utils.reflection.TypeMetadata.NATIVE_OBJECT_META;
 final class TypeWrapperBuilder {
 
     private static final CharsParser CHARS_PARSER = new CharsParser();
+    private static final String NATIVE_ARRAY_PATTERN = "(\\[)+L(.)+;";
+    private static final String TYPE_NAME_OF_ARRAY_CLASS = ".*\\[]";
 
     private TypeWrapperBuilder() {
 
     }
 
     static TypeMetadata buildFromClass(Class<?> someClass) {
+        if (someClass.isArray()) {
+            return buildFromType(someClass);
+        }
+
         List<Type> genericsTypes = getParametrizedRawTypes(someClass);
 
         if (genericsTypes.isEmpty()) {
@@ -101,6 +107,7 @@ final class TypeWrapperBuilder {
     private static TypeMetadata buildFromArrayClass(InnerTypeMetaData typeWrapper,
                                                     String currentClassName) {
         Class<?> rawClassForArray = getFixedClassName(currentClassName);
+        currentClassName = rawClassForArray.getTypeName();
         String typeOfStoredInArray = currentClassName.replaceAll("(\\[])$", EMPTY);
 
         TypeMetadata genericDataOfArray;
@@ -114,7 +121,7 @@ final class TypeWrapperBuilder {
     }
 
     private static boolean hasArraySignature(String className) {
-        return className.matches(".*\\[]");
+        return className.matches(TYPE_NAME_OF_ARRAY_CLASS) || className.matches(NATIVE_ARRAY_PATTERN);
     }
 
     static List<TypeMetadata> buildGenericsList(List<InnerTypeMetaData> generics) {
