@@ -21,7 +21,7 @@ java-utils
     <dependency>
         <groupId>pl.jalokim.utils</groupId>
         <artifactId>java-utils</artifactId>
-        <version>1.1.0</version>
+        <version>1.1.1</version>
     </dependency>
 ```
 
@@ -321,7 +321,7 @@ how to test exception in test with test-utils module? (class ExpectedErrorUtilBu
     <dependency>
         <groupId>pl.jalokim.utils</groupId>
         <artifactId>test-utils</artifactId>
-        <version>1.1.0</version>
+        <version>1.1.1</version>
         <scope>test</scope>
     </dependency>
 ```     
