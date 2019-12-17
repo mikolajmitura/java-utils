@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>pl.jalokim.utils</groupId>
     <artifactId>java-utils-parent</artifactId>
-   <version>1.1.1</version>
+   <version>1.1.2</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -22,6 +20,10 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+
+        <commons-lang3.version>3.9</commons-lang3.version>
+        <reflections.version>0.9.11</reflections.version>
+
         <!-- code checks -->
         <jacoco-plugin.version>0.8.5</jacoco-plugin.version>
         <maven-checkstyle-plugin.version>3.0.0</maven-checkstyle-plugin.version>
@@ -36,6 +38,12 @@
         <spock.version>1.2-groovy-2.4</spock.version>
         <groovy-all.version>2.4.15</groovy-all.version>
         <gmavenplus-plugin.version>1.8.0</gmavenplus-plugin.version>
+        <mockito.version>3.0.0</mockito.version>
+
+        <!--Git Flow-->
+        <noDeploy>true</noDeploy> <!--https://ecosystem.atlassian.net/browse/MJF-145-->
+        <gitUsername />
+        <gitPassword />
     </properties>
 
     <licenses>
@@ -93,7 +101,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>3.0.0</version>
+            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -131,6 +139,32 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>external.atlassian.jgitflow</groupId>
+                <artifactId>jgitflow-maven-plugin</artifactId>
+                <version>1.0-m5.1</version>
+                <configuration>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <pushFeatures>false</pushFeatures>
+                    <pushReleases>false</pushReleases>
+                    <pushHotfixes>false</pushHotfixes>
+                    <noDeploy>${noDeploy}</noDeploy>
+                    <keepBranch>false</keepBranch>
+                    <useReleaseProfile>false</useReleaseProfile>
+                    <scmCommentPrefix>[gitflow]</scmCommentPrefix>
+                    <flowInitContext>
+                        <masterBranchName>master</masterBranchName>
+                        <developBranchName>develop</developBranchName>
+                        <featureBranchPrefix>feature-</featureBranchPrefix>
+                        <releaseBranchPrefix>release-</releaseBranchPrefix>
+                        <hotfixBranchPrefix>hotfix-</hotfixBranchPrefix>
+                        <versionTagPrefix>v</versionTagPrefix>
+                    </flowInitContext>
+                    <username>${gitUsername}</username>
+                    <password>${gitPassword}</password>
                 </configuration>
             </plugin>
 
@@ -212,7 +246,7 @@
                         <id>enforce</id>
                         <configuration>
                             <rules>
-                                <dependencyConvergence/>
+                                <dependencyConvergence />
                             </rules>
                         </configuration>
                         <goals>
