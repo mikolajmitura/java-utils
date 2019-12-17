@@ -105,9 +105,9 @@ final class TypeWrapperBuilder {
     }
 
     private static TypeMetadata buildFromArrayClass(InnerTypeMetaData typeWrapper,
-                                                    String currentClassName) {
-        Class<?> rawClassForArray = getFixedClassName(currentClassName);
-        currentClassName = rawClassForArray.getTypeName();
+                                                    String rawCurrentClassName) {
+        Class<?> rawClassForArray = getFixedClassName(rawCurrentClassName);
+        String currentClassName = rawClassForArray.getTypeName();
         String typeOfStoredInArray = currentClassName.replaceAll("(\\[])$", EMPTY);
 
         TypeMetadata genericDataOfArray;
