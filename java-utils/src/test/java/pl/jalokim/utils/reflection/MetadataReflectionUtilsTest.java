@@ -32,6 +32,7 @@ import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getField;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getMethod;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getParametrizedRawTypes;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getParametrizedType;
+import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getTypeMetadataFromClass;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getTypeMetadataFromField;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getTypeMetadataFromType;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getTypeMetadataOfArray;
@@ -45,6 +46,8 @@ import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isNumberType;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isSimpleType;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isTextType;
 import static pl.jalokim.utils.reflection.TypeMetadataAssertionUtils.TypeMetadataKind.MAP;
+import static pl.jalokim.utils.reflection.TypeMetadataAssertionUtils.TypeMetadataKind.NATIVE_ARRAY;
+import static pl.jalokim.utils.reflection.TypeMetadataAssertionUtils.TypeMetadataKind.NORMAL_BEAN;
 import static pl.jalokim.utils.reflection.TypeMetadataAssertionUtils.assertTypeMetadata;
 import static pl.jalokim.utils.string.StringUtils.concat;
 import static pl.jalokim.utils.string.StringUtils.concatElements;
@@ -627,7 +630,7 @@ public class MetadataReflectionUtilsTest {
             }
         };
         // when
-        when(()-> getTypeMetadataFromType(type))
+        when(() -> getTypeMetadataFromType(type))
                 // then
                 .thenException(ReflectionOperationException.class,
                                format("raw class: %s doesn't have any parametrized types, but tried put generic types:", ExampleClass.class.getCanonicalName()),
@@ -646,7 +649,7 @@ public class MetadataReflectionUtilsTest {
             }
         };
         // when
-        when(()-> getTypeMetadataFromType(type))
+        when(() -> getTypeMetadataFromType(type))
                 // then
                 .thenException(UnresolvedRealClassException.class,
                                "pl.jalokim.utils.reflection.ReflectionOperationException: java.lang.ClassNotFoundException: pl.test.test.SomeClassName");
@@ -662,7 +665,7 @@ public class MetadataReflectionUtilsTest {
             }
         };
         // when
-        when(()-> getTypeMetadataFromType(type))
+        when(() -> getTypeMetadataFromType(type))
                 // then
                 .thenException(UnresolvedRealClassException.class,
                                "pl.jalokim.utils.reflection.ReflectionOperationException: java.lang.ClassNotFoundException: VALUE");
@@ -670,7 +673,7 @@ public class MetadataReflectionUtilsTest {
 
     private static String buildTypeName(Class<?> rawClass, String... genericTypes) {
         if (genericTypes.length > 0) {
-            return concat(rawClass.getCanonicalName(), "<", concatElements(Constants.COMMA, genericTypes),  ">");
+            return concat(rawClass.getCanonicalName(), "<", concatElements(Constants.COMMA, genericTypes), ">");
         }
         return rawClass.getCanonicalName();
     }
@@ -703,6 +706,19 @@ public class MetadataReflectionUtilsTest {
         when(() -> getTypeMetadataOfArray(field))
                 .thenException(ReflectionOperationException.class,
                                "field: '" + field + "' is not array type, is type: " + List.class);
+    }
+
+    @Test
+    public void metaBuildOnArrayClassHasGenericsTypes() {
+        // given
+        // when
+        TypeMetadata twoDimArrayMeta = getTypeMetadataFromClass(ExampleClass[][].class);
+        // then
+        assertTypeMetadata(twoDimArrayMeta, ExampleClass[][].class, 1, NATIVE_ARRAY)
+                .getGenericType(0)
+                .assertTypeMetadata(ExampleClass[].class, 1, NATIVE_ARRAY)
+                .getGenericType(0)
+                .assertTypeMetadata(ExampleClass.class, NORMAL_BEAN);
     }
 
     private static FieldExpectation create(Class<?> type, String fieldName, boolean expectedResult) {
