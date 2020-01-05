@@ -377,22 +377,29 @@ public final class MetadataReflectionUtils {
 
     /**
      * It returns a type of generic object by given index.
+     * It uses native {@link java.lang.Class} not {@link java.lang.reflect.Type} class from target object.
+     * It search for first super class which contains generic types if cannot find that one then trow exception.
+     *
      *
      * @param targetObject instance object for which will be returned class for generic type.
      * @param index        of wanted generic type
      * @return type of generic type from field from specified index.
      */
+    @Deprecated
     public static Class<?> getParametrizedType(Object targetObject, int index) {
         return getParametrizedType(targetObject.getClass(), index);
     }
 
     /**
      * It returns a type of generic class by given index.
+     * It search for first super class which contains generic types if cannot find that one then trow exception.
+     * Better option is use method {@link #getTypeMetadataFromClass(Class)} then you can verify which class in hierarchy has which class as generic types.
      *
      * @param originalClass class for which will be returned class for generic type.
      * @param index         of wanted generic type
      * @return type of generic type from field from specified index.
      */
+    @Deprecated
     public static Class<?> getParametrizedType(Class<?> originalClass, int index) {
         Class<?> currentClass = originalClass;
         Exception exception = null;

@@ -1,8 +1,10 @@
 package pl.jalokim.utils.file;
 
 import java.io.BufferedReader;
+import java.nio.charset.Charset;
 import java.util.Iterator;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.newBufferedReader;
 import static java.nio.file.Paths.get;
 import static pl.jalokim.utils.file.FileUtils.catchIoExAndReturn;
@@ -24,7 +26,15 @@ public class FileCursor implements Iterator<String> {
      * @param filePath from system path.
      */
     public FileCursor(String filePath) {
-        bufferedReader = catchIoExAndReturn(() -> newBufferedReader(get(filePath)));
+        this(filePath, UTF_8);
+    }
+
+    /**
+     * Create instance of FileCursor.
+     * @param filePath from system path.
+     */
+    public FileCursor(String filePath, Charset charset) {
+        bufferedReader = catchIoExAndReturn(() -> newBufferedReader(get(filePath), charset));
         nextLine = catchIoExAndReturn(bufferedReader::readLine);
     }
 

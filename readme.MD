@@ -21,7 +21,7 @@ java-utils
     <dependency>
         <groupId>pl.jalokim.utils</groupId>
         <artifactId>java-utils</artifactId>
-        <version>1.1.1</version>
+        <version>1.1.3</version>
     </dependency>
 ```
 
@@ -211,8 +211,7 @@ java-utils
    
      - can get java.lang.reflect.Field (you can provide some concrete class, it can gets Field from super class)
      - can get java.lang.reflect.Method (you can provide some concrete class, it can gets Method from super class)
-     - can get Parametrized Type from some object by index
-     - other utils methods for verify type of field or class:    
+     - other utils methods for verify type of field or class:
         - public static boolean isSimpleType(Field field)
         - public static boolean isSimpleType(Class<?> someClass)
         - public static boolean isNumberType(Field field)
@@ -229,7 +228,7 @@ java-utils
         - public static boolean isHavingElementsType(Class<?> someClass) // is array or collection
         - public static boolean isArrayType(Field field)
         - public static boolean isArrayType(Class<?> someClass)
-     - can get all child classes from provided package. (It uses super https://github.com/ronmamo/reflections project)
+     - can get all child classes from provided package. (It uses great project https://github.com/ronmamo/reflections )
      
         ```java
            getAllChildClassesForClass(yourSuperClass, "some.package", withAbstractClasses)
@@ -239,7 +238,47 @@ java-utils
            Set<Class<? extends Number>> allChildClassesForClass = getAllChildClassesForClass(Number.class, "java.lang", true);
            // returns [class java.lang.Byte, class java.lang.Double, class java.lang.Long, class java.lang.Float, class java.lang.Short, class java.lang.Integer]
         ```
-        
+     - you can build TypeMetadata which contains whole information about mapped generic types to real classes.
+       it can be build from:
+        -  public static TypeMetadata getTypeMetadataFromClass(Class<?> someClass)
+        -  public static TypeMetadata getTypeMetadataFromField(Field field)
+        -  public static TypeMetadata getTypeMetadataFromType(Type type)
+
+      - <h6>more about TypeMetadata class</h6>
+
+      The TypeMetadata class is useful when you what to know generic values of fields or class.
+      Example java classes:
+
+      ```java
+
+      public class ClassWithGenericBeanAsField {
+          private GenericBean<String, List<String>> genericBean;
+      }
+
+      public class GenericBean<T, F> {
+          private Map<T, F> someMap;
+      }
+      ```
+      In this case field 'genericBean' in class ClassWithGenericBeanAsField has two generic types which will be used as type in 'someMap' field.
+      So 'F' type in GenericBean is List<String> type, so it is not raw List class but is Type class...
+      But you want to know in runtime what type is stored in List in field 'someMap' as value.
+      How to achieve that?
+
+       ```java
+       // build generic metadata for ClassWithGenericBeanAsField class
+       TypeMetadata metaOfRootClass = getTypeMetadataFromClass(ClassWithGenericBeanAsField.class);
+       // get metadata for field 'genericBean' <- GenericBean<String, List<String>> genericBean
+       TypeMetadata metaOfGenericBeanField = metaOfRootClass.getMetaForField("genericBean");
+       // get metadata for 'someMap' field in GenericBean <- private Map<String, List<String>> someMap;
+       TypeMetadata metaOfMap = metaOfGenericBeanField.getMetaForField("someMap");
+       // get metadata for second generic type for map. <- List<String>
+       TypeMetadata metaForMapValue = metaOfMap.getGenericType(1);
+       // get metadata for generic type of List (first one) <- String
+       TypeMetadata metaForString = metaForMapValue.getGenericType(0);
+       assert metaForString.getRawType() == String.class;
+       ```
+
+
 5) <h5>string package (StringUtils class)</h5>
 
     - it can verify that text is empty or blank (Yes, the same like apache commons etc)        
@@ -267,7 +306,7 @@ java-utils
 test-utils
 ---------------------------------------------
 
-This module contains useful code for test exceptions in test. 
+This module contains useful code for test exceptions in test and create files, folders in test.
 
 how to test exception in test with test-utils module? (class ExpectedErrorUtilBuilder)
 
@@ -314,14 +353,34 @@ how to test exception in test with test-utils module? (class ExpectedErrorUtilBu
                 .thenNestedException(NestedException.class, "text for nested exception");
       }
 ```
-     
+
+creation of folders and files during unit tests
+In your test you need extends TemporaryTestResources class (it using TemporaryFolder from junit under the hood)
+Some example code below:
+
+```java
+    public class SomeExampleTest extends TemporaryTestResources {
+
+        @Test
+        public void exampleTest() {
+            File fileName = newFile("fileName"); // new file in root temp folder
+            FolderWrapper someFolder = newFolder("folderName"); // new folder in root temp folder
+            FolderWrapper nextFolder = someFolder.newFolder("nextFolder"); // new file in folder
+            File someFile = someFolder.newFile("someFile"); // new file in some folder
+
+            String pathForTempFolder = getPathForTempFolder(); // it returns absolute path as text for temp folder
+            String pathForFileInTempFolder = getPathForFileInTempFolder("somefile"); // it returns absolute path as text for file in temp folder
+        }
+    }
+```
+
 <h3>Maven dependency for test-utils</h3>
 
 ```xml
     <dependency>
         <groupId>pl.jalokim.utils</groupId>
         <artifactId>test-utils</artifactId>
-        <version>1.1.1</version>
+        <version>1.1.3</version>
         <scope>test</scope>
     </dependency>
 ```     
