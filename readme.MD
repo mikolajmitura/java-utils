@@ -306,7 +306,7 @@ java-utils
 test-utils
 ---------------------------------------------
 
-This module contains useful code for test exceptions in test. 
+This module contains useful code for test exceptions in test and create files, folders in test.
 
 how to test exception in test with test-utils module? (class ExpectedErrorUtilBuilder)
 
@@ -353,7 +353,27 @@ how to test exception in test with test-utils module? (class ExpectedErrorUtilBu
                 .thenNestedException(NestedException.class, "text for nested exception");
       }
 ```
-     
+
+creation of folders and files during unit tests
+In your test you need extends TemporaryTestResources class (it using TemporaryFolder from junit under the hood)
+Some example code below:
+
+    ```java
+    public class SomeExampleTest extends TemporaryTestResources {
+
+        @Test
+        public void exampleTest() {
+            File fileName = newFile("fileName"); // new file in root temp folder
+            FolderWrapper someFolder = newFolder("folderName"); // new folder in root temp folder
+            FolderWrapper nextFolder = someFolder.newFolder("nextFolder"); // new file in folder
+            File someFile = someFolder.newFile("someFile"); // new file in some folder
+
+            String pathForTempFolder = getPathForTempFolder(); // it returns absolute path as text for temp folder
+            String pathForFileInTempFolder = getPathForFileInTempFolder("somefile"); // it returns absolute path as text for file in temp folder
+        }
+    }
+    ```
+
 <h3>Maven dependency for test-utils</h3>
 
 ```xml
