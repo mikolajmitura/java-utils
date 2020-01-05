@@ -212,21 +212,100 @@ public final class FileUtils {
         catchIoExAndReturn(() -> Files.createDirectories(get(folderPath)));
     }
 
+    /**
+     * It returns simple list of files.
+     * @param pathToFile path to file as simple text 
+     * @return list of files
+     */
     public static List<File> listOfFiles(String pathToFile) {
-        return listOfFiles(pathToFile, file -> true);
+        return listOfFiles(new File(pathToFile));
     }
 
+    /**
+     * It returns simple list of files.
+     * @param path by java Path
+     * @return list of files
+     */
+    public static List<File> listOfFiles(Path path) {
+        return listOfFiles(path.toFile());
+    }
+
+    /**
+     * It returns simple list of files.
+     * @param rootFile as simple java file
+     * @return list of files
+     */
+    public static List<File> listOfFiles(File rootFile) {
+        return listOfFiles(rootFile, file -> true);
+    }
+
+    /**
+     * It returns list of files which were filtered by fileFilter.
+     * @param pathToFile path to file as simple text
+     * @return list of files filtered by FileFilter instance 
+     */
     public static List<File> listOfFiles(String pathToFile, FileFilter fileFilter) {
-        File rootFile = new File(pathToFile);
+        return listOfFiles(new File(pathToFile), fileFilter);
+    }
+
+    /**
+     * It returns list of files which were filtered by fileFilter.
+     * @param path by java Path
+     * @return list of files filtered by FileFilter instance
+     */
+    public static List<File> listOfFiles(Path path, FileFilter fileFilter) {
+        return listOfFiles(path.toFile(), fileFilter);
+    }
+
+    /**
+     * It returns list of files which were filtered by fileFilter.
+     * @param rootFile as simple java file
+     * @return list of files filtered by FileFilter instance
+     */
+    public static List<File> listOfFiles(File rootFile, FileFilter fileFilter) {
         File[] files = rootFile.listFiles();
         if (files == null) {
-            throw new FileException("Provided path: " + pathToFile + " does not exist");
+            throw new FileException("Provided path: " + rootFile.getAbsolutePath() + " does not exist");
         }
         return elements(files)
                 .filter(fileFilter::accept)
                 .asList();
     }
 
+    /**
+     * It removes whole directory or file.
+     * @param pathAsText path to file as simple text
+     */
+    public static void deleteFileOrDirectory(String pathAsText) {
+        deleteFileOrDirectory(new File(pathAsText));
+    }
+
+    /**
+     * It removes whole directory or file.
+     * @param file as simple java file
+     */
+    public static void deleteFileOrDirectory(File file) {
+        if (file.isDirectory()) {
+            List<File> files = listOfFiles(file);
+            for (File childField : files) {
+                deleteFileOrDirectory(childField);
+            }
+        } else {
+            boolean deleted = file.delete();
+            if (!deleted) {
+                throw new FileException("cannot delete file: " + file.getAbsolutePath());
+            }
+        }
+    }
+
+    /**
+     * It removes whole directory or file.
+     * @param path by java Path
+     */
+    public static void deleteFileOrDirectory(Path path) {
+        deleteFileOrDirectory(path.toFile());
+    }
+    
     static <T> T catchIoExAndReturn(IOExceptionSupplier<T> throwableSupplier) {
         try {
             return throwableSupplier.get();

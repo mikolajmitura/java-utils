@@ -1,26 +1,28 @@
 package pl.jalokim.utils.file;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import pl.jalokim.utils.test.TemporaryTestResources;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static pl.jalokim.utils.collection.Elements.elements;
 import static pl.jalokim.utils.file.FileUtils.catchIoEx;
 import static pl.jalokim.utils.file.FileUtils.consumeEveryLineFromFile;
 import static pl.jalokim.utils.file.FileUtils.consumeEveryLineWitNumberFromFile;
 import static pl.jalokim.utils.file.FileUtils.createDirectories;
 import static pl.jalokim.utils.file.FileUtils.createDirectoriesForFile;
+import static pl.jalokim.utils.file.FileUtils.deleteFileOrDirectory;
 import static pl.jalokim.utils.file.FileUtils.listOfFiles;
 import static pl.jalokim.utils.file.FileUtils.loadFileFromClassPathAsText;
 import static pl.jalokim.utils.file.FileUtils.loadFileFromPathAsText;
@@ -29,9 +31,6 @@ import static pl.jalokim.utils.file.FileUtils.writeToFile;
 import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.when;
 
 public class FileUtilsTest extends TemporaryTestResources {
-
-    @Rule
-    public TemporaryFolder testFolder = new TemporaryFolder();
 
     static final String PATH_TO_FILE = "src/test/resources/filesTest/someFile";
 
@@ -111,7 +110,7 @@ public class FileUtilsTest extends TemporaryTestResources {
     @Test
     public void testWriteStringToFile() throws IOException {
         // given
-        File newFile = testFolder.newFile("new_file_to_save");
+        File newFile = newFile("new_file_to_save");
         String contentToSave = String.format("line first%nsecond Line__%nend line.......");
         // when
         writeToFile(newFile.getAbsolutePath(), "old value");
@@ -124,7 +123,7 @@ public class FileUtilsTest extends TemporaryTestResources {
     @Test
     public void testAppendAtEndOfFile() throws IOException {
         // given
-        File newFile = testFolder.newFile("new_file_to_save");
+        File newFile = newFile("new_file_to_save");
         String contentToSave = String.format("line first%nsecond Line__%nend line.......");
         writeToFile(newFile.getAbsolutePath(), contentToSave);
         // when
@@ -141,7 +140,7 @@ public class FileUtilsTest extends TemporaryTestResources {
     @Test
     public void testAppendToFileWhenNotExist() throws IOException {
         // given
-        File newFile = testFolder.newFile("new_file_to_save");
+        File newFile = newFile("new_file_to_save");
         // when
         FileUtils.appendToFile(newFile.getAbsolutePath(), String.format("next line%nlast line..."));
         // then
@@ -153,7 +152,7 @@ public class FileUtilsTest extends TemporaryTestResources {
     @Test
     public void testWriteAllElementsAsLinesToFile() throws IOException {
         // given
-        File newFile = testFolder.newFile("new_file_to_save");
+        File newFile = newFile("new_file_to_save");
         String contentToSave = String.format("line first%nsecond Line__%nend line.......");
         writeToFile(newFile.getAbsolutePath(), contentToSave);
         // when
@@ -172,9 +171,9 @@ public class FileUtilsTest extends TemporaryTestResources {
     }
 
     @Test
-    public void testAppendAllElementsAsLinesToFile() throws IOException {
+    public void testAppendAllElementsAsLinesToFile() {
         // given
-        File newFile = testFolder.newFile("new_file_to_save");
+        File newFile = newFile("new_file_to_save");
         String contentToSave = String.format("line first%nsecond Line__%nend line.......%n");
         writeToFile(newFile.getAbsolutePath(), contentToSave);
         // when
@@ -249,7 +248,7 @@ public class FileUtilsTest extends TemporaryTestResources {
     @Test
     public void listOfFilesTest() throws IOException {
         // given
-        tempFolder.newFile("file1");
+        getTempFolder().newFile("file1");
         tempFolder.newFile("file2");
         tempFolder.newFile("file3");
         tempFolder.newFolder("folder1");
@@ -263,8 +262,80 @@ public class FileUtilsTest extends TemporaryTestResources {
     }
 
     @Test
-    public void emptyListOfFiles() {
+    public void listOf() {
+        // given
+        newFile("file1");
+        newFile("file2");
+        newFile("file3");
+        newFolder("folder1");
+        newFolder("folder2");
+        // when
+        List<File> fileList = listOfFiles(Paths.get(getPathForTempFolder()));
+        List<File> fileListOnlyFolders = listOfFiles(Paths.get(getPathForTempFolder()), File::isDirectory);
+        // then
+        assertThat(fileList).hasSize(5);
+        assertThat(fileListOnlyFolders).hasSize(2);
+    }
+
+    @Test
+    public void cannotGetListOfInvalidFile() {
         when(() -> listOfFiles("notExist"))
-                .thenException(FileException.class, "Provided path: notExist does not exist");
+                .thenException(FileException.class, "Provided path: " + new File("notExist").getAbsolutePath() + " does not exist");
+    }
+
+    @Test
+    public void removeNonEmptyFolderByPathAsText() {
+        removeNonEmptyFolder(file -> deleteFileOrDirectory(getPathForFileInTempFolder("notEmptyFolder")));
+    }
+
+    @Test
+    public void removeNonEmptyFolderByPath() {
+        removeNonEmptyFolder(file -> deleteFileOrDirectory(file.toPath()));
+    }
+
+    @Test
+    public void removeNonEmptyFolderByFile() {
+        removeNonEmptyFolder(FileUtils::deleteFileOrDirectory);
+    }
+
+    @Test
+    public void removeNormalFile() {
+        // given
+        File normalFile = newFile("normalFile");
+        // when
+        deleteFileOrDirectory(normalFile);
+        // then
+        assertThat(listOfFiles(getTempFolder().getRoot())).isEmpty();
+    }
+
+    @Test
+    public void cannotRemoveFileWhenNotExist() {
+        when(() -> deleteFileOrDirectory("notExist"))
+                .thenException(FileException.class, "cannot delete file: " + new File("notExist").getAbsolutePath());
+    }
+
+    public void removeNonEmptyFolder(Consumer<File> fileConsumer) {
+        // given
+        FolderWrapper notEmptyFolder = newFolder("notEmptyFolder");
+        notEmptyFolder.newFile("file1");
+        notEmptyFolder.newFile("file2");
+        FolderWrapper notEmptyL1 = notEmptyFolder.newFolder("notEmptyL1");
+        notEmptyL1.newFile("someFile");
+        notEmptyFolder.newFolder("emptyFolderL1");
+        FolderWrapper someFolder = newFolder("someFolder");
+        someFolder.newFile("test1");
+        newFile("someFile1");
+        newFile("someFile2");
+        assertThat(elements(listOfFiles(getTempFolder().getRoot()))
+                           .map(File::getName)
+                           .asList())
+                .containsAnyOf("someFile1", "someFile2", "notEmptyFolder", "someFolder");
+        // when
+        fileConsumer.accept(notEmptyFolder.getRealFolder());
+        // then
+        assertThat(elements(listOfFiles(getTempFolder().getRoot()))
+                           .map(File::getName)
+                           .asList())
+                .containsAnyOf("someFile1", "someFile2", "someFolder");
     }
 }
