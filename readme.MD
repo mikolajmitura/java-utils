@@ -273,9 +273,9 @@ java-utils
        TypeMetadata metaOfMap = metaOfGenericBeanField.getMetaForField("someMap");
        // get metadata for second generic type for map. <- List<String>
        TypeMetadata metaForMapValue = metaOfMap.getGenericType(1);
-       // get metadata for generic type of List (first one)
-       TypeMetadata metaOfGenericListType = metaForMapValue.getGenericType(0);
-       assert metaOfGenericListType.getRawType() == String.class;
+       // get metadata for generic type of List (first one) <- String
+       TypeMetadata metaForString = metaForMapValue.getGenericType(0);
+       assert metaForString.getRawType() == String.class;
        ```
 
 
