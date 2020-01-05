@@ -211,8 +211,7 @@ java-utils
    
      - can get java.lang.reflect.Field (you can provide some concrete class, it can gets Field from super class)
      - can get java.lang.reflect.Method (you can provide some concrete class, it can gets Method from super class)
-     - can get Parametrized Type from some object by index
-     - other utils methods for verify type of field or class:    
+     - other utils methods for verify type of field or class:
         - public static boolean isSimpleType(Field field)
         - public static boolean isSimpleType(Class<?> someClass)
         - public static boolean isNumberType(Field field)
@@ -229,7 +228,7 @@ java-utils
         - public static boolean isHavingElementsType(Class<?> someClass) // is array or collection
         - public static boolean isArrayType(Field field)
         - public static boolean isArrayType(Class<?> someClass)
-     - can get all child classes from provided package. (It uses super https://github.com/ronmamo/reflections project)
+     - can get all child classes from provided package. (It uses great project https://github.com/ronmamo/reflections )
      
         ```java
            getAllChildClassesForClass(yourSuperClass, "some.package", withAbstractClasses)
@@ -239,7 +238,47 @@ java-utils
            Set<Class<? extends Number>> allChildClassesForClass = getAllChildClassesForClass(Number.class, "java.lang", true);
            // returns [class java.lang.Byte, class java.lang.Double, class java.lang.Long, class java.lang.Float, class java.lang.Short, class java.lang.Integer]
         ```
-        
+     - you can build TypeMetadata which contains whole information about mapped generic types to real classes.
+       it can be build from:
+        -  public static TypeMetadata getTypeMetadataFromClass(Class<?> someClass)
+        -  public static TypeMetadata getTypeMetadataFromField(Field field)
+        -  public static TypeMetadata getTypeMetadataFromType(Type type)
+
+      - <h6>more about TypeMetadata class</h6>
+
+      The TypeMetadata class is useful when you what to know generic values of fields or class.
+      Example java classes:
+
+      ```java
+
+      public class ClassWithGenericBeanAsField {
+          private GenericBean<String, List<String>> genericBean;
+      }
+
+      public class GenericBean<T, F> {
+          private Map<T, F> map;
+      }
+      ```
+      In this case field 'genericBean' in class ClassWithGenericBeanAsField has two generic types which will be used as type in 'someMap' field.
+      So 'F' type in GenericBean is List<String> type, so it is not raw List class but is Type class...
+      But you want to know in runtime what type is stored in List in field 'someMap' as value.
+      How to achieve that?
+
+       ```java
+            // build generic metadata for ClassWithGenericBeanAsField class
+            TypeMetadata metaOfRootClass = getTypeMetadataFromClass(ClassWithGenericBeanAsField.class);
+            // get metadata for field 'genericBean' <- GenericBean<String, List<String>> genericBean
+            TypeMetadata metaOfGenericBeanField = metaOfRootClass.getMetaForField("genericBean");
+            // get metadata for 'someMap' field in GenericBean <- private Map<String, List<String>> someMap;
+            TypeMetadata metaOfMap = metaOfGenericBeanField.getMetaForField("someMap");
+            // get metadata for second generic type for map. <- List<String>
+            TypeMetadata metaForMapValue = metaOfMap.getGenericType(1);
+            // get metadata for generic type of List (first one)
+            TypeMetadata metaOfGenericListType = metaForMapValue.getGenericType(0);
+            assert metaOfGenericListType.getRawType() == String.class;
+       ```
+
+
 5) <h5>string package (StringUtils class)</h5>
 
     - it can verify that text is empty or blank (Yes, the same like apache commons etc)        
