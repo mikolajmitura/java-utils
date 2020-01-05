@@ -256,7 +256,7 @@ java-utils
       }
 
       public class GenericBean<T, F> {
-          private Map<T, F> map;
+          private Map<T, F> someMap;
       }
       ```
       In this case field 'genericBean' in class ClassWithGenericBeanAsField has two generic types which will be used as type in 'someMap' field.
@@ -265,17 +265,17 @@ java-utils
       How to achieve that?
 
        ```java
-            // build generic metadata for ClassWithGenericBeanAsField class
-            TypeMetadata metaOfRootClass = getTypeMetadataFromClass(ClassWithGenericBeanAsField.class);
-            // get metadata for field 'genericBean' <- GenericBean<String, List<String>> genericBean
-            TypeMetadata metaOfGenericBeanField = metaOfRootClass.getMetaForField("genericBean");
-            // get metadata for 'someMap' field in GenericBean <- private Map<String, List<String>> someMap;
-            TypeMetadata metaOfMap = metaOfGenericBeanField.getMetaForField("someMap");
-            // get metadata for second generic type for map. <- List<String>
-            TypeMetadata metaForMapValue = metaOfMap.getGenericType(1);
-            // get metadata for generic type of List (first one)
-            TypeMetadata metaOfGenericListType = metaForMapValue.getGenericType(0);
-            assert metaOfGenericListType.getRawType() == String.class;
+       // build generic metadata for ClassWithGenericBeanAsField class
+       TypeMetadata metaOfRootClass = getTypeMetadataFromClass(ClassWithGenericBeanAsField.class);
+       // get metadata for field 'genericBean' <- GenericBean<String, List<String>> genericBean
+       TypeMetadata metaOfGenericBeanField = metaOfRootClass.getMetaForField("genericBean");
+       // get metadata for 'someMap' field in GenericBean <- private Map<String, List<String>> someMap;
+       TypeMetadata metaOfMap = metaOfGenericBeanField.getMetaForField("someMap");
+       // get metadata for second generic type for map. <- List<String>
+       TypeMetadata metaForMapValue = metaOfMap.getGenericType(1);
+       // get metadata for generic type of List (first one)
+       TypeMetadata metaOfGenericListType = metaForMapValue.getGenericType(0);
+       assert metaOfGenericListType.getRawType() == String.class;
        ```
 
 
