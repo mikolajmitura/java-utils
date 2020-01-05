@@ -358,7 +358,7 @@ creation of folders and files during unit tests
 In your test you need extends TemporaryTestResources class (it using TemporaryFolder from junit under the hood)
 Some example code below:
 
-    ```java
+```java
     public class SomeExampleTest extends TemporaryTestResources {
 
         @Test
@@ -372,7 +372,7 @@ Some example code below:
             String pathForFileInTempFolder = getPathForFileInTempFolder("somefile"); // it returns absolute path as text for file in temp folder
         }
     }
-    ```
+```
 
 <h3>Maven dependency for test-utils</h3>
 
