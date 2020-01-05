@@ -85,8 +85,19 @@ public final class FileUtils {
      * @return list with all lines from file.
      */
     public static List<String> loadFileFromPathToList(String path) {
+        return loadFileFromPathToList(path, UTF_8);
+    }
+
+    /**
+     * It reads all lines to list from certain path from system for file.
+     * It read whole file content to memory.
+     *
+     * @param path system path to file to read.
+     * @return list with all lines from file.
+     */
+    public static List<String> loadFileFromPathToList(String path, Charset charset) {
         List<String> lines = new ArrayList<>();
-        consumeEveryLineFromFile(path, lines::add);
+        consumeEveryLineFromFile(path, lines::add, charset);
         return lines;
     }
 
@@ -98,8 +109,19 @@ public final class FileUtils {
      * @param consumerLine which consume every line
      */
     public static void consumeEveryLineFromFile(String path, Consumer<String> consumerLine) {
+        consumeEveryLineFromFile(path, consumerLine, UTF_8);
+    }
+
+    /**
+     * It read all lines line by line and put line value to consumerLine argument.
+     * It created for performance purpose.
+     *
+     * @param path         system path to file to read.
+     * @param consumerLine which consume every line
+     */
+    public static void consumeEveryLineFromFile(String path, Consumer<String> consumerLine, Charset charset) {
         catchIoExAndReturn(() -> {
-            try (BufferedReader br = newBufferedReader(get(path))) {
+            try (BufferedReader br = newBufferedReader(get(path), charset)) {
                 String line;
                 while ((line = br.readLine()) != null) {
                     consumerLine.accept(line);
@@ -117,9 +139,20 @@ public final class FileUtils {
      * @param consumerLineIndex which consume every line with index of them in file
      */
     public static void consumeEveryLineWitNumberFromFile(String path, BiConsumer<Long, String> consumerLineIndex) {
+        consumeEveryLineWitNumberFromFile(path, consumerLineIndex, UTF_8);
+    }
+
+    /**
+     * It read all lines line by line and put line value to consumerLine argument.
+     * It created for performance purpose.
+     *
+     * @param path              system path to file to read.
+     * @param consumerLineIndex which consume every line with index of them in file
+     */
+    public static void consumeEveryLineWitNumberFromFile(String path, BiConsumer<Long, String> consumerLineIndex, Charset charset) {
         catchIoExAndReturn(() -> {
             long index = 0;
-            try (BufferedReader br = newBufferedReader(get(path))) {
+            try (BufferedReader br = newBufferedReader(get(path), charset)) {
                 String line;
                 while ((line = br.readLine()) != null) {
                     index++;
@@ -141,6 +174,16 @@ public final class FileUtils {
     }
 
     /**
+     * It create instance of FileCursor.
+     *
+     * @param path system path to file.
+     * @return instance of FileCursor.
+     */
+    public static FileCursor readFileFromPathToFileCursor(String path, Charset charset) {
+        return new FileCursor(path, charset);
+    }
+
+    /**
      * It override current file content if exists.
      * it not create folders with not exist.
      *
@@ -148,8 +191,19 @@ public final class FileUtils {
      * @param fileContent as String to write to file
      */
     public static void writeToFile(String filePath, String fileContent) {
+        writeToFile(filePath, fileContent, UTF_8);
+    }
+
+    /**
+     * It override current file content if exists.
+     * it not create folders with not exist.
+     *
+     * @param filePath    system path to file.
+     * @param fileContent as String to write to file
+     */
+    public static void writeToFile(String filePath, String fileContent, Charset charset) {
         Path path = get(filePath);
-        byte[] strToBytes = fileContent.getBytes(UTF_8);
+        byte[] strToBytes = fileContent.getBytes(charset);
         catchIoExAndReturn(() -> Files.write(path, strToBytes));
     }
 
@@ -160,8 +214,18 @@ public final class FileUtils {
      * @param fileContent as String to append to file
      */
     public static void appendToFile(String filePath, String fileContent) {
+        appendToFile(filePath, fileContent, UTF_8);
+    }
+
+    /**
+     * Append some text to file.
+     *
+     * @param filePath    system path to file
+     * @param fileContent as String to append to file
+     */
+    public static void appendToFile(String filePath, String fileContent, Charset charset) {
         Path path = get(filePath);
-        byte[] strToBytes = fileContent.getBytes(UTF_8);
+        byte[] strToBytes = fileContent.getBytes(charset);
         catchIoExAndReturn(() -> Files.write(path, strToBytes, StandardOpenOption.APPEND));
     }
 
@@ -172,9 +236,19 @@ public final class FileUtils {
      * @param elementToWrite text lines write to file
      */
     public static void writeAllElementsAsLinesToFile(String filePath, List<String> elementToWrite) {
+        writeAllElementsAsLinesToFile(filePath, elementToWrite, UTF_8);
+    }
+
+    /**
+     * It writes all list element to file, every as separated line.
+     *
+     * @param filePath       system path to file
+     * @param elementToWrite text lines write to file
+     */
+    public static void writeAllElementsAsLinesToFile(String filePath, List<String> elementToWrite, Charset charset) {
         Path path = get(filePath);
         String fileContent = StringUtils.concatElementsAsLines(elementToWrite);
-        byte[] strToBytes = fileContent.getBytes(UTF_8);
+        byte[] strToBytes = fileContent.getBytes(charset);
         catchIoExAndReturn(() -> Files.write(path, strToBytes));
     }
 
@@ -185,9 +259,19 @@ public final class FileUtils {
      * @param elementToWrite text lines write to file
      */
     public static void appendAllElementsAsLinesToFile(String filePath, List<String> elementToWrite) {
+        appendAllElementsAsLinesToFile(filePath, elementToWrite, UTF_8);
+    }
+
+    /**
+     * It append all list element to file, every as separated line.
+     *
+     * @param filePath       system path to file
+     * @param elementToWrite text lines write to file
+     */
+    public static void appendAllElementsAsLinesToFile(String filePath, List<String> elementToWrite, Charset charset) {
         Path path = get(filePath);
         String fileContent = StringUtils.concatElementsAsLines(elementToWrite);
-        byte[] strToBytes = fileContent.getBytes(UTF_8);
+        byte[] strToBytes = fileContent.getBytes(charset);
         catchIoExAndReturn(() -> Files.write(path, strToBytes, StandardOpenOption.APPEND));
     }
 
@@ -214,7 +298,8 @@ public final class FileUtils {
 
     /**
      * It returns simple list of files.
-     * @param pathToFile path to file as simple text 
+     *
+     * @param pathToFile path to file as simple text
      * @return list of files
      */
     public static List<File> listOfFiles(String pathToFile) {
@@ -223,6 +308,7 @@ public final class FileUtils {
 
     /**
      * It returns simple list of files.
+     *
      * @param path by java Path
      * @return list of files
      */
@@ -232,6 +318,7 @@ public final class FileUtils {
 
     /**
      * It returns simple list of files.
+     *
      * @param rootFile as simple java file
      * @return list of files
      */
@@ -241,8 +328,9 @@ public final class FileUtils {
 
     /**
      * It returns list of files which were filtered by fileFilter.
+     *
      * @param pathToFile path to file as simple text
-     * @return list of files filtered by FileFilter instance 
+     * @return list of files filtered by FileFilter instance
      */
     public static List<File> listOfFiles(String pathToFile, FileFilter fileFilter) {
         return listOfFiles(new File(pathToFile), fileFilter);
@@ -250,6 +338,7 @@ public final class FileUtils {
 
     /**
      * It returns list of files which were filtered by fileFilter.
+     *
      * @param path by java Path
      * @return list of files filtered by FileFilter instance
      */
@@ -259,6 +348,7 @@ public final class FileUtils {
 
     /**
      * It returns list of files which were filtered by fileFilter.
+     *
      * @param rootFile as simple java file
      * @return list of files filtered by FileFilter instance
      */
@@ -274,6 +364,7 @@ public final class FileUtils {
 
     /**
      * It removes whole directory or file.
+     *
      * @param pathAsText path to file as simple text
      */
     public static void deleteFileOrDirectory(String pathAsText) {
@@ -282,6 +373,7 @@ public final class FileUtils {
 
     /**
      * It removes whole directory or file.
+     *
      * @param file as simple java file
      */
     public static void deleteFileOrDirectory(File file) {
@@ -300,12 +392,13 @@ public final class FileUtils {
 
     /**
      * It removes whole directory or file.
+     *
      * @param path by java Path
      */
     public static void deleteFileOrDirectory(Path path) {
         deleteFileOrDirectory(path.toFile());
     }
-    
+
     static <T> T catchIoExAndReturn(IOExceptionSupplier<T> throwableSupplier) {
         try {
             return throwableSupplier.get();
