@@ -67,7 +67,7 @@ public final class FileUtils {
     /**
      * It read from file and put all content to String with certain encoding.
      *
-     * @param file path for File
+     * @param file    path for File
      * @param charset instance of java.nio.charset.Charset
      * @return text with file content
      */
@@ -79,7 +79,7 @@ public final class FileUtils {
     /**
      * It read from file and put all content to String with certain encoding.
      *
-     * @param path  to file
+     * @param path to file
      * @return text with file content
      */
     public static String loadFileFromPathAsText(Path path) {
@@ -469,11 +469,10 @@ public final class FileUtils {
             for (File childField : files) {
                 deleteFileOrDirectory(childField);
             }
-        } else {
-            boolean deleted = file.delete();
-            if (!deleted) {
-                throw new FileException("cannot delete file: " + file.getAbsolutePath());
-            }
+        }
+        boolean deleted = file.delete();
+        if (!deleted) {
+            throw new FileException("cannot delete file: " + file.getAbsolutePath());
         }
     }
 

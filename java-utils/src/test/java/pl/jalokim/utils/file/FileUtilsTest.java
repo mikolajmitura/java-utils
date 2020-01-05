@@ -344,13 +344,13 @@ public class FileUtilsTest extends TemporaryTestResources {
         assertThat(elements(listOfFiles(getTempFolder().getRoot()))
                            .map(File::getName)
                            .asList())
-                .containsAnyOf("someFile1", "someFile2", "notEmptyFolder", "someFolder");
+                .containsExactlyInAnyOrder("someFile1", "someFile2", "notEmptyFolder", "someFolder");
         // when
         fileConsumer.accept(notEmptyFolder.getRealFolder());
         // then
         assertThat(elements(listOfFiles(getTempFolder().getRoot()))
                            .map(File::getName)
                            .asList())
-                .containsAnyOf("someFile1", "someFile2", "someFolder");
+                .containsExactlyInAnyOrder("someFile1", "someFile2", "someFolder");
     }
 }
