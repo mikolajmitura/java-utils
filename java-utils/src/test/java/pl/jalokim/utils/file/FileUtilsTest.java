@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static pl.jalokim.utils.collection.Elements.elements;
 import static pl.jalokim.utils.file.FileUtils.catchIoEx;
@@ -108,7 +110,7 @@ public class FileUtilsTest extends TemporaryTestResources {
     }
 
     @Test
-    public void testWriteStringToFile() throws IOException {
+    public void testWriteStringToFile() {
         // given
         File newFile = newFile("new_file_to_save");
         String contentToSave = String.format("line first%nsecond Line__%nend line.......");
@@ -121,7 +123,20 @@ public class FileUtilsTest extends TemporaryTestResources {
     }
 
     @Test
-    public void testAppendAtEndOfFile() throws IOException {
+    public void testWriteStringToFileWithAnotherEncoding() {
+        // given
+        File newFile = newFile("new_file_to_save");
+        String contentToSave = String.format("line first%nsecond Line__%nend line.......");
+        // when
+        writeToFile(newFile.getAbsolutePath(), "old value", ISO_8859_1);
+        writeToFile(newFile.getAbsolutePath(), contentToSave, ISO_8859_1);
+        // then
+        String readContent = loadFileFromPathAsText(newFile.getAbsolutePath(), ISO_8859_1);
+        assertThat(readContent).isEqualTo(contentToSave);
+    }
+
+    @Test
+    public void testAppendAtEndOfFile() {
         // given
         File newFile = newFile("new_file_to_save");
         String contentToSave = String.format("line first%nsecond Line__%nend line.......");

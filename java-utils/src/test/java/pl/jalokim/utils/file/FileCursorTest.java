@@ -4,19 +4,12 @@ import org.junit.After;
 import org.junit.Test;
 import pl.jalokim.utils.test.TemporaryTestResources;
 
-import java.nio.charset.Charset;
 import java.nio.charset.MalformedInputException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static pl.jalokim.utils.file.FileUtils.readFileFromPathToFileCursor;
-import static pl.jalokim.utils.file.FileUtils.writeAllElementsAsLinesToFile;
-import static pl.jalokim.utils.file.FileUtils.writeToFile;
 import static pl.jalokim.utils.file.FileUtilsTest.PATH_TO_FILE;
 import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.when;
 

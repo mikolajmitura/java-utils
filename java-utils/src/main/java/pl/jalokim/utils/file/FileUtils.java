@@ -26,6 +26,7 @@ import static pl.jalokim.utils.collection.Elements.elements;
 /**
  * Useful class for Files.
  */
+@SuppressWarnings("PMD.GodClass")
 public final class FileUtils {
 
     private FileUtils() {
@@ -39,7 +40,7 @@ public final class FileUtils {
      * @return text with file content
      */
     public static String loadFileFromPathAsText(String path) {
-        return loadFileFromPathAsText(path, UTF_8);
+        return loadFileFromPathAsText(new File(path));
     }
 
     /**
@@ -50,7 +51,50 @@ public final class FileUtils {
      * @return text with file content
      */
     public static String loadFileFromPathAsText(String path, Charset charset) {
-        return catchIoExAndReturn(() -> new String(Files.readAllBytes(get(path)), charset));
+        return loadFileFromPathAsText(new File(path), charset);
+    }
+
+    /**
+     * It read from file and put all content to String.
+     *
+     * @param file path for File
+     * @return text with file content
+     */
+    public static String loadFileFromPathAsText(File file) {
+        return loadFileFromPathAsText(file.toPath());
+    }
+
+    /**
+     * It read from file and put all content to String with certain encoding.
+     *
+     * @param file path for File
+     * @param charset instance of java.nio.charset.Charset
+     * @return text with file content
+     */
+    public static String loadFileFromPathAsText(File file, Charset charset) {
+        return loadFileFromPathAsText(file.toPath(), charset);
+    }
+
+
+    /**
+     * It read from file and put all content to String with certain encoding.
+     *
+     * @param path  to file
+     * @return text with file content
+     */
+    public static String loadFileFromPathAsText(Path path) {
+        return loadFileFromPathAsText(path, UTF_8);
+    }
+
+    /**
+     * It read from file and put all content to String with certain encoding.
+     *
+     * @param path    to file
+     * @param charset instance of java.nio.charset.Charset
+     * @return text with file content
+     */
+    public static String loadFileFromPathAsText(Path path, Charset charset) {
+        return catchIoExAndReturn(() -> new String(Files.readAllBytes(path), charset));
     }
 
     /**
@@ -191,7 +235,7 @@ public final class FileUtils {
      * @param fileContent as String to write to file
      */
     public static void writeToFile(String filePath, String fileContent) {
-        writeToFile(filePath, fileContent, UTF_8);
+        writeToFile(new File(filePath), fileContent);
     }
 
     /**
@@ -202,9 +246,52 @@ public final class FileUtils {
      * @param fileContent as String to write to file
      */
     public static void writeToFile(String filePath, String fileContent, Charset charset) {
-        Path path = get(filePath);
+        writeToFile(new File(filePath), fileContent, charset);
+    }
+
+    /**
+     * It override current file content if exists.
+     * it not create folders with not exist.
+     *
+     * @param filePath    system path to file.
+     * @param fileContent as String to write to file
+     */
+    public static void writeToFile(File filePath, String fileContent) {
+        writeToFile(filePath.toPath(), fileContent);
+    }
+
+    /**
+     * It override current file content if exists.
+     * it not create folders with not exist.
+     *
+     * @param filePath    system path to file.
+     * @param fileContent as String to write to file
+     */
+    public static void writeToFile(File filePath, String fileContent, Charset charset) {
+        writeToFile(filePath.toPath(), fileContent, charset);
+    }
+
+    /**
+     * It override current file content if exists.
+     * it not create folders with not exist.
+     *
+     * @param filePath    system path to file.
+     * @param fileContent as String to write to file
+     */
+    public static void writeToFile(Path filePath, String fileContent) {
+        writeToFile(filePath, fileContent, UTF_8);
+    }
+
+    /**
+     * It override current file content if exists.
+     * it not create folders with not exist.
+     *
+     * @param filePath    system path to file.
+     * @param fileContent as String to write to file
+     */
+    public static void writeToFile(Path filePath, String fileContent, Charset charset) {
         byte[] strToBytes = fileContent.getBytes(charset);
-        catchIoExAndReturn(() -> Files.write(path, strToBytes));
+        catchIoExAndReturn(() -> Files.write(filePath, strToBytes));
     }
 
     /**
