@@ -54,16 +54,20 @@ public final class InvokableReflectionUtils {
                                         String fieldName, Object newValue) {
         Field foundField = getField(targetClass, fieldName);
         try {
-            Field modifiersField = Field.class.getDeclaredField("modifiers");
-            int oldModifiers = foundField.getModifiers();
-            modifiersField.setAccessible(true);
-            modifiersField.setInt(foundField, foundField.getModifiers() & ~Modifier.FINAL);
+            Field modifiersField = null;
+            int oldModifiers = -1;
+            if (Modifier.isFinal(foundField.getModifiers())) {
+                modifiersField = Field.class.getDeclaredField("modifiers");
+                oldModifiers = foundField.getModifiers();
+                modifiersField.setAccessible(true);
+                modifiersField.setInt(foundField, foundField.getModifiers() & ~Modifier.FINAL);
+            }
             foundField.setAccessible(true);
-
             foundField.set(targetObject, newValue);
-
-            modifiersField.setInt(foundField, oldModifiers);
-            modifiersField.setAccessible(false);
+            if (modifiersField != null) {
+                modifiersField.setInt(foundField, oldModifiers);
+                modifiersField.setAccessible(false);
+            }
             foundField.setAccessible(false);
         } catch (Exception e) {
             throw new ReflectionOperationException(e);
