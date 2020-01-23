@@ -134,20 +134,69 @@ public class ElementsTest {
     @Test
     public void flatMapTest() {
         // given
-        List<ExampleClass> classesForTest = new ArrayList<>();
-        classesForTest.add(createClassForTest(createEvent("type1"), createEvent("type2"), createEvent("type3")));
-        classesForTest.add(createClassForTest(createEvent("type4"), createEvent("type5"), createEvent("type6")));
-        classesForTest.add(createClassForTest(createEvent("type7"), createEvent("type8"), createEvent("type9")));
+        List<ExampleClass> classesForTest = buildClassesForTest();
         // when
         Elements<Event> eventElements = elements(classesForTest).flatMap(classForTest -> classForTest.getEventsAsList().stream());
         List<Event> events = eventElements.asList();
         // then
+        assertDataInList(events);
+    }
+
+    @Test
+    public void flatMapByElementsTest() {
+        // given
+        List<ExampleClass> classesForTest = buildClassesForTest();
+        // when
+        Elements<Event> eventElements = elements(classesForTest).flatMapByElements(classForTest -> elements(classForTest.getEventsAsList()));
+        List<Event> events = eventElements.asList();
+        // then
+        assertDataInList(events);
+    }
+
+    @Test
+    public void flatMapByIterablesTest() {
+        // given
+        List<ExampleClass> classesForTest = buildClassesForTest();
+        // when
+        Elements<Event> eventElements = elements(classesForTest).flatMapByIterables(ExampleClass::getEventsAsList);
+        List<Event> events = eventElements.asList();
+        // then
+        assertDataInList(events);
+    }
+
+    @Test
+    public void flatMapByArrayTest() {
+        // given
+        List<ExampleClass> classesForTest = buildClassesForTest();
+        classesForTest.forEach(exampleClass -> {
+            List<Event> eventsAsList = exampleClass.getEventsAsList();
+            Event[] events = new Event[eventsAsList.size()];
+            elements(eventsAsList)
+                    .forEach((index, element)-> events[index] = element);
+            exampleClass.setEvents(events);
+        });
+        // when
+        Elements<Event> eventElements = elements(classesForTest).flatMapByArray(ExampleClass::getEvents);
+        List<Event> events = eventElements.asList();
+        // then
+        assertDataInList(events);
+    }
+
+    private void assertDataInList(List<Event> events) {
         assertThat(events).hasSize(9);
         assertThat(events.get(0)).isEqualTo(createEvent("type1"));
         assertThat(events.get(3)).isEqualTo(createEvent("type4"));
         assertThat(events.get(8)).isEqualTo(createEvent("type9"));
         assertThat(elements(events).getFirst()).isEqualTo(createEvent("type1"));
         assertThat(elements(events).getLast()).isEqualTo(createEvent("type9"));
+    }
+
+    private List<ExampleClass> buildClassesForTest() {
+        List<ExampleClass> classesForTest = new ArrayList<>();
+        classesForTest.add(createClassForTest(createEvent("type1"), createEvent("type2"), createEvent("type3")));
+        classesForTest.add(createClassForTest(createEvent("type4"), createEvent("type5"), createEvent("type6")));
+        classesForTest.add(createClassForTest(createEvent("type7"), createEvent("type8"), createEvent("type9")));
+        return classesForTest;
     }
 
     @Test
