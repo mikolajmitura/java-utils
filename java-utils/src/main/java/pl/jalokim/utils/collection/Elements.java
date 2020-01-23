@@ -62,6 +62,27 @@ public final class Elements<T> {
         return new Elements<>(this.stream.flatMap(mapper));
     }
 
+    public <R> Elements<R> flatMapByElements(Function<? super T, ? extends Elements<? extends R>> mapper) {
+        return new Elements<>(asStream().flatMap(element -> {
+            Elements<? extends R> elements = mapper.apply(element);
+            return elements.asStream();
+        }));
+    }
+
+    public <R> Elements<R> flatMapByIterables(Function<? super T, ? extends Iterable<? extends R>> mapper) {
+        return new Elements<>(asStream().flatMap(element -> {
+            Iterable<? extends R> newIterable = mapper.apply(element);
+            return elements(newIterable).asStream();
+        }));
+    }
+
+    public <R> Elements<R> flatMapByArray(Function<? super T, R[]> mapper) {
+        return new Elements<>(asStream().flatMap(element -> {
+            R[] array = mapper.apply(element);
+            return elements(array).asStream();
+        }));
+    }
+
     public T getFirst() {
         return stream.findFirst().get();
     }
