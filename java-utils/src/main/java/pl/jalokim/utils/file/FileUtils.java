@@ -39,8 +39,8 @@ public final class FileUtils {
      * @param path to file
      * @return text with file content
      */
-    public static String loadFileFromPathAsText(String path) {
-        return loadFileFromPathAsText(new File(path));
+    public static String readAsText(String path) {
+        return readAsText(new File(path));
     }
 
     /**
@@ -50,8 +50,8 @@ public final class FileUtils {
      * @param charset instance of java.nio.charset.Charset
      * @return text with file content
      */
-    public static String loadFileFromPathAsText(String path, Charset charset) {
-        return loadFileFromPathAsText(new File(path), charset);
+    public static String readAsText(String path, Charset charset) {
+        return readAsText(new File(path), charset);
     }
 
     /**
@@ -60,8 +60,8 @@ public final class FileUtils {
      * @param file path for File
      * @return text with file content
      */
-    public static String loadFileFromPathAsText(File file) {
-        return loadFileFromPathAsText(file.toPath());
+    public static String readAsText(File file) {
+        return readAsText(file.toPath());
     }
 
     /**
@@ -71,8 +71,8 @@ public final class FileUtils {
      * @param charset instance of java.nio.charset.Charset
      * @return text with file content
      */
-    public static String loadFileFromPathAsText(File file, Charset charset) {
-        return loadFileFromPathAsText(file.toPath(), charset);
+    public static String readAsText(File file, Charset charset) {
+        return readAsText(file.toPath(), charset);
     }
 
 
@@ -82,8 +82,8 @@ public final class FileUtils {
      * @param path to file
      * @return text with file content
      */
-    public static String loadFileFromPathAsText(Path path) {
-        return loadFileFromPathAsText(path, UTF_8);
+    public static String readAsText(Path path) {
+        return readAsText(path, UTF_8);
     }
 
     /**
@@ -93,7 +93,7 @@ public final class FileUtils {
      * @param charset instance of java.nio.charset.Charset
      * @return text with file content
      */
-    public static String loadFileFromPathAsText(Path path, Charset charset) {
+    public static String readAsText(Path path, Charset charset) {
         return catchIoExAndReturn(() -> new String(Files.readAllBytes(path), charset));
     }
 
@@ -103,8 +103,8 @@ public final class FileUtils {
      * @param path to file
      * @return text with file content
      */
-    public static String loadFileFromClassPathAsText(String path) {
-        return loadFileFromClassPathAsText(path, UTF_8);
+    public static String readAsTextFromClassPath(String path) {
+        return readAsTextFromClassPath(path, UTF_8);
     }
 
     /**
@@ -114,7 +114,7 @@ public final class FileUtils {
      * @param charset instance of java.nio.charset.Charset
      * @return text with file content
      */
-    public static String loadFileFromClassPathAsText(String path, Charset charset) {
+    public static String readAsTextFromClassPath(String path, Charset charset) {
         return catchIoExAndReturn(() -> {
             URL url = Resources.getResource(path);
             return Resources.toString(url, charset);
@@ -128,8 +128,8 @@ public final class FileUtils {
      * @param path system path to file to read.
      * @return list with all lines from file.
      */
-    public static List<String> loadFileFromPathToList(String path) {
-        return loadFileFromPathToList(path, UTF_8);
+    public static List<String> readAsList(String path) {
+        return readAsList(path, UTF_8);
     }
 
     /**
@@ -139,7 +139,7 @@ public final class FileUtils {
      * @param path system path to file to read.
      * @return list with all lines from file.
      */
-    public static List<String> loadFileFromPathToList(String path, Charset charset) {
+    public static List<String> readAsList(String path, Charset charset) {
         List<String> lines = new ArrayList<>();
         consumeEveryLineFromFile(path, lines::add, charset);
         return lines;

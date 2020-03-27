@@ -7,7 +7,7 @@ import pl.jalokim.utils.test.TemporaryTestResources;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static pl.jalokim.utils.file.FileUtils.loadFileFromPathAsText;
+import static pl.jalokim.utils.file.FileUtils.readAsText;
 import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.when;
 
 public class FileWriterTest extends TemporaryTestResources {
@@ -21,13 +21,13 @@ public class FileWriterTest extends TemporaryTestResources {
             fileWriter.append("text1");
             fileWriter.appendAndNextLine("text2");
             fileWriter.flush();
-            String fileContent = loadFileFromPathAsText(tempFile);
+            String fileContent = readAsText(tempFile);
             assertThat(fileContent).isEqualTo(String.format("text1text2%n"));
             fileWriter.appendNextLine();
             fileWriter.appendAndNextLine("text3");
         }
         // then
-        String fileContent = loadFileFromPathAsText(tempFile);
+        String fileContent = readAsText(tempFile);
         assertThat(fileContent).isEqualTo(String.format("text1text2%n%ntext3%n"));
     }
 
