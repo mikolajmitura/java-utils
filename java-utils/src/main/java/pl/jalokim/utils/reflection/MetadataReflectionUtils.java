@@ -67,6 +67,7 @@ public final class MetadataReflectionUtils {
         classes.add(short.class);
         classes.add(byte.class);
         classes.add(long.class);
+        classes.add(double.class);
         classes.add(float.class);
         return unmodifiableList(classes);
     }
