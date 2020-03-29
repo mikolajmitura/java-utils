@@ -19,6 +19,10 @@ public class TemporaryTestResources {
     @Rule
     public TemporaryFolder tempFolder = new TemporaryFolder();
 
+    public static boolean isWindows() {
+        return System.getProperty("os.name").contains("Windows");
+    }
+
     protected String getPathForFileInTempFolder(String fileName) {
         return tempFolder.getRoot().toString().replace(BACK_SLASH, SLASH)
                          .concat(SLASH)

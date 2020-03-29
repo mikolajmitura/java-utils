@@ -1,5 +1,7 @@
 package pl.jalokim.utils.template;
 
+import pl.jalokim.utils.file.FileUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -7,8 +9,6 @@ import java.util.regex.Pattern;
 
 import static java.util.Objects.requireNonNull;
 import static pl.jalokim.utils.collection.CollectionUtils.isNotEmpty;
-import static pl.jalokim.utils.file.FileUtils.loadFileFromClassPathAsText;
-import static pl.jalokim.utils.file.FileUtils.loadFileFromPathAsText;
 
 /**
  * Utils class for some text with template, can override some placeholders. It can throw exception when some
@@ -42,7 +42,7 @@ public final class TemplateAsText {
      * @return instance of TemplateAsText
      */
     public static TemplateAsText fromClassPath(String resourcePath) {
-        return new TemplateAsText(loadFileFromClassPathAsText(resourcePath));
+        return new TemplateAsText(FileUtils.readAsTextFromClassPath(resourcePath));
     }
 
     /**
@@ -54,7 +54,7 @@ public final class TemplateAsText {
      * @return instance of TemplateAsText
      */
     public static TemplateAsText fromClassPath(String resourcePath, boolean throwExceptionForNotResolved) {
-        return new TemplateAsText(loadFileFromClassPathAsText(resourcePath), throwExceptionForNotResolved);
+        return new TemplateAsText(FileUtils.readAsTextFromClassPath(resourcePath), throwExceptionForNotResolved);
     }
 
     /**
@@ -64,7 +64,7 @@ public final class TemplateAsText {
      * @return instance of TemplateAsText
      */
     public static TemplateAsText fromFile(String filePath) {
-        return new TemplateAsText(loadFileFromPathAsText(filePath));
+        return new TemplateAsText(FileUtils.readAsText(filePath));
     }
 
     /**
@@ -76,7 +76,7 @@ public final class TemplateAsText {
      * @return instance of TemplateAsText
      */
     public static TemplateAsText fromFile(String filePath, boolean throwExceptionForNotResolved) {
-        return new TemplateAsText(loadFileFromPathAsText(filePath), throwExceptionForNotResolved);
+        return new TemplateAsText(FileUtils.readAsText(filePath), throwExceptionForNotResolved);
     }
 
     /**

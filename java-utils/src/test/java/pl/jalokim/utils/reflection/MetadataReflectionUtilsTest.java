@@ -8,8 +8,8 @@ import org.junit.rules.ExpectedException;
 import pl.jalokim.utils.constants.Constants;
 import pl.jalokim.utils.reflection.beans.SuperObject2;
 import pl.jalokim.utils.reflection.beans.inheritiance.AbstractClassExSuperObject;
-import pl.jalokim.utils.reflection.beans.inheritiance.ExampleClass;
 import pl.jalokim.utils.reflection.beans.inheritiance.Event;
+import pl.jalokim.utils.reflection.beans.inheritiance.ExampleClass;
 import pl.jalokim.utils.reflection.beans.inheritiance.SecondLevelSomeConcreteObject;
 import pl.jalokim.utils.reflection.beans.inheritiance.SomeConcreteObject;
 import pl.jalokim.utils.reflection.beans.inheritiance.SuperObject;
@@ -26,7 +26,6 @@ import java.util.Set;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static pl.jalokim.utils.constants.Constants.COMMA;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getAllChildClassesForClass;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getField;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getMethod;
@@ -259,14 +258,36 @@ public class MetadataReflectionUtilsTest {
     @Test
     public void simpleIntIsNumber() {
         // given
-        Field simpleIntField = getField(ExampleClass.class, "simpleInt");
-        Field stringField = getField(ExampleClass.class, "string");
-        // when
-        // then
-        assertThat(isNumberType(simpleIntField.getType())).isTrue();
-        assertThat(isNumberType(stringField.getType())).isFalse();
-        assertThat(isNumberType(simpleIntField)).isTrue();
-        assertThat(isNumberType(stringField)).isFalse();
+        List<FieldExpectation> fieldExpectations = Arrays.asList(
+                create(ExampleClass.class, "textByEvent", false),
+                create(ExampleClass.class, "events", false),
+                create(ExampleClass.class, "simpleFloat", true),
+                create(ExampleClass.class, "simpleInt", true),
+                create(ExampleClass.class, "objectInt", true),
+                create(ExampleClass.class, "simpleDouble", true),
+                create(ExampleClass.class, "simpleShort", true),
+                create(ExampleClass.class, "shortObject", true),
+                create(ExampleClass.class, "objectDouble", true),
+                create(ExampleClass.class, "simpleChar", false),
+                create(ExampleClass.class, "objectChar", false),
+                create(ExampleClass.class, "string", false),
+                create(ExampleClass.class, "simpleByte", true),
+                create(ExampleClass.class, "objectByte", true),
+                create(ExampleClass.class, "dayOfWeek", false),
+                create(ExampleClass.class, "localDate", false),
+                create(ExampleClass.class, "localDateTime", false),
+                create(ExampleClass.class, "localTime", false),
+                create(ExampleClass.class, "booleanWrapper", false)
+                                                                );
+        fieldExpectations.forEach(fieldExpectation -> {
+            // when
+            boolean simpleFieldResult = isNumberType(fieldExpectation.getField().getType());
+            // then
+            assertThat(simpleFieldResult).isEqualTo(isNumberType(fieldExpectation.getField()));
+            String msgPart = fieldExpectation.isExpectedResult() ? "" : "not ";
+            Assert.assertEquals("field " + fieldExpectation + " expected to be " + msgPart + "number field",
+                                simpleFieldResult, fieldExpectation.isExpectedResult());
+        });
     }
 
     @Test
@@ -324,10 +345,10 @@ public class MetadataReflectionUtilsTest {
         List<FieldExpectation> fieldExpectations = Arrays.asList(
                 create(ExampleClass.class, "textByEvent", false),
                 create(ExampleClass.class, "events", false),
+                create(ExampleClass.class, "simpleDouble", true),
                 create(ExampleClass.class, "simpleFloat", true),
                 create(ExampleClass.class, "simpleInt", true),
                 create(ExampleClass.class, "objectInt", true),
-                create(ExampleClass.class, "simpleDouble", true),
                 create(ExampleClass.class, "objectDouble", true),
                 create(ExampleClass.class, "simpleChar", true),
                 create(ExampleClass.class, "objectChar", true),

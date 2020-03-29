@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static pl.jalokim.utils.collection.Elements.elements;
 import static pl.jalokim.utils.file.FileUtils.catchIoEx;
@@ -26,9 +25,9 @@ import static pl.jalokim.utils.file.FileUtils.createDirectories;
 import static pl.jalokim.utils.file.FileUtils.createDirectoriesForFile;
 import static pl.jalokim.utils.file.FileUtils.deleteFileOrDirectory;
 import static pl.jalokim.utils.file.FileUtils.listOfFiles;
-import static pl.jalokim.utils.file.FileUtils.loadFileFromClassPathAsText;
-import static pl.jalokim.utils.file.FileUtils.loadFileFromPathAsText;
-import static pl.jalokim.utils.file.FileUtils.loadFileFromPathToList;
+import static pl.jalokim.utils.file.FileUtils.readAsText;
+import static pl.jalokim.utils.file.FileUtils.readAsTextFromClassPath;
+import static pl.jalokim.utils.file.FileUtils.readAsList;
 import static pl.jalokim.utils.file.FileUtils.writeToFile;
 import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.when;
 
@@ -39,9 +38,9 @@ public class FileUtilsTest extends TemporaryTestResources {
     @Test
     public void loadFileFromPath() {
         // when
-        String text = loadFileFromPathAsText(PATH_TO_FILE);
+        String text = FileUtils.readAsText(PATH_TO_FILE);
         // then
-        assertThat(text).isEqualTo(String.format("line first%n" +
+        assertThat(alignEndLineToOs(text)).isEqualTo(String.format("line first%n" +
                                                  "second line%n" +
                                                  "3 line%n" +
                                                  "end line"));
@@ -50,9 +49,9 @@ public class FileUtilsTest extends TemporaryTestResources {
     @Test
     public void loadFileFromPathWithEncoding() {
         // when
-        String text = loadFileFromPathAsText(PATH_TO_FILE, StandardCharsets.UTF_8);
+        String text = FileUtils.readAsText(PATH_TO_FILE, StandardCharsets.UTF_8);
         // then
-        assertThat(text).isEqualTo(String.format("line first%n" +
+        assertThat(alignEndLineToOs(text)).isEqualTo(String.format("line first%n" +
                                                  "second line%n" +
                                                  "3 line%n" +
                                                  "end line"));
@@ -61,9 +60,9 @@ public class FileUtilsTest extends TemporaryTestResources {
     @Test
     public void loadFileFromClassPath() {
         // when
-        String text = loadFileFromClassPathAsText("filesTest/someFile");
+        String text = FileUtils.readAsTextFromClassPath("filesTest/someFile");
         // then
-        assertThat(text).isEqualTo(String.format("line first%n" +
+        assertThat(alignEndLineToOs(text)).isEqualTo(String.format("line first%n" +
                                                  "second line%n" +
                                                  "3 line%n" +
                                                  "end line"));
@@ -72,9 +71,9 @@ public class FileUtilsTest extends TemporaryTestResources {
     @Test
     public void loadFileFromClassPathWithEncoding() {
         // when
-        String text = loadFileFromClassPathAsText("filesTest/someFile", StandardCharsets.UTF_8);
+        String text = readAsTextFromClassPath("filesTest/someFile", StandardCharsets.UTF_8);
         // then
-        assertThat(text).isEqualTo(String.format("line first%n" +
+        assertThat(alignEndLineToOs(text)).isEqualTo(String.format("line first%n" +
                                                  "second line%n" +
                                                  "3 line%n" +
                                                  "end line"));
@@ -83,7 +82,7 @@ public class FileUtilsTest extends TemporaryTestResources {
     @Test
     public void testForLoadFileFromPathToList() {
         // when
-        List<String> lines = loadFileFromPathToList(PATH_TO_FILE);
+        List<String> lines = FileUtils.readAsList(PATH_TO_FILE);
         // then
         assertThat(lines).containsExactly("line first", "second line", "3 line", "end line");
     }
@@ -118,7 +117,7 @@ public class FileUtilsTest extends TemporaryTestResources {
         writeToFile(newFile.getAbsolutePath(), "old value");
         writeToFile(newFile.getAbsolutePath(), contentToSave);
         // then
-        String readContent = loadFileFromPathAsText(newFile.getAbsolutePath());
+        String readContent = FileUtils.readAsText(newFile.getAbsolutePath());
         assertThat(readContent).isEqualTo(contentToSave);
     }
 
@@ -131,7 +130,7 @@ public class FileUtilsTest extends TemporaryTestResources {
         writeToFile(newFile.getAbsolutePath(), "old value", ISO_8859_1);
         writeToFile(newFile.getAbsolutePath(), contentToSave, ISO_8859_1);
         // then
-        String readContent = loadFileFromPathAsText(newFile.getAbsolutePath(), ISO_8859_1);
+        String readContent = FileUtils.readAsText(newFile.getAbsolutePath(), ISO_8859_1);
         assertThat(readContent).isEqualTo(contentToSave);
     }
 
@@ -144,7 +143,7 @@ public class FileUtilsTest extends TemporaryTestResources {
         // when
         FileUtils.appendToFile(newFile.getAbsolutePath(), String.format("%nnext line%nlast line..."));
         // then
-        List<String> lines = loadFileFromPathToList(newFile.getAbsolutePath());
+        List<String> lines = FileUtils.readAsList(newFile.getAbsolutePath());
         assertThat(lines).containsExactly("line first",
                                           "second Line__",
                                           "end line.......",
@@ -159,7 +158,7 @@ public class FileUtilsTest extends TemporaryTestResources {
         // when
         FileUtils.appendToFile(newFile.getAbsolutePath(), String.format("next line%nlast line..."));
         // then
-        List<String> lines = loadFileFromPathToList(newFile.getAbsolutePath());
+        List<String> lines = FileUtils.readAsList(newFile.getAbsolutePath());
         assertThat(lines).containsExactly("next line",
                                           "last line...");
     }
@@ -171,13 +170,13 @@ public class FileUtilsTest extends TemporaryTestResources {
         String contentToSave = String.format("line first%nsecond Line__%nend line.......");
         writeToFile(newFile.getAbsolutePath(), contentToSave);
         // when
-        FileUtils.writeAllElementsAsLinesToFile(newFile.getAbsolutePath(), Arrays.asList("line first",
-                                                                                         "second Line__",
-                                                                                         "end line.......",
-                                                                                         "next line",
-                                                                                         "last line..."));
+        FileUtils.writeToFile(newFile.getAbsolutePath(), Arrays.asList("line first",
+                                                                       "second Line__",
+                                                                       "end line.......",
+                                                                       "next line",
+                                                                       "last line..."));
         // then
-        List<String> lines = loadFileFromPathToList(newFile.getAbsolutePath());
+        List<String> lines = FileUtils.readAsList(newFile.getAbsolutePath());
         assertThat(lines).containsExactly("line first",
                                           "second Line__",
                                           "end line.......",
@@ -192,13 +191,13 @@ public class FileUtilsTest extends TemporaryTestResources {
         String contentToSave = String.format("line first%nsecond Line__%nend line.......%n");
         writeToFile(newFile.getAbsolutePath(), contentToSave);
         // when
-        FileUtils.appendAllElementsAsLinesToFile(newFile.getAbsolutePath(), Arrays.asList("line first",
-                                                                                          "second Line__",
-                                                                                          "end2 line.......",
-                                                                                          "next line",
-                                                                                          "last line..."));
+        FileUtils.appendToFile(newFile.getAbsolutePath(), Arrays.asList("line first",
+                                                                        "second Line__",
+                                                                        "end2 line.......",
+                                                                        "next line",
+                                                                        "last line..."));
         // then
-        List<String> lines = loadFileFromPathToList(newFile.getAbsolutePath());
+        List<String> lines = FileUtils.readAsList(newFile.getAbsolutePath());
         assertThat(lines).containsExactly("line first",
                                           "second Line__",
                                           "end line.......",
@@ -212,7 +211,7 @@ public class FileUtilsTest extends TemporaryTestResources {
     @Test
     public void cannotReadFromFile() {
         when(() ->
-                     loadFileFromPathAsText("/some_folder_which_not_exist"))
+                     FileUtils.readAsList("/some_folder_which_not_exist"))
                 .thenException(FileException.class)
                 .thenNestedException(NoSuchFileException.class);
     }
@@ -228,7 +227,7 @@ public class FileUtilsTest extends TemporaryTestResources {
         // then
         File file = new File(pathForFileInTempFolder);
         assertThat(file.isDirectory()).isFalse();
-        String readValue = loadFileFromPathAsText(pathForFileInTempFolder);
+        String readValue = FileUtils.readAsText(pathForFileInTempFolder);
         assertThat(readValue).isEqualTo(fileContent);
     }
 
@@ -352,5 +351,12 @@ public class FileUtilsTest extends TemporaryTestResources {
                            .map(File::getName)
                            .asList())
                 .containsExactlyInAnyOrder("someFile1", "someFile2", "someFolder");
+    }
+
+    public static String alignEndLineToOs(String text) {
+        if (!isWindows()) {
+            text = text.replace("\r\n", "\n");
+        }
+        return text;
     }
 }

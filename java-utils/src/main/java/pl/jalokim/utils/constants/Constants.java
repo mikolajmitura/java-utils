@@ -26,6 +26,7 @@ public final class Constants {
     public static final String LEFT_SQUARE_PARENTHESIS = "[";
     public static final String RIGTH_SQUARE_PARENTHESIS = "]";
     public static final String QUESTION_SIGN = "?";
+    public static final String COLON = ":";
 
     private Constants() {
 

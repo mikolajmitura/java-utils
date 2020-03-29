@@ -24,6 +24,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.when;
+import static pl.jalokim.utils.test.TemporaryTestResources.isWindows;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ExpectedErrorUtilTest {
@@ -1645,8 +1646,9 @@ public class ExpectedErrorUtilTest {
             assertThat(assertionError.getMessage()).isEqualTo(String.format("Caught expected exception type: %s but has another message lines than expected",
                                                                             SimpleException.class.getCanonicalName()));
 
-            assertThat(assertionError.getCause().getMessage()).isEqualTo(concatAsNewLines("expected:<...st line",
-                                                                                          "second line[]\"> but was:<...st line",
+            String stPart = isWindows() ? "st" : "rst";
+            assertThat(assertionError.getCause().getMessage()).isEqualTo(concatAsNewLines("expected:<..." + stPart +" line",
+                                                                                          "second line[]\"> but was:<..." + stPart +" line",
                                                                                           "second line[",
                                                                                           "third line]\">"));
 
