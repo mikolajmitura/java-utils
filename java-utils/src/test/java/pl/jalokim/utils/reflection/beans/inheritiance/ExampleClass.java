@@ -32,6 +32,8 @@ public class ExampleClass {
     private SomeEnum someEnum;
     private float simpleFloat;
     private int simpleInt;
+    private short simpleShort;
+    private Short shortObject;
     private Integer objectInt;
     private double simpleDouble;
     private Double objectDouble;

@@ -1,5 +1,9 @@
 Java Utils project
 ---------------------------------------------
+
+[![Build Status](https://travis-ci.org/mikolajmitura/java-utils.svg?branch=develop)](https://travis-ci.org/github/mikolajmitura/java-utils)
+[![Coverage Status](https://coveralls.io/repos/github/mikolajmitura/java-utils/badge.svg?branch=develop)](https://coveralls.io/github/mikolajmitura/java-utils?branch=develop)
+
 This project contains some utils code for java and for test.
 It contains two modules: 
  - java-utils
@@ -21,7 +25,7 @@ java-utils
     <dependency>
         <groupId>pl.jalokim.utils</groupId>
         <artifactId>java-utils</artifactId>
-        <version>1.1.5</version>
+        <version>2.0.0</version>
     </dependency>
 ```
 
@@ -380,7 +384,7 @@ Some example code below:
     <dependency>
         <groupId>pl.jalokim.utils</groupId>
         <artifactId>test-utils</artifactId>
-        <version>1.1.5</version>
+        <version>2.0.0</version>
         <scope>test</scope>
     </dependency>
 ```     
