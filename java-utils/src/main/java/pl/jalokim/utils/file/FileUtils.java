@@ -294,6 +294,53 @@ public final class FileUtils {
         catchIoExAndReturn(() -> Files.write(filePath, strToBytes));
     }
 
+
+    /**
+     * It writes all list element to file, every as separated line.
+     *
+     * @param filePath       system path to file
+     * @param elementToWrite text lines write to file
+     */
+    public static void writeToFile(String filePath, List<String> elementToWrite) {
+        writeToFile(filePath, elementToWrite, UTF_8);
+    }
+
+    /**
+     * It writes all list element to file, every as separated line.
+     *
+     * @param filePath       system path to file
+     * @param elementToWrite text lines write to file
+     */
+    public static void writeToFile(String filePath, List<String> elementToWrite, Charset charset) {
+        Path path = get(filePath);
+        String fileContent = StringUtils.concatElementsAsLines(elementToWrite);
+        byte[] strToBytes = fileContent.getBytes(charset);
+        catchIoExAndReturn(() -> Files.write(path, strToBytes));
+    }
+
+    /**
+     * It append all list element to file, every as separated line.
+     *
+     * @param filePath       system path to file
+     * @param elementToWrite text lines write to file
+     */
+    public static void appendToFile(String filePath, List<String> elementToWrite) {
+        appendToFile(filePath, elementToWrite, UTF_8);
+    }
+
+    /**
+     * It append all list element to file, every as separated line.
+     *
+     * @param filePath       system path to file
+     * @param elementToWrite text lines write to file
+     */
+    public static void appendToFile(String filePath, List<String> elementToWrite, Charset charset) {
+        Path path = get(filePath);
+        String fileContent = StringUtils.concatElementsAsLines(elementToWrite);
+        byte[] strToBytes = fileContent.getBytes(charset);
+        catchIoExAndReturn(() -> Files.write(path, strToBytes, StandardOpenOption.APPEND));
+    }
+
     /**
      * Append some text to file.
      *
@@ -312,52 +359,6 @@ public final class FileUtils {
      */
     public static void appendToFile(String filePath, String fileContent, Charset charset) {
         Path path = get(filePath);
-        byte[] strToBytes = fileContent.getBytes(charset);
-        catchIoExAndReturn(() -> Files.write(path, strToBytes, StandardOpenOption.APPEND));
-    }
-
-    /**
-     * It writes all list element to file, every as separated line.
-     *
-     * @param filePath       system path to file
-     * @param elementToWrite text lines write to file
-     */
-    public static void writeAllElementsAsLinesToFile(String filePath, List<String> elementToWrite) {
-        writeAllElementsAsLinesToFile(filePath, elementToWrite, UTF_8);
-    }
-
-    /**
-     * It writes all list element to file, every as separated line.
-     *
-     * @param filePath       system path to file
-     * @param elementToWrite text lines write to file
-     */
-    public static void writeAllElementsAsLinesToFile(String filePath, List<String> elementToWrite, Charset charset) {
-        Path path = get(filePath);
-        String fileContent = StringUtils.concatElementsAsLines(elementToWrite);
-        byte[] strToBytes = fileContent.getBytes(charset);
-        catchIoExAndReturn(() -> Files.write(path, strToBytes));
-    }
-
-    /**
-     * It append all list element to file, every as separated line.
-     *
-     * @param filePath       system path to file
-     * @param elementToWrite text lines write to file
-     */
-    public static void appendAllElementsAsLinesToFile(String filePath, List<String> elementToWrite) {
-        appendAllElementsAsLinesToFile(filePath, elementToWrite, UTF_8);
-    }
-
-    /**
-     * It append all list element to file, every as separated line.
-     *
-     * @param filePath       system path to file
-     * @param elementToWrite text lines write to file
-     */
-    public static void appendAllElementsAsLinesToFile(String filePath, List<String> elementToWrite, Charset charset) {
-        Path path = get(filePath);
-        String fileContent = StringUtils.concatElementsAsLines(elementToWrite);
         byte[] strToBytes = fileContent.getBytes(charset);
         catchIoExAndReturn(() -> Files.write(path, strToBytes, StandardOpenOption.APPEND));
     }

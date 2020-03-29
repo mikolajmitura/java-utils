@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static pl.jalokim.utils.file.FileUtilsTest.alignEndLineToOs;
 import static pl.jalokim.utils.template.TemplateAsText.fromClassPath;
 import static pl.jalokim.utils.template.TemplateAsText.fromFile;
 import static pl.jalokim.utils.template.TemplateAsText.fromText;
@@ -13,7 +14,7 @@ import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.when;
 public class TemplateAsTextTest {
 
     private static final String FILE_NAME = "some_placeholders";
-    private static final String RESOURCES_PATH = "src\\test\\resources";
+    private static final String RESOURCES_PATH = "src/test/resources";
 
     private static final String TEMPLATE_AS_TEXT = String.format("some text with: ${placeholder_name}%n" +
                                                                  "some text with: ${another-placeholder}%n" +
@@ -29,7 +30,7 @@ public class TemplateAsTextTest {
         templateAsText.overrideVariable("placeholder_name", "SOME TEXT");
         String currentTemplateText = templateAsText.getCurrentTemplateText();
         // then
-        assertThat(currentTemplateText).isEqualTo(format("some text with: SOME TEXT%n" +
+        assertThat(alignEndLineToOs(currentTemplateText)).isEqualTo(format("some text with: SOME TEXT%n" +
                                                          "some text with: ${another-placeholder}%n" +
                                                          "this one will not throw exception: ${test^test}%n" +
                                                          "the same text like in first with: 'SOME TEXT' end text.%n" +
@@ -50,12 +51,12 @@ public class TemplateAsTextTest {
     @Test
     public void fromFileNotExceptionWhileNotResolvedPlaceholders() {
         // given
-        TemplateAsText templateAsText = fromFile(RESOURCES_PATH + "\\" + FILE_NAME);
+        TemplateAsText templateAsText = fromFile(RESOURCES_PATH + "/" + FILE_NAME);
         // when
         templateAsText.overrideVariable("placeholder_name", "SOME TEXT");
         String currentTemplateText = templateAsText.getCurrentTemplateText();
         // then
-        assertThat(currentTemplateText).isEqualTo(format("some text with: SOME TEXT%n" +
+        assertThat(alignEndLineToOs(currentTemplateText)).isEqualTo(format("some text with: SOME TEXT%n" +
                                                          "some text with: ${another-placeholder}%n" +
                                                          "this one will not throw exception: ${test^test}%n" +
                                                          "the same text like in first with: 'SOME TEXT' end text.%n" +
@@ -65,7 +66,7 @@ public class TemplateAsTextTest {
     @Test
     public void fromFileExceptionWhileNotResolvedPlaceholders() {
         // given
-        TemplateAsText templateAsText = fromFile(RESOURCES_PATH + "\\" + FILE_NAME, true);
+        TemplateAsText templateAsText = fromFile(RESOURCES_PATH + "/" + FILE_NAME, true);
         // when
         templateAsText.overrideVariable("placeholder_name", "SOME TEXT");
         when(templateAsText::getCurrentTemplateText)
