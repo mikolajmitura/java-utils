@@ -1,9 +1,11 @@
-
 package pl.jalokim.utils.file;
 
-import com.google.common.io.Resources;
-import pl.jalokim.utils.string.StringUtils;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.Files.newBufferedReader;
+import static java.nio.file.Paths.get;
+import static pl.jalokim.utils.collection.Elements.elements;
 
+import com.google.common.io.Resources;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
@@ -17,16 +19,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.nio.file.Files.newBufferedReader;
-import static java.nio.file.Paths.get;
-import static pl.jalokim.utils.collection.Elements.elements;
+import java.util.function.Predicate;
+import pl.jalokim.utils.collection.Elements;
+import pl.jalokim.utils.string.StringUtils;
 
 /**
  * Useful class for Files.
  */
-@SuppressWarnings("PMD.GodClass")
+@SuppressWarnings({"PMD.GodClass", "PMD.ExcessivePublicCount"})
 public final class FileUtils {
 
     private FileUtils() {
@@ -46,7 +46,7 @@ public final class FileUtils {
     /**
      * It read from file and put all content to String with certain encoding.
      *
-     * @param path    to file
+     * @param path to file
      * @param charset instance of java.nio.charset.Charset
      * @return text with file content
      */
@@ -67,7 +67,7 @@ public final class FileUtils {
     /**
      * It read from file and put all content to String with certain encoding.
      *
-     * @param file    path for File
+     * @param file path for File
      * @param charset instance of java.nio.charset.Charset
      * @return text with file content
      */
@@ -89,7 +89,7 @@ public final class FileUtils {
     /**
      * It read from file and put all content to String with certain encoding.
      *
-     * @param path    to file
+     * @param path to file
      * @param charset instance of java.nio.charset.Charset
      * @return text with file content
      */
@@ -110,7 +110,7 @@ public final class FileUtils {
     /**
      * It read from file from classpath and put all content to String with certain encoding.
      *
-     * @param path    to file
+     * @param path to file
      * @param charset instance of java.nio.charset.Charset
      * @return text with file content
      */
@@ -122,8 +122,70 @@ public final class FileUtils {
     }
 
     /**
-     * It reads all lines to list from certain path from system for file.
-     * It read whole file content to memory.
+     * It reads all lines to list from certain path from system for file. It not read whole file content to memory. After that you need to close stream in
+     * elements.
+     *
+     * @param path system path to file to read.
+     * @return list with all lines from file.
+     */
+    public static Elements<String> readAsElements(String path) {
+        return readAsElements(path, UTF_8);
+    }
+
+    /**
+     * It reads all lines to list from certain path from system for file. It not read whole file content to memory. After that you need to close stream in
+     * elements.
+     *
+     * @param path system path to file to read.
+     * @return list with all lines from file.
+     */
+    public static Elements<String> readAsElements(Path path) {
+        return readAsElements(path, UTF_8);
+    }
+
+    /**
+     * It reads all lines to list from certain path from system for file. It not read whole file content to memory. After that you need to close stream in
+     * elements.
+     *
+     * @param path system path to file to read.
+     * @return list with all lines from file.
+     */
+    public static Elements<String> readAsElements(File path) {
+        return readAsElements(path, UTF_8);
+    }
+
+    /**
+     * It reads all lines to Elements from certain path from system for file. It read whole file content to memory.
+     *
+     * @param path system path to file to read.
+     * @return list with all lines from file.
+     */
+    public static Elements<String> readAsElements(File path, Charset charset) {
+        return readAsElements(path.toString(), charset);
+    }
+
+    /**
+     * It reads all lines to Elements from certain path from system for file. It read whole file content to memory.
+     *
+     * @param path system path to file to read.
+     * @return list with all lines from file.
+     */
+    public static Elements<String> readAsElements(Path path, Charset charset) {
+        return readAsElements(path.toString(), charset);
+    }
+
+    /**
+     * It reads all lines to Elements from certain path from system for file. It read whole file content to memory.
+     *
+     * @param path system path to file to read.
+     * @return list with all lines from file.
+     */
+    public static Elements<String> readAsElements(String path, Charset charset) {
+        return elements(catchIoExAndReturn(() -> Files.lines(get(path), charset)));
+    }
+
+    /**
+     * It reads all lines to list from certain path from system for file. It read whole file content to memory.
      *
      * @param path system path to file to read.
      * @return list with all lines from file.
@@ -133,8 +195,47 @@ public final class FileUtils {
     }
 
     /**
-     * It reads all lines to list from certain path from system for file.
-     * It read whole file content to memory.
+     * It reads all lines to list from certain path from system for file. It read whole file content to memory.
+     *
+     * @param file system path to file to read.
+     * @return list with all lines from file.
+     */
+    public static List<String> readAsList(File file) {
+        return readAsList(file, UTF_8);
+    }
+
+    /**
+     * It reads all lines to list from certain path from system for file. It read whole file content to memory.
+     *
+     * @param path system path to file to read.
+     * @return list with all lines from file.
+     */
+    public static List<String> readAsList(Path path) {
+        return readAsList(path, UTF_8);
+    }
+
+    /**
+     * It reads all lines to list from certain path from system for file. It read whole file content to memory.
+     *
+     * @param file system path to file to read.
+     * @return list with all lines from file.
+     */
+    public static List<String> readAsList(File file, Charset charset) {
+        return readAsList(file.toString(), charset);
+    }
+
+    /**
+     * It reads all lines to list from certain path from system for file. It read whole file content to memory.
+     *
+     * @param path system path to file to read.
+     * @return list with all lines from file.
+     */
+    public static List<String> readAsList(Path path, Charset charset) {
+        return readAsList(path.toString(), charset);
+    }
+
+    /**
+     * It reads all lines to list from certain path from system for file. It read whole file content to memory.
      *
      * @param path system path to file to read.
      * @return list with all lines from file.
@@ -146,10 +247,9 @@ public final class FileUtils {
     }
 
     /**
-     * It read all lines line by line and put line value to consumerLine argument.
-     * It created for performance purpose.
+     * It read all lines line by line and put line value to consumerLine argument. It created for performance purpose.
      *
-     * @param path         system path to file to read.
+     * @param path system path to file to read.
      * @param consumerLine which consume every line
      */
     public static void consumeEveryLineFromFile(String path, Consumer<String> consumerLine) {
@@ -157,10 +257,9 @@ public final class FileUtils {
     }
 
     /**
-     * It read all lines line by line and put line value to consumerLine argument.
-     * It created for performance purpose.
+     * It read all lines line by line and put line value to consumerLine argument. It created for performance purpose.
      *
-     * @param path         system path to file to read.
+     * @param path system path to file to read.
      * @param consumerLine which consume every line
      */
     public static void consumeEveryLineFromFile(String path, Consumer<String> consumerLine, Charset charset) {
@@ -176,10 +275,9 @@ public final class FileUtils {
     }
 
     /**
-     * It read all lines line by line and put line value to consumerLine argument.
-     * It created for performance purpose.
+     * It read all lines line by line and put line value to consumerLine argument. It created for performance purpose.
      *
-     * @param path              system path to file to read.
+     * @param path system path to file to read.
      * @param consumerLineIndex which consume every line with index of them in file
      */
     public static void consumeEveryLineWitNumberFromFile(String path, BiConsumer<Long, String> consumerLineIndex) {
@@ -187,10 +285,9 @@ public final class FileUtils {
     }
 
     /**
-     * It read all lines line by line and put line value to consumerLine argument.
-     * It created for performance purpose.
+     * It read all lines line by line and put line value to consumerLine argument. It created for performance purpose.
      *
-     * @param path              system path to file to read.
+     * @param path system path to file to read.
      * @param consumerLineIndex which consume every line with index of them in file
      */
     public static void consumeEveryLineWitNumberFromFile(String path, BiConsumer<Long, String> consumerLineIndex, Charset charset) {
@@ -228,10 +325,9 @@ public final class FileUtils {
     }
 
     /**
-     * It override current file content if exists.
-     * it not create folders with not exist.
+     * It override current file content if exists. it not create folders with not exist.
      *
-     * @param filePath    system path to file.
+     * @param filePath system path to file.
      * @param fileContent as String to write to file
      */
     public static void writeToFile(String filePath, String fileContent) {
@@ -239,10 +335,9 @@ public final class FileUtils {
     }
 
     /**
-     * It override current file content if exists.
-     * it not create folders with not exist.
+     * It override current file content if exists. it not create folders with not exist.
      *
-     * @param filePath    system path to file.
+     * @param filePath system path to file.
      * @param fileContent as String to write to file
      */
     public static void writeToFile(String filePath, String fileContent, Charset charset) {
@@ -250,10 +345,9 @@ public final class FileUtils {
     }
 
     /**
-     * It override current file content if exists.
-     * it not create folders with not exist.
+     * It override current file content if exists. it not create folders with not exist.
      *
-     * @param filePath    system path to file.
+     * @param filePath system path to file.
      * @param fileContent as String to write to file
      */
     public static void writeToFile(File filePath, String fileContent) {
@@ -261,10 +355,9 @@ public final class FileUtils {
     }
 
     /**
-     * It override current file content if exists.
-     * it not create folders with not exist.
+     * It override current file content if exists. it not create folders with not exist.
      *
-     * @param filePath    system path to file.
+     * @param filePath system path to file.
      * @param fileContent as String to write to file
      */
     public static void writeToFile(File filePath, String fileContent, Charset charset) {
@@ -272,10 +365,9 @@ public final class FileUtils {
     }
 
     /**
-     * It override current file content if exists.
-     * it not create folders with not exist.
+     * It override current file content if exists. it not create folders with not exist.
      *
-     * @param filePath    system path to file.
+     * @param filePath system path to file.
      * @param fileContent as String to write to file
      */
     public static void writeToFile(Path filePath, String fileContent) {
@@ -283,10 +375,9 @@ public final class FileUtils {
     }
 
     /**
-     * It override current file content if exists.
-     * it not create folders with not exist.
+     * It override current file content if exists. it not create folders with not exist.
      *
-     * @param filePath    system path to file.
+     * @param filePath system path to file.
      * @param fileContent as String to write to file
      */
     public static void writeToFile(Path filePath, String fileContent, Charset charset) {
@@ -298,17 +389,37 @@ public final class FileUtils {
     /**
      * It writes all list element to file, every as separated line.
      *
-     * @param filePath       system path to file
-     * @param elementToWrite text lines write to file
+     * @param filePath system path to file
+     * @param elementsToWrite text lines write to file
      */
-    public static void writeToFile(String filePath, List<String> elementToWrite) {
-        writeToFile(filePath, elementToWrite, UTF_8);
+    public static void writeToFile(String filePath, List<String> elementsToWrite) {
+        writeToFile(filePath, elementsToWrite, UTF_8);
     }
 
     /**
      * It writes all list element to file, every as separated line.
      *
-     * @param filePath       system path to file
+     * @param filePath system path to file
+     * @param elementsToWrite text lines write to file
+     */
+    public static void writeToFile(String filePath, Elements<String> elementsToWrite) {
+        writeToFile(filePath, elementsToWrite, UTF_8);
+    }
+
+    /**
+     * It writes all list element to file, every as separated line.
+     *
+     * @param filePath system path to file
+     * @param elementsToWrite text lines write to file
+     */
+    public static void writeToFile(String filePath, Elements<String> elementsToWrite, Charset charset) {
+        writeToFile(filePath, elementsToWrite.asList(), charset);
+    }
+
+    /**
+     * It writes all list element to file, every as separated line.
+     *
+     * @param filePath system path to file
      * @param elementToWrite text lines write to file
      */
     public static void writeToFile(String filePath, List<String> elementToWrite, Charset charset) {
@@ -321,7 +432,27 @@ public final class FileUtils {
     /**
      * It append all list element to file, every as separated line.
      *
-     * @param filePath       system path to file
+     * @param filePath system path to file
+     * @param elementToWrite text lines write to file
+     */
+    public static void appendToFile(File filePath, List<String> elementToWrite) {
+        appendToFile(filePath.toString(), elementToWrite, UTF_8);
+    }
+
+    /**
+     * It append all list element to file, every as separated line.
+     *
+     * @param filePath system path to file
+     * @param elementToWrite text lines write to file
+     */
+    public static void appendToFile(Path filePath, List<String> elementToWrite) {
+        appendToFile(filePath.toString(), elementToWrite, UTF_8);
+    }
+
+    /**
+     * It append all list element to file, every as separated line.
+     *
+     * @param filePath system path to file
      * @param elementToWrite text lines write to file
      */
     public static void appendToFile(String filePath, List<String> elementToWrite) {
@@ -331,20 +462,40 @@ public final class FileUtils {
     /**
      * It append all list element to file, every as separated line.
      *
-     * @param filePath       system path to file
+     * @param filePath system path to file
      * @param elementToWrite text lines write to file
      */
     public static void appendToFile(String filePath, List<String> elementToWrite, Charset charset) {
         Path path = get(filePath);
         String fileContent = StringUtils.concatElementsAsLines(elementToWrite);
         byte[] strToBytes = fileContent.getBytes(charset);
-        catchIoExAndReturn(() -> Files.write(path, strToBytes, StandardOpenOption.APPEND));
+        catchIoExAndReturn(() -> Files.write(path, strToBytes, StandardOpenOption.APPEND, StandardOpenOption.CREATE));
     }
 
     /**
      * Append some text to file.
      *
-     * @param filePath    system path to file
+     * @param filePath system path to file
+     * @param fileContent as String to append to file
+     */
+    public static void appendToFile(File filePath, String fileContent) {
+        appendToFile(filePath, fileContent, UTF_8);
+    }
+
+    /**
+     * Append some text to file.
+     *
+     * @param filePath system path to file
+     * @param fileContent as String to append to file
+     */
+    public static void appendToFile(Path filePath, String fileContent) {
+        appendToFile(filePath, fileContent, UTF_8);
+    }
+
+    /**
+     * Append some text to file.
+     *
+     * @param filePath system path to file
      * @param fileContent as String to append to file
      */
     public static void appendToFile(String filePath, String fileContent) {
@@ -354,13 +505,51 @@ public final class FileUtils {
     /**
      * Append some text to file.
      *
-     * @param filePath    system path to file
+     * @param filePath system path to file
+     * @param fileContent as String to append to file
+     */
+    public static void appendToFile(Path filePath, String fileContent, Charset charset) {
+        appendToFile(filePath.toString(), fileContent, charset);
+    }
+
+    /**
+     * Append some text to file.
+     *
+     * @param filePath system path to file
+     * @param fileContent as String to append to file
+     */
+    public static void appendToFile(File filePath, String fileContent, Charset charset) {
+        appendToFile(filePath.toString(), fileContent, charset);
+    }
+
+    /**
+     * Append some text to file.
+     *
+     * @param filePath system path to file
      * @param fileContent as String to append to file
      */
     public static void appendToFile(String filePath, String fileContent, Charset charset) {
         Path path = get(filePath);
         byte[] strToBytes = fileContent.getBytes(charset);
-        catchIoExAndReturn(() -> Files.write(path, strToBytes, StandardOpenOption.APPEND));
+        catchIoExAndReturn(() -> Files.write(path, strToBytes, StandardOpenOption.APPEND, StandardOpenOption.CREATE));
+    }
+
+    /**
+     * It creates directories recursively, leaf of provided path is expected as file name.
+     *
+     * @param pathToFile as String.
+     */
+    public static void createDirectoriesForFile(File pathToFile) {
+        createDirectoriesForFile(pathToFile.toString());
+    }
+
+    /**
+     * It creates directories recursively, leaf of provided path is expected as file name.
+     *
+     * @param pathToFile as String.
+     */
+    public static void createDirectoriesForFile(Path pathToFile) {
+        createDirectoriesForFile(pathToFile.toString());
     }
 
     /**
@@ -373,6 +562,24 @@ public final class FileUtils {
         if (folderPath != null) {
             catchIoExAndReturn(() -> Files.createDirectories(folderPath));
         }
+    }
+
+    /**
+     * It creates directories recursively, all path part will be a folder type.
+     *
+     * @param folderPath as String.
+     */
+    public static void createDirectories(File folderPath) {
+        createDirectories(folderPath.toString());
+    }
+
+    /**
+     * It creates directories recursively, all path part will be a folder type.
+     *
+     * @param folderPath as String.
+     */
+    public static void createDirectories(Path folderPath) {
+        createDirectories(folderPath.toString());
     }
 
     /**
@@ -446,8 +653,37 @@ public final class FileUtils {
             throw new FileException("Provided path: " + rootFile.getAbsolutePath() + " does not exist");
         }
         return elements(files)
-                .filter(fileFilter::accept)
-                .asList();
+            .filter(fileFilter::accept)
+            .asList();
+    }
+
+    public static List<Path> listOfFilesRecursively(File rootFile) {
+        return listOfFilesRecursively(rootFile, (f) -> true);
+    }
+
+    public static List<Path> listOfFilesRecursively(Path rootFile) {
+        return listOfFilesRecursively(rootFile, (f) -> true);
+    }
+
+    public static List<Path> listOfFilesRecursively(String rootFile) {
+        return listOfFilesRecursively(rootFile, (f) -> true);
+    }
+
+    public static List<Path> listOfFilesRecursively(File rootFile, Predicate<Path> fileFilter) {
+        return listOfFilesRecursively(rootFile.toPath(), fileFilter);
+    }
+
+    public static List<Path> listOfFilesRecursively(String rootFile, Predicate<Path> fileFilter) {
+        return listOfFilesRecursively(get(rootFile), fileFilter);
+    }
+
+    public static List<Path> listOfFilesRecursively(Path rootFile, Predicate<Path> fileFilter) {
+        return elements(
+            catchIoExAndReturn(() ->
+                Files.walk(rootFile)
+                    .filter(fileFilter)
+            )
+        ).asList();
     }
 
     /**
@@ -515,6 +751,7 @@ public final class FileUtils {
 
     @FunctionalInterface
     interface IOExceptionRunnable {
+
         void run() throws IOException;
     }
 }
