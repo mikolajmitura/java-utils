@@ -408,10 +408,30 @@ public final class FileUtils {
      * It writes all list element to file, every as separated line.
      *
      * @param filePath       system path to file
-     * @param elementToWrite text lines write to file
+     * @param elementsToWrite text lines write to file
      */
-    public static void writeToFile(String filePath, List<String> elementToWrite) {
-        writeToFile(filePath, elementToWrite, UTF_8);
+    public static void writeToFile(String filePath, List<String> elementsToWrite) {
+        writeToFile(filePath, elementsToWrite, UTF_8);
+    }
+
+    /**
+     * It writes all list element to file, every as separated line.
+     *
+     * @param filePath       system path to file
+     * @param elementsToWrite text lines write to file
+     */
+    public static void writeToFile(String filePath, Elements<String> elementsToWrite) {
+        writeToFile(filePath, elementsToWrite, UTF_8);
+    }
+
+    /**
+     * It writes all list element to file, every as separated line.
+     *
+     * @param filePath       system path to file
+     * @param elementsToWrite text lines write to file
+     */
+    public static void writeToFile(String filePath, Elements<String> elementsToWrite, Charset charset) {
+        writeToFile(filePath, elementsToWrite.asList(), charset);
     }
 
     /**

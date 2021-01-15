@@ -1,10 +1,11 @@
 package pl.jalokim.utils.collection;
 
 
-import org.junit.Test;
-import pl.jalokim.utils.reflection.beans.inheritiance.ExampleClass;
-import pl.jalokim.utils.reflection.beans.inheritiance.Event;
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static pl.jalokim.utils.collection.Elements.elements;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -12,11 +13,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
-
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.*;
-import static org.assertj.core.api.Assertions.assertThat;
-import static pl.jalokim.utils.collection.Elements.elements;
+import org.junit.Test;
+import pl.jalokim.utils.file.FileUtils;
+import pl.jalokim.utils.reflection.beans.inheritiance.Event;
+import pl.jalokim.utils.reflection.beans.inheritiance.ExampleClass;
 
 public class ElementsTest {
 
@@ -44,7 +44,7 @@ public class ElementsTest {
         Stream<Integer> numberStream = Stream.of(1, 2, 3);
         // when
         Integer[] integers = elements(numberStream)
-                .asArray(new Integer[0]);
+            .asArray(new Integer[0]);
         // then
         assertThat(integers).containsExactlyInAnyOrder(1, 2, 3);
     }
@@ -55,9 +55,9 @@ public class ElementsTest {
         List<Integer> numbers = asList(1, 2, 4, 5, 10, 20);
         // when
         Set<String> numberAsText = elements(numbers)
-                .filter(number -> number > 9)
-                .map(Object::toString)
-                .asSet();
+            .filter(number -> number > 9)
+            .map(Object::toString)
+            .asSet();
         // then
         assertThat(numberAsText).containsExactlyInAnyOrder("10", "20");
     }
@@ -68,9 +68,9 @@ public class ElementsTest {
         Set<Integer> numbers = new HashSet<>(asList(1, 2, 4, 5, 10, 20));
         // when
         String[] strings = elements(numbers)
-                .filter(number -> number > 9)
-                .map(Object::toString)
-                .asArray(new String[0]);
+            .filter(number -> number > 9)
+            .map(Object::toString)
+            .asArray(new String[0]);
         // then
         assertThat(strings).containsExactlyInAnyOrder("10", "20");
     }
@@ -81,9 +81,9 @@ public class ElementsTest {
         Integer[] numbers = {1, 2, 3, 4, 5};
         // when
         int sum = elements(numbers)
-                .filter(number -> number > 2)
-                .asStream()
-                .mapToInt(number -> number).sum();
+            .filter(number -> number > 2)
+            .asStream()
+            .mapToInt(number -> number).sum();
         // then
         assertThat(sum).isEqualTo(12);
     }
@@ -173,7 +173,7 @@ public class ElementsTest {
             List<Event> eventsAsList = exampleClass.getEventsAsList();
             Event[] events = new Event[eventsAsList.size()];
             elements(eventsAsList)
-                    .forEach((index, element)-> events[index] = element);
+                .forEach((index, element) -> events[index] = element);
             exampleClass.setEvents(events);
         });
         // when
@@ -228,7 +228,7 @@ public class ElementsTest {
 
         // when
         Map<String, Event> eventByName = elements(event1, event2, event3)
-                .asMap(Event::getTypeName);
+            .asMap(Event::getTypeName);
         // then
         assertEventMap(eventByName, "event1");
         assertEventMap(eventByName, "event2");
@@ -243,7 +243,7 @@ public class ElementsTest {
 
         // when
         Map<String, Integer> eventByName = elements(event1, event2, event3)
-                .asMap(Event::getTypeName, Event::getIndex);
+            .asMap(Event::getTypeName, Event::getIndex);
         // then
         assertEventMap(eventByName, "event1", 1);
         assertEventMap(eventByName, "event2", 2);
@@ -258,10 +258,30 @@ public class ElementsTest {
         Event event3 = createEvent("N", 3);
         // when
         Map<String, List<Event>> eventsByType = elements(event1, event2, event3)
-                .asMapGroupedBy(Event::getTypeName);
+            .asMapGroupedBy(Event::getTypeName);
         // then
         assertThat(eventsByType.get("T")).hasSize(2);
         assertThat(eventsByType.get("N")).hasSize(1);
+    }
+
+    @Test
+
+    public void writeElementsToFile() {
+        // given
+        File file = new File("from_elements");
+        Event event1 = createEvent("T", 1);
+        Event event2 = createEvent("T", 2);
+        // when
+        elements(event1, event2)
+            .writeToFile(file.toString());
+
+        // then
+        List<String> lines = FileUtils.readAsList(file);
+        assertThat(lines).containsExactly(
+            "Event(typeName=T, index=1)",
+            "Event(typeName=T, index=2)"
+        );
+        FileUtils.deleteFileOrDirectory(file);
     }
 
     private void assertEventMap(Map<String, Event> eventByName, String mapKey) {

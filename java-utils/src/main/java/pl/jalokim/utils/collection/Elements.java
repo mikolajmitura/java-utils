@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
@@ -13,6 +14,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import pl.jalokim.utils.file.FileUtils;
 
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableSet;
@@ -119,6 +121,10 @@ public final class Elements<T> {
 
     public Stream<T> asStream() {
         return stream;
+    }
+
+    public void writeToFile(String filePath) {
+        FileUtils.writeToFile(filePath, this.map(Objects::toString));
     }
 
     /**

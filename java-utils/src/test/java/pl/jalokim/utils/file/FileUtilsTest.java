@@ -546,6 +546,18 @@ public class FileUtilsTest extends TemporaryTestResources {
         assertThat(lines.asList()).hasSize(2);
     }
 
+    @Test
+    public void writeToFileByElements() {
+        // given
+        File normalFile = newFile("fileWithElements");
+        Elements<String> elements = elements("1", "2", "3");
+        // when
+        FileUtils.writeToFile(normalFile.toString(), elements);
+        // then
+        List<String> lines = FileUtils.readAsList(normalFile);
+        assertThat(lines).containsExactly("1", "2", "3");
+    }
+
     public void removeNonEmptyFolder(Consumer<File> fileConsumer) {
         // given
         FolderWrapper notEmptyFolder = newFolder("notEmptyFolder");
