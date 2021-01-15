@@ -1,4 +1,3 @@
-
 package pl.jalokim.utils.file;
 
 import com.google.common.io.Resources;
@@ -26,7 +25,7 @@ import static pl.jalokim.utils.collection.Elements.elements;
 /**
  * Useful class for Files.
  */
-@SuppressWarnings("PMD.GodClass")
+@SuppressWarnings({"PMD.GodClass", "PMD.ExcessivePublicCount"})
 public final class FileUtils {
 
     private FileUtils() {
@@ -130,6 +129,50 @@ public final class FileUtils {
      */
     public static List<String> readAsList(String path) {
         return readAsList(path, UTF_8);
+    }
+
+    /**
+     * It reads all lines to list from certain path from system for file.
+     * It read whole file content to memory.
+     *
+     * @param file system path to file to read.
+     * @return list with all lines from file.
+     */
+    public static List<String> readAsList(File file) {
+        return readAsList(file, UTF_8);
+    }
+
+    /**
+     * It reads all lines to list from certain path from system for file.
+     * It read whole file content to memory.
+     *
+     * @param path system path to file to read.
+     * @return list with all lines from file.
+     */
+    public static List<String> readAsList(Path path) {
+        return readAsList(path, UTF_8);
+    }
+
+    /**
+     * It reads all lines to list from certain path from system for file.
+     * It read whole file content to memory.
+     *
+     * @param file system path to file to read.
+     * @return list with all lines from file.
+     */
+    public static List<String> readAsList(File file, Charset charset) {
+        return readAsList(file.toString(), charset);
+    }
+
+    /**
+     * It reads all lines to list from certain path from system for file.
+     * It read whole file content to memory.
+     *
+     * @param path system path to file to read.
+     * @return list with all lines from file.
+     */
+    public static List<String> readAsList(Path path, Charset charset) {
+        return readAsList(path.toString(), charset);
     }
 
     /**
@@ -324,6 +367,26 @@ public final class FileUtils {
      * @param filePath       system path to file
      * @param elementToWrite text lines write to file
      */
+    public static void appendToFile(File filePath, List<String> elementToWrite) {
+        appendToFile(filePath.toString(), elementToWrite, UTF_8);
+    }
+
+    /**
+     * It append all list element to file, every as separated line.
+     *
+     * @param filePath       system path to file
+     * @param elementToWrite text lines write to file
+     */
+    public static void appendToFile(Path filePath, List<String> elementToWrite) {
+        appendToFile(filePath.toString(), elementToWrite, UTF_8);
+    }
+
+    /**
+     * It append all list element to file, every as separated line.
+     *
+     * @param filePath       system path to file
+     * @param elementToWrite text lines write to file
+     */
     public static void appendToFile(String filePath, List<String> elementToWrite) {
         appendToFile(filePath, elementToWrite, UTF_8);
     }
@@ -338,7 +401,27 @@ public final class FileUtils {
         Path path = get(filePath);
         String fileContent = StringUtils.concatElementsAsLines(elementToWrite);
         byte[] strToBytes = fileContent.getBytes(charset);
-        catchIoExAndReturn(() -> Files.write(path, strToBytes, StandardOpenOption.APPEND));
+        catchIoExAndReturn(() -> Files.write(path, strToBytes, StandardOpenOption.APPEND, StandardOpenOption.CREATE));
+    }
+
+    /**
+     * Append some text to file.
+     *
+     * @param filePath    system path to file
+     * @param fileContent as String to append to file
+     */
+    public static void appendToFile(File filePath, String fileContent) {
+        appendToFile(filePath, fileContent, UTF_8);
+    }
+
+    /**
+     * Append some text to file.
+     *
+     * @param filePath    system path to file
+     * @param fileContent as String to append to file
+     */
+    public static void appendToFile(Path filePath, String fileContent) {
+        appendToFile(filePath, fileContent, UTF_8);
     }
 
     /**
@@ -357,10 +440,48 @@ public final class FileUtils {
      * @param filePath    system path to file
      * @param fileContent as String to append to file
      */
+    public static void appendToFile(Path filePath, String fileContent, Charset charset) {
+        appendToFile(filePath.toString(), fileContent, charset);
+    }
+
+    /**
+     * Append some text to file.
+     *
+     * @param filePath    system path to file
+     * @param fileContent as String to append to file
+     */
+    public static void appendToFile(File filePath, String fileContent, Charset charset) {
+        appendToFile(filePath.toString(), fileContent, charset);
+    }
+
+    /**
+     * Append some text to file.
+     *
+     * @param filePath    system path to file
+     * @param fileContent as String to append to file
+     */
     public static void appendToFile(String filePath, String fileContent, Charset charset) {
         Path path = get(filePath);
         byte[] strToBytes = fileContent.getBytes(charset);
-        catchIoExAndReturn(() -> Files.write(path, strToBytes, StandardOpenOption.APPEND));
+        catchIoExAndReturn(() -> Files.write(path, strToBytes, StandardOpenOption.APPEND, StandardOpenOption.CREATE));
+    }
+
+    /**
+     * It creates directories recursively, leaf of provided path is expected as file name.
+     *
+     * @param pathToFile as String.
+     */
+    public static void createDirectoriesForFile(File pathToFile) {
+        createDirectoriesForFile(pathToFile.toString());
+    }
+
+    /**
+     * It creates directories recursively, leaf of provided path is expected as file name.
+     *
+     * @param pathToFile as String.
+     */
+    public static void createDirectoriesForFile(Path pathToFile) {
+        createDirectoriesForFile(pathToFile.toString());
     }
 
     /**
@@ -373,6 +494,24 @@ public final class FileUtils {
         if (folderPath != null) {
             catchIoExAndReturn(() -> Files.createDirectories(folderPath));
         }
+    }
+
+    /**
+     * It creates directories recursively, all path part will be a folder type.
+     *
+     * @param folderPath as String.
+     */
+    public static void createDirectories(File folderPath) {
+        createDirectories(folderPath.toString());
+    }
+
+    /**
+     * It creates directories recursively, all path part will be a folder type.
+     *
+     * @param folderPath as String.
+     */
+    public static void createDirectories(Path folderPath) {
+        createDirectories(folderPath.toString());
     }
 
     /**
