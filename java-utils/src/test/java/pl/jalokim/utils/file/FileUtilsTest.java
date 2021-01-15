@@ -3,6 +3,7 @@ package pl.jalokim.utils.file;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.Test;
+import pl.jalokim.utils.collection.Elements;
 import pl.jalokim.utils.test.TemporaryTestResources;
 
 import java.io.File;
@@ -507,6 +508,42 @@ public class FileUtilsTest extends TemporaryTestResources {
     public void cannotRemoveFileWhenNotExist() {
         when(() -> deleteFileOrDirectory("notExist"))
                 .thenException(FileException.class, "cannot delete file: " + new File("notExist").getAbsolutePath());
+    }
+
+    @Test
+    public void readAsElementsByStringPath() {
+        // given
+        // when
+        Elements<String> lines = FileUtils.readAsElements(PATH_TO_FILE);
+        // then
+        assertThat(lines.asList()).containsExactly("line first", "second line", "3 line", "end line");
+    }
+
+    @Test
+    public void readAsElementsByPath() {
+        // given
+        // when
+        Elements<String> lines = FileUtils.readAsElements(Paths.get(PATH_TO_FILE));
+        // then
+        assertThat(lines.asList()).containsExactly("line first", "second line", "3 line", "end line");
+    }
+
+    @Test
+    public void readAsElementsByFile() {
+        // given
+        // when
+        Elements<String> lines = FileUtils.readAsElements(new File(PATH_TO_FILE));
+        // then
+        assertThat(lines.asList()).containsExactly("line first", "second line", "3 line", "end line");
+    }
+
+    @Test
+    public void readAsElementsByFileNotUtf8() {
+        // given
+        // when
+        Elements<String> lines = FileUtils.readAsElements(new File(PATH_TO_FILE_NOT_UTF8), ISO_8859_1);
+        // then
+        assertThat(lines.asList()).hasSize(2);
     }
 
     public void removeNonEmptyFolder(Consumer<File> fileConsumer) {

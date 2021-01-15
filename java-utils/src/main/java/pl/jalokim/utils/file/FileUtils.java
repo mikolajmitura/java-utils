@@ -1,8 +1,11 @@
 package pl.jalokim.utils.file;
 
-import com.google.common.io.Resources;
-import pl.jalokim.utils.string.StringUtils;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.Files.newBufferedReader;
+import static java.nio.file.Paths.get;
+import static pl.jalokim.utils.collection.Elements.elements;
 
+import com.google.common.io.Resources;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
@@ -16,11 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.nio.file.Files.newBufferedReader;
-import static java.nio.file.Paths.get;
-import static pl.jalokim.utils.collection.Elements.elements;
+import pl.jalokim.utils.collection.Elements;
+import pl.jalokim.utils.string.StringUtils;
 
 /**
  * Useful class for Files.
@@ -118,6 +118,72 @@ public final class FileUtils {
             URL url = Resources.getResource(path);
             return Resources.toString(url, charset);
         });
+    }
+
+    /**
+     * It reads all lines to list from certain path from system for file.
+     * It not read whole file content to memory. After that you need to close stream in elements.
+     *
+     * @param path system path to file to read.
+     * @return list with all lines from file.
+     */
+    public static Elements<String> readAsElements(String path) {
+        return readAsElements(path, UTF_8);
+    }
+
+    /**
+     * It reads all lines to list from certain path from system for file.
+     * It not read whole file content to memory. After that you need to close stream in elements.
+     *
+     * @param path system path to file to read.
+     * @return list with all lines from file.
+     */
+    public static Elements<String> readAsElements(Path path) {
+        return readAsElements(path, UTF_8);
+    }
+
+    /**
+     * It reads all lines to list from certain path from system for file.
+     * It not read whole file content to memory. After that you need to close stream in elements.
+     *
+     * @param path system path to file to read.
+     * @return list with all lines from file.
+     */
+    public static Elements<String> readAsElements(File path) {
+        return readAsElements(path, UTF_8);
+    }
+
+    /**
+     * It reads all lines to Elements from certain path from system for file.
+     * It read whole file content to memory.
+     *
+     * @param path system path to file to read.
+     * @return list with all lines from file.
+     */
+    public static Elements<String> readAsElements(File path, Charset charset) {
+        return readAsElements(path.toString(), charset);
+    }
+
+    /**
+     * It reads all lines to Elements from certain path from system for file.
+     * It read whole file content to memory.
+     *
+     * @param path system path to file to read.
+     * @return list with all lines from file.
+     */
+    public static Elements<String> readAsElements(Path path, Charset charset) {
+        return readAsElements(path.toString(), charset);
+    }
+
+    /**
+     * It reads all lines to Elements from certain path from system for file.
+     * It read whole file content to memory.
+     *
+     * @param path system path to file to read.
+     * @return list with all lines from file.
+     */
+    public static Elements<String> readAsElements(String path, Charset charset) {
+        return elements(catchIoExAndReturn(() -> Files.lines(get(path), charset)));
     }
 
     /**

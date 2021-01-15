@@ -169,4 +169,11 @@ public final class Elements<T> {
             index++;
         }
     }
+
+    /**
+     * It close under stream.
+     */
+    public void close() {
+        stream.close();
+    }
 }
