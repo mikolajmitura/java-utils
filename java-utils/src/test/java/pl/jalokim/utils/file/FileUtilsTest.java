@@ -1,23 +1,5 @@
 package pl.jalokim.utils.file;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import org.junit.Test;
-import pl.jalokim.utils.collection.Elements;
-import pl.jalokim.utils.test.TemporaryTestResources;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static org.assertj.core.api.Assertions.assertThat;
 import static pl.jalokim.utils.collection.Elements.elements;
@@ -31,6 +13,23 @@ import static pl.jalokim.utils.file.FileUtils.listOfFiles;
 import static pl.jalokim.utils.file.FileUtils.readAsTextFromClassPath;
 import static pl.jalokim.utils.file.FileUtils.writeToFile;
 import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.when;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import org.junit.Test;
+import pl.jalokim.utils.collection.Elements;
+import pl.jalokim.utils.test.TemporaryTestResources;
 
 public class FileUtilsTest extends TemporaryTestResources {
 
@@ -556,6 +555,82 @@ public class FileUtilsTest extends TemporaryTestResources {
         // then
         List<String> lines = FileUtils.readAsList(normalFile);
         assertThat(lines).containsExactly("1", "2", "3");
+    }
+
+    @Test
+    public void listOfFilesRecursivelyByPath() {
+        // given
+        FolderWrapper testPath = newFolder("test_path")
+            .newFolder("1")
+            .newFolder("1_1")
+            .getParent()
+            .newFolder("1_2")
+            .getParent()
+            .getParent()
+            .newFolder("2")
+            .getParent()
+            .newFolder("3")
+            .getParent();
+        // when
+        List<Path> paths = FileUtils.listOfFilesRecursively(testPath.getRealFolder().toPath());
+        // then
+        assertThat(paths).hasSize(6);
+    }
+
+    @Test
+    public void listOfFilesRecursivelyByFile() {
+        // given
+        FolderWrapper testPath = newFolder("test_path")
+            .newFolder("1")
+            .newFolder("1_1")
+            .getParent()
+            .newFolder("1_2")
+            .getParent()
+            .getParent()
+            .newFolder("2")
+            .getParent()
+            .newFolder("3")
+            .getParent();
+        // when
+        List<Path> paths = FileUtils.listOfFilesRecursively(testPath.getRealFolder());
+        // then
+        assertThat(paths).hasSize(6);
+    }
+
+    @Test
+    public void listOfFilesRecursivelyByStringPath() {
+        // given
+        FolderWrapper testPath = newFolder("test_path")
+            .newFolder("1")
+            .newFolder("1_1")
+            .getParent()
+            .newFolder("1_2")
+            .getParent()
+            .getParent()
+            .newFolder("2")
+            .getParent()
+            .newFolder("3")
+            .getParent();
+        // when
+        List<Path> paths = FileUtils.listOfFilesRecursively(testPath.getRealFolder().toString());
+        // then
+        assertThat(paths).hasSize(6);
+    }
+
+    @Test
+    public void listOfFilesRecursivelyFilterByPredicateByPath() {
+        // given
+        FolderWrapper rootPath = newFolder("test_path");
+        FolderWrapper folder1 = rootPath.newFolder("1");
+        folder1.newFolder("1_1").newFile("file3");
+        folder1.newFolder("1_2");
+        folder1.newFile("file1");
+        rootPath.newFolder("2").newFile("file2");
+        rootPath.newFolder("3");
+        // when
+        List<Path> paths = FileUtils.listOfFilesRecursively(rootPath.getRealFolder().toPath(), p -> Files.isRegularFile(p));
+        // then
+        assertThat(paths).hasSize(3);
     }
 
     public void removeNonEmptyFolder(Consumer<File> fileConsumer) {
