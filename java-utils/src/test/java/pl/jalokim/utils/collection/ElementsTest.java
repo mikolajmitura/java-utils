@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static pl.jalokim.utils.collection.Elements.elements;
 
@@ -247,6 +248,20 @@ public class ElementsTest {
         assertEventMap(eventByName, "event1", 1);
         assertEventMap(eventByName, "event2", 2);
         assertEventMap(eventByName, "event3", 3);
+    }
+
+    @Test
+    public void returnsExpectedForAsMapGroupedBy() {
+        // given
+        Event event1 = createEvent("T", 1);
+        Event event2 = createEvent("T", 2);
+        Event event3 = createEvent("N", 3);
+        // when
+        Map<String, List<Event>> eventsByType = elements(event1, event2, event3)
+                .asMapGroupedBy(Event::getTypeName);
+        // then
+        assertThat(eventsByType.get("T")).hasSize(2);
+        assertThat(eventsByType.get("N")).hasSize(1);
     }
 
     private void assertEventMap(Map<String, Event> eventByName, String mapKey) {

@@ -108,6 +108,10 @@ public final class Elements<T> {
         return stream.collect(Collectors.toMap(keyMapper, valueMapper));
     }
 
+    public <K> Map<K, List<T>> asMapGroupedBy(Function<? super T, ? extends K> keyMapper) {
+        return stream.collect(Collectors.groupingBy(keyMapper));
+    }
+
     @SuppressWarnings("PMD.UseVarargs")
     public T[] asArray(T[] array) {
         return stream.collect(toList()).toArray(array);
