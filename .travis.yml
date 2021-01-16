@@ -5,7 +5,4 @@ matrix:
   - jdk: openjdk8
 
 script:
-- mvn clean install -DskipTests=true
-
-after_success:
-- mvn clean test -Pcoverage
+- mvn clean install -Pcoverage jacoco:report coveralls:report

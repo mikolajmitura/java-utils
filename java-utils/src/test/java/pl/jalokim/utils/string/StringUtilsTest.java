@@ -2,6 +2,7 @@ package pl.jalokim.utils.string;
 
 import org.junit.Assert;
 import org.junit.Test;
+import pl.jalokim.utils.collection.Elements;
 import pl.jalokim.utils.constants.Constants;
 
 import java.util.Arrays;
@@ -180,5 +181,45 @@ public class StringUtilsTest {
                 .concatObjects(1, 2, 3, 1.1, " test");
         // then
         assertThat(result).isEqualTo("1231.1 test");
+    }
+
+    @Test
+    public void concatElementsByElementsSkipNullsAsExpected() {
+        // given
+        Elements<String> elements = Elements.elements("1", "2", null, "3");
+        // when
+        String s = StringUtils.concatElementsSkipNulls(elements);
+        // then
+        assertThat(s).isEqualTo("123");
+    }
+
+    @Test
+    public void concatElementsByCollectionSkipNullsAsExpected() {
+        // given
+        List<String> elements = Arrays.asList("1", "2", null, "3");
+        // when
+        String s = StringUtils.concatElementsSkipNulls(elements);
+        // then
+        assertThat(s).isEqualTo("123");
+    }
+
+    @Test
+    public void concatElementsWithJoinByElementsSkipNullsAsExpected() {
+        // given
+        Elements<String> elements = Elements.elements("1", null, "2", null, "3");
+        // when
+        String s = StringUtils.concatElementsSkipNulls(elements, ", ");
+        // then
+        assertThat(s).isEqualTo("1, 2, 3");
+    }
+
+    @Test
+    public void concatElementsWithJoinByCollectionSkipNullsAsExpected() {
+        // given
+        List<String> elements = Arrays.asList("1", "2", null, "3");
+        // when
+        String s = StringUtils.concatElementsSkipNulls(elements, ", ");
+        // then
+        assertThat(s).isEqualTo("1, 2, 3");
     }
 }

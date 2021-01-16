@@ -4,7 +4,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import pl.jalokim.utils.collection.Elements;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.nCopies;
@@ -150,6 +152,17 @@ public final class StringUtils {
     }
 
     /**
+     * Concatenate elements with empty text. On every object will be called toString().
+     *
+     * @param elements   elements to concatenate
+     * @param <E>        generic type of collection.
+     * @return concatenated text.
+     */
+    public static <E> String concatElements(Elements<E> elements) {
+        return concatElements(elements.asList(), EMPTY);
+    }
+
+    /**
      * Concatenate elements with empty text with mapper from E type to String.
      *
      * @param collection elements to concatenate
@@ -159,6 +172,18 @@ public final class StringUtils {
      */
     public static <E> String concatElements(Collection<E> collection, Function<E, String> mapper) {
         return concatElements(collection, mapper, EMPTY);
+    }
+
+    /**
+     * Concatenate elements with joinText value.
+     *
+     * @param elements   elements to concatenate
+     * @param joinText   value between all texts.
+     * @param <E>        generic type of collection.
+     * @return concatenated text.
+     */
+    public static <E> String concatElements(Elements<E> elements, String joinText) {
+        return concatElements(elements.asList(), Object::toString, joinText);
     }
 
     /**
@@ -183,7 +208,7 @@ public final class StringUtils {
      * @return concatenated text.
      */
     public static <E> String concatElements(Collection<E> collection, Function<E, String> mapper, String joinText) {
-        return concatElements(EMPTY, collection, mapper, joinText, EMPTY);
+        return concatElements(EMPTY, collection, (t) -> true,  mapper, joinText, EMPTY);
     }
 
     /**
@@ -198,11 +223,29 @@ public final class StringUtils {
      * @return concatenated text with empty text.
      */
     public static <E> String concatElements(String textPrefix, Collection<E> collection, Function<E, String> mapper,
-                                            String joinText, String textSuffix) {
+        String joinText, String textSuffix) {
+        return concatElements(textPrefix, collection, (e) -> true, mapper, joinText, textSuffix);
+    }
+
+    /**
+     * Concatenate elements with prefix, join text between all elements and with suffix value skip by filter and map by mapper from E type to String.
+     *
+     * @param textPrefix text before all concatenated text
+     * @param collection elements to concatenate
+     * @param filter     predicate filter
+     * @param mapper     from some type to String
+     * @param joinText   value between all texts.
+     * @param textSuffix text after all concatenated text
+     * @param <E>        generic type of collection.
+     * @return concatenated text with empty text.
+     */
+    public static <E> String concatElements(String textPrefix, Collection<E> collection, Predicate<E> filter, Function<E, String> mapper,
+        String joinText, String textSuffix) {
         return textPrefix.concat(collection.stream()
-                                           .map(mapper)
-                                           .collect(Collectors.joining(joinText))
-                                ).concat(textSuffix);
+            .filter(filter)
+            .map(mapper)
+            .collect(Collectors.joining(joinText))
+        ).concat(textSuffix);
     }
 
     /**
@@ -216,8 +259,8 @@ public final class StringUtils {
      * @return concatenated text with empty text.
      */
     public static <E> String concatElements(String textPrefix, Collection<E> collection,
-                                            String joinText, String textSuffix) {
-        return concatElements(textPrefix, collection, Objects::toString, joinText, textSuffix);
+        String joinText, String textSuffix) {
+        return concatElements(textPrefix, collection, (t) -> true, Objects::toString, joinText, textSuffix);
     }
 
     /**
@@ -229,6 +272,66 @@ public final class StringUtils {
      */
     public static String concatElements(String joinText, String... texts) {
         return concatElements(asList(texts), joinText);
+    }
+
+
+    /**
+     * Concatenate elements with empty text but skip null objects. On every object will be called toString().
+     *
+     * @param elements   elements to concatenate
+     * @param <E>        generic type of collection.
+     * @return concatenated text.
+     */
+    public static <E> String concatElementsSkipNulls(Elements<E> elements) {
+        return concatElementsSkipNulls(elements.asList(), EMPTY);
+    }
+
+    /**
+     * Concatenate elements with empty text but skip null objects. On every object will be called toString().
+     *
+     * @param collection elements to concatenate
+     * @param <E>        generic type of collection.
+     * @return concatenated text.
+     */
+    public static <E> String concatElementsSkipNulls(Collection<E> collection) {
+        return concatElementsSkipNulls(collection, EMPTY);
+    }
+
+    /**
+     * Concatenate elements with joinText value but skip null objects.
+     *
+     * @param collection elements to concatenate
+     * @param joinText   value between all texts.
+     * @param <E>        generic type of collection.
+     * @return concatenated text.
+     */
+    public static <E> String concatElementsSkipNulls(Collection<E> collection, String joinText) {
+        return concatElementsSkipNulls(collection, Object::toString, joinText);
+    }
+
+    /**
+     * Concatenate elements with joinText value but skip null objects.
+     *
+     * @param eElements  elements to concatenate
+     * @param joinText   value between all texts.
+     * @param <E>        generic type of collection.
+     * @return concatenated text.
+     */
+    public static <E> String concatElementsSkipNulls(Elements<E> eElements, String joinText) {
+        return concatElementsSkipNulls(eElements.asList(), Object::toString, joinText);
+    }
+
+    /**
+     * Concatenate elements with joinText value with mapper from E type to String but skip null objects.
+     *
+     * @param collection elements to concatenate
+     * @param mapper     from some type to String
+     * @param joinText   value between all texts.
+     * @param <E>        generic type of collection.
+     * @return concatenated text.
+     */
+    public static <E> String concatElementsSkipNulls(Collection<E> collection, Function<E, String> mapper, String joinText) {
+        return concatElements(EMPTY, collection, Objects::nonNull,  mapper, joinText, EMPTY);
     }
 
     /**
