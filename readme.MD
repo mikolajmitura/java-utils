@@ -386,7 +386,7 @@ Some example code below:
     <dependency>
         <groupId>pl.jalokim.utils</groupId>
         <artifactId>test-utils</artifactId>
-        <version>2.0.0</version>
+        <version>3.0.0</version>
         <scope>test</scope>
     </dependency>
 ```     
