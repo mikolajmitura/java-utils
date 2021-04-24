@@ -10,10 +10,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -294,9 +296,9 @@ public class ElementsTest {
     @Test
     public void expectedInvocationOfMapToOthersStreams() {
         // when
-        IntStream intStream = createElements().mapToInt(Integer::valueOf);
-        DoubleStream doubleStream = createElements().mapToDouble(Double::valueOf);
-        LongStream longStream = createElements().mapToLong(Long::valueOf);
+        IntStream intStream = getTextElements().mapToInt(Integer::valueOf);
+        DoubleStream doubleStream = getTextElements().mapToDouble(Double::valueOf);
+        LongStream longStream = getTextElements().mapToLong(Long::valueOf);
 
         // then
         assertThat(intStream.sum()).isEqualTo(10);
@@ -347,11 +349,11 @@ public class ElementsTest {
     @Test
     public void expectedInvocationOfOtherMethods() {
         // when
-        IntStream intStream = createElements().mapToInt(Integer::valueOf);
-        long count = createElements().count();
-        Elements<String> limited = createElements().limit(2);
-        Optional<String> max = createElements().max(Comparator.comparingInt(Integer::valueOf));
-        Optional<String> min = createElements().min(Comparator.comparingInt(Integer::valueOf));
+        IntStream intStream = getTextElements().mapToInt(Integer::valueOf);
+        long count = getTextElements().count();
+        Elements<String> limited = getTextElements().limit(2);
+        Optional<String> max = getTextElements().max(Comparator.comparingInt(Integer::valueOf));
+        Optional<String> min = getTextElements().min(Comparator.comparingInt(Integer::valueOf));
 
         // then
         assertThat(intStream.sum()).isEqualTo(10);
@@ -364,7 +366,7 @@ public class ElementsTest {
     @Test
     public void returnExpectedAsConcatText() {
         // given
-        Elements<String> elements = createElements();
+        Elements<String> elements = getTextElements();
 
         // when
         String result = elements.asConcatText(", ");
@@ -380,15 +382,131 @@ public class ElementsTest {
         List<String> texts2 = new ArrayList<>();
 
         // when
-        createElements().forEach((Consumer<String>) texts1::add);
-        createElements().forEachOrdered(texts2::add);
+        getTextElements().forEach((Consumer<String>) texts1::add);
+        getTextElements().forEachOrdered(texts2::add);
 
         // then
-        assertThat(texts1).isEqualTo(createElements().asList());
-        assertThat(texts2).isEqualTo(createElements().asList());
+        assertThat(texts1).isEqualTo(getTextElements().asList());
+        assertThat(texts2).isEqualTo(getTextElements().asList());
     }
 
-    private Elements<String> createElements() {
+    @Test
+    public void toArrayTest() {
+        // when
+        Object[] toArray = getTextElements().toArray();
+        String[] toStringArray = getTextElements().toArray(number-> new String[]{"1", "2", "3", "44"});
+        // then
+        toArray[0] = "1";
+        toStringArray[3] = "44";
+    }
+
+    @Test
+    public void reducesAndCollectTest() {
+        // when
+        String reduceWithIdentity = getTextElements().reduce("0", (val1, val2) -> val1 + val2);
+        Optional<String> reduce = getTextElements().reduce((val1, val2) -> val1 + val2);
+        Integer reduceWithCombiner = getTextElements().reduce(1, (val1, val2) -> val1 + val2.length(), Integer::sum);
+        ArrayList<String> collect = getTextElements().collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+
+        // then
+        assertThat(reduceWithIdentity).isEqualTo("01234");
+        assertThat(reduce.get()).isEqualTo("1234");
+        assertThat(reduceWithCombiner).isEqualTo(5);
+        assertThat(collect).isEqualTo(getTextElements().asList());
+    }
+
+    @Test
+    public void testMatches() {
+        // when
+        boolean anyMatch = getTextElements().anyMatch(it -> it.equals("1"));
+        boolean allMatch = getTextElements().allMatch(it -> it.equals("1"));
+        boolean allMatchLength = getTextElements().allMatch(it -> it.length() == 1);
+        boolean noneMatch = getTextElements().noneMatch(it -> it.length() > 1);
+
+        // then
+        assertThat(anyMatch).isTrue();
+        assertThat(allMatch).isFalse();
+        assertThat(allMatchLength).isTrue();
+        assertThat(noneMatch).isTrue();
+    }
+
+    @Test
+    public void testFinds() {
+        // when
+        Optional<String> first = getTextElements().findFirst();
+        Optional<String> any = getTextElements().findAny();
+        Optional<Object> anyEmpty = Elements.empty().findAny();
+        Optional<String> any1Found = Elements.of("1").findAny();
+
+        // then
+        assertThat(first.isPresent()).isTrue();
+        assertThat(any.isPresent()).isTrue();
+        assertThat(anyEmpty.isPresent()).isFalse();
+        assertThat(anyEmpty).isEmpty();
+        assertThat(any1Found).isPresent();
+    }
+
+    @Test
+    public void iteratesAndGenarationTest() {
+        // when
+        List<Integer> iterated = Elements.iterate(0, value -> value + 1)
+            .limit(3).asList();
+        List<Integer> generated = Elements.generate(()-> 1)
+            .limit(3).asList();
+        Iterator<String> iterator = getTextElements().iterator();
+        List<String> list = new ArrayList<>();
+
+        while (iterator.hasNext()) {
+            list.add(iterator.next());
+        }
+
+        // then
+        assertThat(iterated).isEqualTo(Arrays.asList(0, 1, 2));
+        assertThat(generated).isEqualTo(Arrays.asList(1, 1, 1));
+        assertThat(list).isEqualTo(getTextElements().asList());
+    }
+
+    @Test
+    public void concatTest() {
+        // when
+        List<String> concatChainAsList = getTextElements()
+            .concat(getTextElements())
+            .concat(Stream.of("11"))
+            .asList();
+
+        List<String> staticConcatAsList = Elements.concat(elements(concatChainAsList), getTextElements()).asList();
+
+        // then
+        assertThat(concatChainAsList).hasSize(9);
+        assertThat(staticConcatAsList).hasSize(13);
+    }
+
+    @Test
+    public void testCloseElements() {
+        // when
+        AtomicBoolean closed = new AtomicBoolean();
+        Runnable runnable = ()-> closed.set(true);
+
+        getTextElements()
+            .onClose(runnable)
+            .close();
+
+        // then
+        assertThat(closed).isTrue();
+    }
+
+    @Test
+    public void parallelActionTests() {
+        // when
+        Elements<String> parallel = getTextElements().parallel();
+        // then
+        assertThat(parallel.isParallel()).isTrue();
+        assertThat(parallel.sequential().isParallel()).isFalse();
+        assertThat(parallel.unordered().isParallel()).isFalse();
+        assertThat(getTextElements().isParallel()).isFalse();
+    }
+
+    private Elements<String> getTextElements() {
         return Elements.of("1", "2", "3", "4");
     }
 

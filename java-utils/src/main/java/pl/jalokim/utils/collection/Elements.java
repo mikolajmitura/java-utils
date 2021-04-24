@@ -350,8 +350,12 @@ public final class Elements<T> implements Stream<T> {
         return stream.findAny();
     }
 
-    public static <T> Builder<T> builder() {
-        return Stream.builder();
+    public Elements<T> concat(Stream<? extends T> toConcat) {
+        return Elements.concat(this, toConcat);
+    }
+
+    public static <T> Elements<T> concat(Stream<? extends T> a, Stream<? extends T> b) {
+        return Elements.elements(Stream.concat(a, b));
     }
 
     public static <T> Elements<T> empty() {
@@ -374,10 +378,6 @@ public final class Elements<T> implements Stream<T> {
     public static <T> Elements<T> generate(Supplier<? extends T> s) {
         Stream<T> generate = Stream.generate((Supplier<T>) s);
         return Elements.elements(generate);
-    }
-
-    public static <T> Elements<T> concat(Stream<? extends T> a, Stream<? extends T> b) {
-        return Elements.elements(Stream.concat(a, b));
     }
 
     @Override
