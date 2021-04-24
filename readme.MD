@@ -25,7 +25,7 @@ java-utils
     <dependency>
         <groupId>pl.jalokim.utils</groupId>
         <artifactId>java-utils</artifactId>
-        <version>2.1.0</version>
+        <version>3.0.0</version>
     </dependency>
 ```
 
@@ -125,8 +125,10 @@ java-utils
             public static <E> List<E> intersection(Collection<E> first, Collection<E> second)
         ```
     
-    - <h6>Elements class (this is simple wrapper for java stream api)</h6>
-    
+    - <h6>Elements class (this is wrapper for java stream api java8)</h6>
+        it has few additional methods and the same from Stream class it implements Stream    
+
+
         ```java
             List<Integer> numbers = Arrays.asList(1, 2, 4, 5, 10, 20);
                     

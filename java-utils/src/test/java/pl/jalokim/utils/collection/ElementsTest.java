@@ -7,12 +7,16 @@ import static pl.jalokim.utils.collection.Elements.elements;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import javax.swing.text.Element;
 import org.junit.Test;
 import pl.jalokim.utils.file.FileUtils;
 import pl.jalokim.utils.reflection.beans.inheritiance.Event;
@@ -112,7 +116,7 @@ public class ElementsTest {
         List<String> collectedElements = new ArrayList<>();
         List<Integer> collectedIndexes = new ArrayList<>();
         AtomicInteger index = new AtomicInteger();
-        elements(sourceList).forEach(element -> {
+        elements(sourceList).forEachWithIndexed(element -> {
             collectedElements.add(element.getValue());
             collectedIndexes.add(element.getIndex());
             int currentIndex = index.getAndIncrement();
@@ -265,7 +269,6 @@ public class ElementsTest {
     }
 
     @Test
-
     public void writeElementsToFile() {
         // given
         File file = new File("from_elements");
@@ -282,6 +285,25 @@ public class ElementsTest {
             "Event(typeName=T, index=2)"
         );
         FileUtils.deleteFileOrDirectory(file);
+    }
+
+    @Test
+    public void expectedInvocationOfFewStreamMethods() {
+        // when
+        IntStream intStream = createElements().mapToInt(Integer::valueOf);
+        long count = createElements().count();
+        Elements<String> limited = createElements().limit(2);
+        Optional<String> max = createElements().max(Comparator.comparingInt(Integer::valueOf));
+
+        // then
+        assertThat(intStream.sum()).isEqualTo(10);
+        assertThat(count).isEqualTo(4);
+        assertThat(limited.count()).isEqualTo(2);
+        assertThat(max.get()).isEqualTo("4");
+    }
+
+    private Elements<String> createElements() {
+        return Elements.of("1", "2", "3", "4");
     }
 
     private void assertEventMap(Map<String, Event> eventByName, String mapKey) {
