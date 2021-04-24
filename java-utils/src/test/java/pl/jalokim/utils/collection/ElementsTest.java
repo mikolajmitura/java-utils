@@ -14,9 +14,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
-import javax.swing.text.Element;
 import org.junit.Test;
 import pl.jalokim.utils.file.FileUtils;
 import pl.jalokim.utils.reflection.beans.inheritiance.Event;
@@ -288,7 +289,20 @@ public class ElementsTest {
     }
 
     @Test
-    public void expectedInvocationOfFewStreamMethods() {
+    public void expectedInvocationOfMapToOthersStreams() {
+        // when
+        IntStream intStream = createElements().mapToInt(Integer::valueOf);
+        DoubleStream doubleStream = createElements().mapToDouble(Double::valueOf);
+        LongStream longStream = createElements().mapToLong(Long::valueOf);
+
+        // then
+        assertThat(intStream.sum()).isEqualTo(10);
+        assertThat(doubleStream.count()).isEqualTo(4);
+        assertThat(longStream.count()).isEqualTo(4);
+    }
+
+    @Test
+    public void expectedInvocationOfOtherMethods() {
         // when
         IntStream intStream = createElements().mapToInt(Integer::valueOf);
         long count = createElements().count();
@@ -302,6 +316,18 @@ public class ElementsTest {
         assertThat(max.get()).isEqualTo("4");
     }
 
+    @Test
+    public void returnExpectedAsConcatText() {
+        // given
+        Elements<String> elements = createElements();
+
+        // when
+        String result = elements.asConcatText(", ");
+
+        // then
+        assertThat(result).isEqualTo("1, 2, 3, 4");
+    }
+    
     private Elements<String> createElements() {
         return Elements.of("1", "2", "3", "4");
     }
