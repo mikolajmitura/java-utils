@@ -7,11 +7,21 @@ import static pl.jalokim.utils.collection.Elements.elements;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import org.junit.Test;
 import pl.jalokim.utils.file.FileUtils;
@@ -112,7 +122,7 @@ public class ElementsTest {
         List<String> collectedElements = new ArrayList<>();
         List<Integer> collectedIndexes = new ArrayList<>();
         AtomicInteger index = new AtomicInteger();
-        elements(sourceList).forEach(element -> {
+        elements(sourceList).forEachWithIndexed(element -> {
             collectedElements.add(element.getValue());
             collectedIndexes.add(element.getIndex());
             int currentIndex = index.getAndIncrement();
@@ -265,7 +275,6 @@ public class ElementsTest {
     }
 
     @Test
-
     public void writeElementsToFile() {
         // given
         File file = new File("from_elements");
@@ -284,12 +293,250 @@ public class ElementsTest {
         FileUtils.deleteFileOrDirectory(file);
     }
 
+    @Test
+    public void expectedInvocationOfMapToOthersStreams() {
+        // when
+        IntStream intStream = getTextElements().mapToInt(Integer::valueOf);
+        DoubleStream doubleStream = getTextElements().mapToDouble(Double::valueOf);
+        LongStream longStream = getTextElements().mapToLong(Long::valueOf);
+
+        // then
+        assertThat(intStream.sum()).isEqualTo(10);
+        assertThat(doubleStream.count()).isEqualTo(4);
+        assertThat(longStream.count()).isEqualTo(4);
+    }
+
+    @Test
+    public void flatMapToOtherStreams() {
+        // when
+        IntStream intStream = createSomeClassesElements().flatMapToInt(element ->
+            element.getEventsAsList().stream().mapToInt(eventElement -> eventElement.getTypeName().length()));
+        LongStream longStream = createSomeClassesElements().flatMapToLong(element ->
+            element.getEventsAsList().stream().mapToLong(eventElement -> (long) eventElement.getTypeName().length()));
+        DoubleStream doubleStream = createSomeClassesElements().flatMapToDouble(element ->
+            element.getEventsAsList().stream().mapToDouble(eventElement -> (double) eventElement.getTypeName().length()));
+
+        // then
+        assertThat(intStream.boxed().collect(Collectors.toList())).isEqualTo(Arrays.asList(2, 2, 1, 1, 2, 1, 3, 1));
+        assertThat(longStream.boxed().collect(Collectors.toList())).isEqualTo(Arrays.asList(2L, 2L, 1L, 1L, 2L, 1L, 3L, 1L));
+        assertThat(doubleStream.boxed().collect(Collectors.toList())).isEqualTo(Arrays.asList(2.0, 2.0, 1.0, 1.0, 2.0, 1.0, 3.0, 1.0));
+    }
+
+    @Test
+    public void sortedDistinctAndPeekTest() {
+        // given
+        List<String> eventNames = new ArrayList<>();
+
+        // when
+        List<String> collectedToList = getEventsAsElements()
+            .distinct()
+            .peek(element ->
+                eventNames.add(element.getTypeName())
+            )
+            .sorted(Comparator.comparing(Event::getTypeName))
+            .map(Event::getTypeName)
+            .skip(1).
+                collect(Collectors.toList());
+
+        List<String> defaultSorted = elements(eventNames).sorted().asList();
+
+        // then
+        assertThat(eventNames).isEqualTo(Arrays.asList("AC", "UA", "A", "D"));
+        assertThat(collectedToList).isEqualTo(Arrays.asList("AC", "D", "UA"));
+        assertThat(defaultSorted).isEqualTo(Arrays.asList("A", "AC", "D", "UA"));
+    }
+
+    @Test
+    public void expectedInvocationOfOtherMethods() {
+        // when
+        IntStream intStream = getTextElements().mapToInt(Integer::valueOf);
+        long count = getTextElements().count();
+        Elements<String> limited = getTextElements().limit(2);
+        Optional<String> max = getTextElements().max(Comparator.comparingInt(Integer::valueOf));
+        Optional<String> min = getTextElements().min(Comparator.comparingInt(Integer::valueOf));
+
+        // then
+        assertThat(intStream.sum()).isEqualTo(10);
+        assertThat(count).isEqualTo(4);
+        assertThat(limited.count()).isEqualTo(2);
+        assertThat(max.get()).isEqualTo("4");
+        assertThat(min.get()).isEqualTo("1");
+    }
+
+    @Test
+    public void returnExpectedAsConcatText() {
+        // given
+        Elements<String> elements = getTextElements();
+
+        // when
+        String result = elements.asConcatText(", ");
+
+        // then
+        assertThat(result).isEqualTo("1, 2, 3, 4");
+    }
+
+    @Test
+    public void foreachTests() {
+        // given
+        List<String> texts1 = new ArrayList<>();
+        List<String> texts2 = new ArrayList<>();
+
+        // when
+        getTextElements().forEach((Consumer<String>) texts1::add);
+        getTextElements().forEachOrdered(texts2::add);
+
+        // then
+        assertThat(texts1).isEqualTo(getTextElements().asList());
+        assertThat(texts2).isEqualTo(getTextElements().asList());
+    }
+
+    @Test
+    public void toArrayTest() {
+        // when
+        Object[] toArray = getTextElements().toArray();
+        String[] toStringArray = getTextElements().toArray(number-> new String[]{"1", "2", "3", "44"});
+        // then
+        toArray[0] = "1";
+        toStringArray[3] = "44";
+    }
+
+    @Test
+    public void reducesAndCollectTest() {
+        // when
+        String reduceWithIdentity = getTextElements().reduce("0", (val1, val2) -> val1 + val2);
+        Optional<String> reduce = getTextElements().reduce((val1, val2) -> val1 + val2);
+        Integer reduceWithCombiner = getTextElements().reduce(1, (val1, val2) -> val1 + val2.length(), Integer::sum);
+        ArrayList<String> collect = getTextElements().collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+
+        // then
+        assertThat(reduceWithIdentity).isEqualTo("01234");
+        assertThat(reduce.get()).isEqualTo("1234");
+        assertThat(reduceWithCombiner).isEqualTo(5);
+        assertThat(collect).isEqualTo(getTextElements().asList());
+    }
+
+    @Test
+    public void testMatches() {
+        // when
+        boolean anyMatch = getTextElements().anyMatch(it -> it.equals("1"));
+        boolean allMatch = getTextElements().allMatch(it -> it.equals("1"));
+        boolean allMatchLength = getTextElements().allMatch(it -> it.length() == 1);
+        boolean noneMatch = getTextElements().noneMatch(it -> it.length() > 1);
+
+        // then
+        assertThat(anyMatch).isTrue();
+        assertThat(allMatch).isFalse();
+        assertThat(allMatchLength).isTrue();
+        assertThat(noneMatch).isTrue();
+    }
+
+    @Test
+    public void testFinds() {
+        // when
+        Optional<String> first = getTextElements().findFirst();
+        Optional<String> any = getTextElements().findAny();
+        Optional<Object> anyEmpty = Elements.empty().findAny();
+        Optional<String> any1Found = Elements.of("1").findAny();
+
+        // then
+        assertThat(first.isPresent()).isTrue();
+        assertThat(any.isPresent()).isTrue();
+        assertThat(anyEmpty.isPresent()).isFalse();
+        assertThat(anyEmpty).isEmpty();
+        assertThat(any1Found).isPresent();
+    }
+
+    @Test
+    public void iteratesAndGenarationTest() {
+        // when
+        List<Integer> iterated = Elements.iterate(0, value -> value + 1)
+            .limit(3).asList();
+        List<Integer> generated = Elements.generate(()-> 1)
+            .limit(3).asList();
+        Iterator<String> iterator = getTextElements().iterator();
+        List<String> list = new ArrayList<>();
+
+        while (iterator.hasNext()) {
+            list.add(iterator.next());
+        }
+
+        // then
+        assertThat(iterated).isEqualTo(Arrays.asList(0, 1, 2));
+        assertThat(generated).isEqualTo(Arrays.asList(1, 1, 1));
+        assertThat(list).isEqualTo(getTextElements().asList());
+    }
+
+    @Test
+    public void concatTest() {
+        // when
+        List<String> concatChainAsList = getTextElements()
+            .concat(getTextElements())
+            .concat(Stream.of("11"))
+            .asList();
+
+        List<String> staticConcatAsList = Elements.concat(elements(concatChainAsList), getTextElements()).asList();
+
+        // then
+        assertThat(concatChainAsList).hasSize(9);
+        assertThat(staticConcatAsList).hasSize(13);
+    }
+
+    @Test
+    public void testCloseElements() {
+        // when
+        AtomicBoolean closed = new AtomicBoolean();
+        Runnable runnable = ()-> closed.set(true);
+
+        getTextElements()
+            .onClose(runnable)
+            .close();
+
+        // then
+        assertThat(closed).isTrue();
+    }
+
+    @Test
+    public void parallelActionTests() {
+        // when
+        Elements<String> parallel = getTextElements().parallel();
+        // then
+        assertThat(parallel.isParallel()).isTrue();
+        assertThat(parallel.sequential().isParallel()).isFalse();
+        assertThat(parallel.unordered().isParallel()).isFalse();
+        assertThat(getTextElements().isParallel()).isFalse();
+    }
+
+    private Elements<String> getTextElements() {
+        return Elements.of("1", "2", "3", "4");
+    }
+
     private void assertEventMap(Map<String, Event> eventByName, String mapKey) {
         assertThat(eventByName.get(mapKey).getTypeName()).isEqualTo(mapKey);
     }
 
     private void assertEventMap(Map<String, Integer> eventByName, String mapKey, Integer expectedIndex) {
         assertThat(eventByName.get(mapKey)).isEqualTo(expectedIndex);
+    }
+
+    private Elements<ExampleClass> createSomeClassesElements() {
+        return Elements.of(
+            createClassForTest(getSomeEventsArray()),
+            createClassForTest(createEvent("U"),
+                createEvent("AAA"),
+                createEvent("U"))
+        );
+    }
+
+    private Elements<Event> getEventsAsElements() {
+        return Elements.elements(getSomeEventsArray());
+    }
+
+    private Event[] getSomeEventsArray() {
+        return new Event[]{createEvent("AC"),
+            createEvent("UA"),
+            createEvent("A"),
+            createEvent("D"),
+            createEvent("UA")};
     }
 
     private ExampleClass createClassForTest(Event... events) {

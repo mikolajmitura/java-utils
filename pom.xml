@@ -4,7 +4,7 @@
 
     <groupId>pl.jalokim.utils</groupId>
     <artifactId>java-utils-parent</artifactId>
-   <version>2.1.0</version>
+   <version>3.0.0</version>
     <packaging>pom</packaging>
 
     <modules>
