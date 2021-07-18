@@ -1,13 +1,13 @@
 package pl.jalokim.utils.test;
 
+import static java.lang.String.join;
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-
-import static java.lang.String.join;
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
 
 final class AssertionErrorUtils {
 

@@ -3,8 +3,10 @@
     <parent>
         <groupId>pl.jalokim.utils</groupId>
         <artifactId>java-utils-parent</artifactId>
-       <version>3.0.1-SNAPSHOT</version>
+        <version>${main-version}.${minor-version}</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
+
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>all-utils-coverage</artifactId>
@@ -76,6 +78,4 @@
             </build>
         </profile>
     </profiles>
-
-
 </project>
