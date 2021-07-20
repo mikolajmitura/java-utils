@@ -7,7 +7,7 @@
     <parent>
         <groupId>pl.jalokim.parentpom</groupId>
         <artifactId>java-parent-pom</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.0</version>
     </parent>
 
     <groupId>pl.jalokim.utils</groupId>
@@ -27,7 +27,7 @@
 
         <java.version>1.8</java.version>
 
-        <!-- module info required to override -->
+        <!-- module info required to override from parent pom-->
         <release.project.name>Java Utils Parent</release.project.name>
         <release.project.description>simply java utils code for reflection, files, collections</release.project.description>
         <release.project.repository-name>java-utils</release.project.repository-name>
