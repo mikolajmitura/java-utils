@@ -1,13 +1,13 @@
 package pl.jalokim.utils.file;
 
-import java.io.BufferedReader;
-import java.nio.charset.Charset;
-import java.util.Iterator;
-
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.Files.newBufferedReader;
 import static java.nio.file.Paths.get;
 import static pl.jalokim.utils.file.FileUtils.catchIoExAndReturn;
+
+import java.io.BufferedReader;
+import java.nio.charset.Charset;
+import java.util.Iterator;
 
 /**
  * This class is useful for read next line, can check that file contains next line.
@@ -19,7 +19,6 @@ public class FileCursor implements Iterator<String> {
     private String currentLine;
     private String nextLine;
     private long currentLineNumber;
-
 
     /**
      * Create instance of FileCursor.

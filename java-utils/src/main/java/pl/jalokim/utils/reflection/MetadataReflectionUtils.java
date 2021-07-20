@@ -1,8 +1,17 @@
 package pl.jalokim.utils.reflection;
 
-import org.apache.commons.lang3.ClassUtils;
-import org.reflections.Reflections;
-import pl.jalokim.utils.string.StringUtils;
+import static java.lang.String.format;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableSet;
+import static pl.jalokim.utils.collection.CollectionUtils.filterToSet;
+import static pl.jalokim.utils.collection.CollectionUtils.mapToList;
+import static pl.jalokim.utils.collection.Elements.elements;
+import static pl.jalokim.utils.reflection.ClassNameFixer.fixClassName;
+import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildForArrayField;
+import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildFromClass;
+import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildFromField;
+import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildFromType;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -19,19 +28,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static java.lang.String.format;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.unmodifiableList;
-import static java.util.Collections.unmodifiableSet;
-import static pl.jalokim.utils.collection.CollectionUtils.filterToSet;
-import static pl.jalokim.utils.collection.CollectionUtils.mapToList;
-import static pl.jalokim.utils.collection.Elements.elements;
-import static pl.jalokim.utils.reflection.ClassNameFixer.fixClassName;
-import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildForArrayField;
-import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildFromClass;
-import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildFromField;
-import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildFromType;
+import org.apache.commons.lang3.ClassUtils;
+import org.reflections.Reflections;
+import pl.jalokim.utils.string.StringUtils;
 
 /**
  * Gather some metadata about classes.
@@ -127,7 +126,6 @@ public final class MetadataReflectionUtils {
         return field.getType().getComponentType();
     }
 
-
     /**
      * It returns method for given target object.
      *
@@ -192,7 +190,7 @@ public final class MetadataReflectionUtils {
         Set<Class<? extends T>> findAllClassesInClassPath = reflections.getSubTypesOf(superType);
         if (!withAbstractClasses) {
             findAllClassesInClassPath = filterToSet(findAllClassesInClassPath,
-                                                    classMeta -> !Modifier.isAbstract(classMeta.getModifiers()));
+                classMeta -> !Modifier.isAbstract(classMeta.getModifiers()));
         }
         return unmodifiableSet(findAllClassesInClassPath);
     }
@@ -372,7 +370,8 @@ public final class MetadataReflectionUtils {
         try {
             return (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[index];
         } catch (Exception ex) {
-            throw new ReflectionOperationException(format("Cannot find parametrized type for field with class: '%s', at: %s index", field.getType(), index), ex);
+            throw new ReflectionOperationException(format("Cannot find parametrized type for field with class: '%s', at: %s index",
+                field.getType(), index), ex);
         }
     }
 

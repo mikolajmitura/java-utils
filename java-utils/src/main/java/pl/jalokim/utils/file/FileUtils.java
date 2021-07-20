@@ -75,7 +75,6 @@ public final class FileUtils {
         return readAsText(file.toPath(), charset);
     }
 
-
     /**
      * It read from file and put all content to String with certain encoding.
      *
@@ -384,7 +383,6 @@ public final class FileUtils {
         byte[] strToBytes = fileContent.getBytes(charset);
         catchIoExAndReturn(() -> Files.write(filePath, strToBytes));
     }
-
 
     /**
      * It writes all list element to file, every as separated line.
@@ -739,6 +737,7 @@ public final class FileUtils {
     }
 
     @FunctionalInterface
+    @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
     interface IOExceptionSupplier<T> {
 
         /**
@@ -750,6 +749,7 @@ public final class FileUtils {
     }
 
     @FunctionalInterface
+    @SuppressWarnings("checkstyle:AbbreviationAsWordInName")
     interface IOExceptionRunnable {
 
         void run() throws IOException;

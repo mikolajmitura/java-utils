@@ -1,13 +1,5 @@
 package pl.jalokim.utils.reflection;
 
-import lombok.Data;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
 import static java.util.Collections.singletonList;
 import static pl.jalokim.utils.collection.Elements.elements;
 import static pl.jalokim.utils.constants.Constants.EMPTY;
@@ -16,6 +8,13 @@ import static pl.jalokim.utils.reflection.ClassNameFixer.fixClassName;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getClassForName;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getParametrizedRawTypes;
 import static pl.jalokim.utils.reflection.TypeMetadata.NATIVE_OBJECT_META;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import lombok.Data;
 
 /**
  * Class for build TypeMetadata from class, type, field.

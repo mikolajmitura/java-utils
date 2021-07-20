@@ -1,16 +1,16 @@
 package pl.jalokim.utils.terminal;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static pl.jalokim.utils.constants.Constants.COLON;
+import static pl.jalokim.utils.constants.Constants.NEW_LINE;
+import static pl.jalokim.utils.string.StringUtils.concat;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static pl.jalokim.utils.constants.Constants.COLON;
-import static pl.jalokim.utils.constants.Constants.NEW_LINE;
-import static pl.jalokim.utils.string.StringUtils.concat;
 
 /**
  * Utility Class for invoke some commands in system.

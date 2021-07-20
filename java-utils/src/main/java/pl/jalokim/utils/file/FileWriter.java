@@ -1,16 +1,16 @@
 package pl.jalokim.utils.file;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.Files.newOutputStream;
+import static pl.jalokim.utils.file.FileUtils.catchIoEx;
+import static pl.jalokim.utils.file.FileUtils.catchIoExAndReturn;
+
 import java.io.BufferedWriter;
 import java.io.Flushable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.file.Paths;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.nio.file.Files.newOutputStream;
-import static pl.jalokim.utils.file.FileUtils.catchIoEx;
-import static pl.jalokim.utils.file.FileUtils.catchIoExAndReturn;
 
 /**
  * Simply class for writing text to file, line by line and with append to file.

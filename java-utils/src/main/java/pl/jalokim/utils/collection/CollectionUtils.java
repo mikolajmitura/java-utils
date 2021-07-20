@@ -1,5 +1,8 @@
 package pl.jalokim.utils.collection;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableList;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -9,9 +12,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static java.util.Arrays.asList;
-import static java.util.Collections.unmodifiableList;
 
 /**
  * Some utils methods for collections.
@@ -132,7 +132,6 @@ public final class CollectionUtils {
                          .collect(Collectors.toSet());
     }
 
-
     /**
      * This method return new List with mapped values from source collection.
      *
@@ -195,7 +194,6 @@ public final class CollectionUtils {
     public static <T, R> List<R> mapToList(Function<T, R> mapFunc, Predicate<R> predicate, T... array) {
         return mapToList(asList(array), mapFunc, predicate);
     }
-
 
     /**
      * This method get some collection and filter expected elements and put them to new List.
