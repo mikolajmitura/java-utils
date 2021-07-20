@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -30,8 +32,7 @@
         <release.project.description>simply java utils code for reflection, files, collections</release.project.description>
         <release.project.repository-name>java-utils</release.project.repository-name>
         <archunit.package.to.verify>pl.jalokim.utils</archunit.package.to.verify>
-        <coveralls.repo.token>bADVQLSU
-            e9N4N75opzoIiGJmwmSeDwc3b</coveralls.repo.token>
+        <coveralls.repo.token>bADVQLSUe9N4N75opzoIiGJmwmSeDwc3b</coveralls.repo.token>
 
         <reflections.version>0.9.11</reflections.version>
     </properties>
