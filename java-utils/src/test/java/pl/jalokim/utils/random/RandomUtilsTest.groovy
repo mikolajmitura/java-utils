@@ -13,7 +13,7 @@ class RandomUtilsTest extends Specification {
         List<Integer> numbers = [3, 4, 5, 6, 7]
 
         then:
-        Set<Integer> generatedNumbers = new HashSet<>()
+        Set<Integer> generatedNumbers = [] as Set
         while (generatedNumbers.size() != numbers.size()) {
             int generated = RandomUtils.randomInRange(3, 7)
             generatedNumbers.add(generated)
@@ -25,7 +25,7 @@ class RandomUtilsTest extends Specification {
         when:
         List<Integer> numbers = [100, 120, 123, 665, 6127]
         then:
-        Set<Integer> generatedNumbers = new HashSet<>()
+        Set<Integer> generatedNumbers = [] as Set
         while (generatedNumbers.size() != numbers.size()) {
             int generated = RandomUtils.randomElement(numbers)
             generatedNumbers.add(generated)
@@ -37,7 +37,7 @@ class RandomUtilsTest extends Specification {
         when:
         Integer[] numbers = [100, 120, 123, 665, 6127]
         then:
-        Set<Integer> generatedNumbers = new HashSet<>()
+        Set<Integer> generatedNumbers = [] as Set
         while (generatedNumbers.size() != numbers.size()) {
             int generated = RandomUtils.randomElement(numbers)
             generatedNumbers.add(generated)
@@ -68,14 +68,12 @@ class RandomUtilsTest extends Specification {
         80      | 5            | 4
     }
 
-
     def "thrown exception while max < min"() {
         when:
         RandomUtils.randomInRange(9, 6)
         then:
         RandomException randomException = thrown()
         randomException.message == "Max: 6 should be greater than or equals with min: 9"
-
     }
 
     def "cannot get random element in empty collection"() {

@@ -1,15 +1,15 @@
 package pl.jalokim.utils.time;
 
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import static java.util.Arrays.asList;
 import static pl.jalokim.utils.collection.CollectionUtils.isLastIndex;
 import static pl.jalokim.utils.collection.Elements.elements;
 import static pl.jalokim.utils.constants.Constants.SPACE;
 import static pl.jalokim.utils.string.StringUtils.concatElements;
+
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Class for format time duration.
@@ -62,9 +62,9 @@ public final class DurationFormatter {
         }
 
         List<String> timeAsList = new ArrayList<>();
-        elements(timeSequence).forEach((index, aLong) -> {
-            timeAsList.add(aLong.toString() + SPACE + timeLabels.get(index));
-        });
+        elements(timeSequence).forEach((index, number) ->
+            timeAsList.add(number.toString() + SPACE + timeLabels.get(index))
+        );
         Collections.reverse(timeAsList);
         return concatElements(timeAsList, SPACE);
     }

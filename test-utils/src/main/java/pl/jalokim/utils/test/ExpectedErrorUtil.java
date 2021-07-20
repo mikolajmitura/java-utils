@@ -1,13 +1,11 @@
 package pl.jalokim.utils.test;
 
-
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 /**
  * Useful for assert test which throws exception with certain text, with certain lines of test or exactly expected message.

@@ -1,12 +1,11 @@
 package pl.jalokim.utils.test;
 
+import java.io.File;
+import java.io.IOException;
 import lombok.Data;
 import lombok.SneakyThrows;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
-
-import java.io.File;
-import java.io.IOException;
 
 /**
  * Useful class for test with temporary folder.

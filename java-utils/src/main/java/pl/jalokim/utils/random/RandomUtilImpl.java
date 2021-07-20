@@ -1,12 +1,12 @@
 package pl.jalokim.utils.random;
 
+import static pl.jalokim.utils.random.RandomUtils.randomIndex;
+
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
-
-import static pl.jalokim.utils.random.RandomUtils.randomIndex;
 
 /**
  * Implementation of random API.
@@ -53,7 +53,8 @@ public class RandomUtilImpl {
         int probabilityOfTrueInPercent = probabilityOfTrueInPercentOriginal;
         List<Boolean> probabilityOfTrueList = new ArrayList<>();
         boolean defaultValue = probabilityOfTrueInPercent <= FIFTY_PERCENT;
-        probabilityOfTrueInPercent = probabilityOfTrueInPercent <= FIFTY_PERCENT ? probabilityOfTrueInPercent : ONE_HUNDRED_PERCENT - probabilityOfTrueInPercent;
+        probabilityOfTrueInPercent = probabilityOfTrueInPercent <= FIFTY_PERCENT
+            ? probabilityOfTrueInPercent : ONE_HUNDRED_PERCENT - probabilityOfTrueInPercent;
         int size = ONE_HUNDRED_PERCENT / probabilityOfTrueInPercent;
         for (int i = 0; i < size; i++) {
             probabilityOfTrueList.add(!defaultValue);

@@ -1,14 +1,13 @@
 package pl.jalokim.utils.template;
 
-import pl.jalokim.utils.file.FileUtils;
+import static java.util.Objects.requireNonNull;
+import static pl.jalokim.utils.collection.CollectionUtils.isNotEmpty;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static java.util.Objects.requireNonNull;
-import static pl.jalokim.utils.collection.CollectionUtils.isNotEmpty;
+import pl.jalokim.utils.file.FileUtils;
 
 /**
  * Utils class for some text with template, can override some placeholders. It can throw exception when some

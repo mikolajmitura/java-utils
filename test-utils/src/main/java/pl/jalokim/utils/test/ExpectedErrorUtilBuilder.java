@@ -1,13 +1,12 @@
 package pl.jalokim.utils.test;
 
-import lombok.RequiredArgsConstructor;
-
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-
 import static java.util.Arrays.asList;
 import static pl.jalokim.utils.test.AssertionErrorUtils.ASSERTION_NULL_MSG;
 import static pl.jalokim.utils.test.AssertionErrorUtils.EMPTY_MESSAGE_BUILDER;
+
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Builder for ExpectedErrorUtil.
@@ -31,7 +30,8 @@ public class ExpectedErrorUtilBuilder {
     /**
      * This method checks that expected exception is the same type, and contains the same message type.
      *
-     * @param expectedException instance of expected exception. (for verify exception will only check exception type and message, without nested exceptions and their messages)
+     * @param expectedException instance of expected exception. (for verify exception will only check exception type and message,
+     * without nested exceptions and their messages)
      * @return instance of AfterAssertion on which you can check nested exception etc...
      */
     public AfterAssertion thenException(Throwable expectedException) {
@@ -92,7 +92,8 @@ public class ExpectedErrorUtilBuilder {
     /**
      * This method checks that thrown exception contains expected exception with the same type, and contains the same message type.
      *
-     * @param expectedException instance of nested expected exception. (for verify exception will only check exception type and message, without nested exceptions and their messages)
+     * @param expectedException instance of nested expected exception. (for verify exception will only check exception type and message,
+     * without nested exceptions and their messages)
      * @return instance of AfterAssertion on which you can check deeper nested exception etc...
      */
     public AfterAssertion thenNestedException(Throwable expectedException) {

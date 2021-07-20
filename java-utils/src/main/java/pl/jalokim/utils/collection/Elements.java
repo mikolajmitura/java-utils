@@ -1,5 +1,14 @@
 package pl.jalokim.utils.collection;
 
+import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableSet;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
+import static pl.jalokim.utils.collection.CollectionUtils.isLastIndex;
+import static pl.jalokim.utils.constants.Constants.COMMA;
+import static pl.jalokim.utils.constants.Constants.SPACE;
+import static pl.jalokim.utils.string.StringUtils.concatElements;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -32,15 +41,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import pl.jalokim.utils.file.FileUtils;
 import pl.jalokim.utils.string.StringUtils;
-
-import static java.util.Collections.unmodifiableList;
-import static java.util.Collections.unmodifiableSet;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
-import static pl.jalokim.utils.collection.CollectionUtils.isLastIndex;
-import static pl.jalokim.utils.constants.Constants.COMMA;
-import static pl.jalokim.utils.constants.Constants.SPACE;
-import static pl.jalokim.utils.string.StringUtils.concatElements;
 
 /**
  * Simpler API than native java Stream API.

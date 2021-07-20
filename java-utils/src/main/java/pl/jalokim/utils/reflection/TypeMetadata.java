@@ -1,16 +1,5 @@
 package pl.jalokim.utils.reflection;
 
-import lombok.Data;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import static java.lang.String.format;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
@@ -30,6 +19,16 @@ import static pl.jalokim.utils.string.StringUtils.concat;
 import static pl.jalokim.utils.string.StringUtils.concatElements;
 import static pl.jalokim.utils.string.StringUtils.concatElementsAsLines;
 import static pl.jalokim.utils.string.StringUtils.concatObjects;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import lombok.Data;
 
 /**
  * Class which represents real types for generic types.
@@ -60,16 +59,16 @@ public class TypeMetadata {
 
         Map<String, TypeMetadata> tempMap = new ConcurrentHashMap<>();
         elements(parametrizedTypesForClass)
-                .forEach((index, type) -> {
-                             if (tempGenerics.size() == index) {
-                                 buildFromClass(Object.class);
-                                 tempGenerics.add(index, NATIVE_OBJECT_META);
-                                 tempMap.put(type.getTypeName(), NATIVE_OBJECT_META);
-                             } else {
-                                 tempMap.put(type.getTypeName(), tempGenerics.get(index));
-                             }
-                         }
-                        );
+            .forEach((index, type) -> {
+                    if (tempGenerics.size() == index) {
+                        buildFromClass(Object.class);
+                        tempGenerics.add(index, NATIVE_OBJECT_META);
+                        tempMap.put(type.getTypeName(), NATIVE_OBJECT_META);
+                    } else {
+                        tempMap.put(type.getTypeName(), tempGenerics.get(index));
+                    }
+                }
+            );
         this.genericTypes = unmodifiableList(tempGenerics);
         genericTypesByRawLabel = unmodifiableMap(tempMap);
         parentTypeMetadata = buildParentMetadata(this, rawType, genericTypesByRawLabel);

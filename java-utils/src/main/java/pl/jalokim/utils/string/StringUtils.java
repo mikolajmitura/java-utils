@@ -1,5 +1,11 @@
 package pl.jalokim.utils.string;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.nCopies;
+import static pl.jalokim.utils.constants.Constants.EMPTY;
+import static pl.jalokim.utils.constants.Constants.NEW_LINE;
+import static pl.jalokim.utils.constants.Constants.TAB;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -7,12 +13,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import pl.jalokim.utils.collection.Elements;
-
-import static java.util.Arrays.asList;
-import static java.util.Collections.nCopies;
-import static pl.jalokim.utils.constants.Constants.EMPTY;
-import static pl.jalokim.utils.constants.Constants.NEW_LINE;
-import static pl.jalokim.utils.constants.Constants.TAB;
 
 /**
  * Utils methods for String.
@@ -55,8 +55,8 @@ public final class StringUtils {
 
     private static boolean isBlank(char... chars) {
         boolean result = true;
-        for (char aChar : chars) {
-            result = result && Character.isWhitespace(aChar);
+        for (char currentChar : chars) {
+            result = result && Character.isWhitespace(currentChar);
             if (!result) {
                 break;
             }
@@ -73,7 +73,6 @@ public final class StringUtils {
     public static boolean isNotBlank(String text) {
         return !isBlank(text);
     }
-
 
     /**
      * Return concatenated text all list elements as new lines.
@@ -274,7 +273,6 @@ public final class StringUtils {
         return concatElements(asList(texts), joinText);
     }
 
-
     /**
      * Concatenate elements with empty text but skip null objects. On every object will be called toString().
      *
@@ -364,8 +362,8 @@ public final class StringUtils {
     public static int countSearchedChar(String text, char searchedChar) {
         char[] chars = text.toCharArray();
         int counter = 0;
-        for (char aChar : chars) {
-            if (aChar == searchedChar) {
+        for (char currentChar : chars) {
+            if (currentChar == searchedChar) {
                 counter++;
             }
         }

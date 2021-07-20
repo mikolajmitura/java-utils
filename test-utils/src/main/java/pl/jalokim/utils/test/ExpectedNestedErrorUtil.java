@@ -1,9 +1,9 @@
 package pl.jalokim.utils.test;
 
+import static java.util.Optional.ofNullable;
+
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-
-import static java.util.Optional.ofNullable;
 
 class ExpectedNestedErrorUtil<T> extends ExpectedErrorUtil<T> {
 
@@ -16,6 +16,7 @@ class ExpectedNestedErrorUtil<T> extends ExpectedErrorUtil<T> {
     }
 
     @SuppressWarnings("PMD.SystemPrintln")
+    @Override
     void assertCaughtException(Throwable exception) {
         Throwable currentEx = exception;
         WrappedAssertionError assertionErrorForMessage = null;

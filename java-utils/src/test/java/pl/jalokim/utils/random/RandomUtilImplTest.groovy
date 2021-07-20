@@ -1,8 +1,8 @@
 package pl.jalokim.utils.random
 
-import spock.lang.Specification
-
 import static pl.jalokim.utils.collection.CollectionUtils.hasTheSameElements
+
+import spock.lang.Specification
 
 class RandomUtilImplTest extends Specification {
 
@@ -159,7 +159,7 @@ class RandomUtilImplTest extends Specification {
     }
 
     def "random negative numbers"() {
-        Set<Integer> randomNumbers = new HashSet<>()
+        def randomNumbers = [] as Set
         when:
         while (true) {
             int randomNumber = tested.randomInRangeImpl(-10, 0)

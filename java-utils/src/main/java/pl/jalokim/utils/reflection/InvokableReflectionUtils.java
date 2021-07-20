@@ -1,5 +1,9 @@
 package pl.jalokim.utils.reflection;
 
+import static pl.jalokim.utils.collection.CollectionUtils.mapToList;
+import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getField;
+import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getMethod;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -7,10 +11,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static pl.jalokim.utils.collection.CollectionUtils.mapToList;
-import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getField;
-import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getMethod;
 
 /**
  * Set of utils methods for set value, get value for field, invoke methods etc by reflection.
@@ -89,7 +89,6 @@ public final class InvokableReflectionUtils {
                                               String fieldName, Object newValue) {
         setValueForField(null, targetClass, fieldName, newValue);
     }
-
 
     /**
      * It gets value for given field name from target object.
@@ -196,7 +195,6 @@ public final class InvokableReflectionUtils {
         List<Class<?>> argClasses = mapToList(Object::getClass, args);
         return invokeMethod(target, target.getClass(), methodName, argClasses, Arrays.asList(args));
     }
-
 
     /**
      * Invoke first match method in hierarchy starting from target class, it invoke on target object which has arguments with expected
