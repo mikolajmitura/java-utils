@@ -15,7 +15,7 @@ class ExpectedNestedErrorUtil<T> extends ExpectedErrorUtil<T> {
         super(instruction, expectedExceptionType, expectedMessage, messageBuilder, assertionFunction);
     }
 
-    @SuppressWarnings("PMD.SystemPrintln")
+    @SuppressWarnings({"PMD.SystemPrintln", "PMD.AvoidPrintStackTrace"})
     @Override
     void assertCaughtException(Throwable exception) {
         Throwable currentEx = exception;

@@ -44,7 +44,7 @@ class ExpectedErrorUtil<T> {
         return caughtException;
     }
 
-    @SuppressWarnings("PMD.SystemPrintln")
+    @SuppressWarnings({"PMD.SystemPrintln", "PMD.AvoidPrintStackTrace"})
     void assertCaughtException(Throwable exception) {
         if (expectedExceptionType.isInstance(exception)) {
             caughtException = exception;

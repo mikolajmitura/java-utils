@@ -19,6 +19,10 @@ public class FileWriter implements AutoCloseable, Flushable {
 
     private final BufferedWriter bufferedWriter;
 
+    /**
+     * PMD CloseResource suppressed due to own close method in FileWriter class.
+     */
+    @SuppressWarnings("PMD.CloseResource")
     public FileWriter(String filePath) {
         try {
             OutputStream fos = newOutputStream(Paths.get(filePath));
