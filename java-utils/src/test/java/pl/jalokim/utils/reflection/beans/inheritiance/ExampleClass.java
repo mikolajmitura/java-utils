@@ -1,6 +1,7 @@
 package pl.jalokim.utils.reflection.beans.inheritiance;
 
 
+import java.util.stream.Stream;
 import lombok.Data;
 import lombok.Getter;
 
@@ -12,6 +13,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import pl.jalokim.utils.collection.Elements;
 
 @Data
 public class ExampleClass {
@@ -62,6 +64,8 @@ public class ExampleClass {
     private StringTuple<NextObject, Map<Number, List<String>>> stringTupleNexObject;
     private ConcreteClass[][][] threeDimConcreteArray;
     private StringTuple<RawTuple<List<Map<String, RawTuple<ConcreteClass[][][]>>>[][][]>, Map<Number, List<String>>>[][] superMixedArray;
+    private Stream<String> someStream;
+    private Elements<String> someElements;
 
     public void checkTypesOfStringTupleNexObject() {
         Map<Number, List<String>> rawValueE = stringTupleNexObject.getRawValueE();

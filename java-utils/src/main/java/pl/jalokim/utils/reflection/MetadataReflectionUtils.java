@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.ClassUtils;
 import org.reflections.Reflections;
 import pl.jalokim.utils.string.StringUtils;
@@ -330,13 +331,14 @@ public final class MetadataReflectionUtils {
     }
 
     /**
-     * It checks that given class is array or collection type.
+     * It checks that given class is array, collection, map or stream.
      *
      * @param someClass class which will be verified.
      * @return boolean value
      */
     public static boolean isHavingElementsType(Class<?> someClass) {
-        return isCollectionType(someClass) || isArrayType(someClass);
+        return isCollectionType(someClass) || isArrayType(someClass)
+            || isMapType(someClass) || Stream.class.isAssignableFrom(someClass);
     }
 
     /**

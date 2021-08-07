@@ -742,6 +742,20 @@ public class MetadataReflectionUtilsTest {
                 .assertTypeMetadata(ExampleClass.class, NORMAL_BEAN);
     }
 
+    @Test
+    public void givenFieldsAreHavingElementsType() {
+        // when
+        Field someStreamField = getField(ExampleClass.class, "someStream");
+        Field someElementsField = getField(ExampleClass.class, "someElements");
+        Field enumMapField = getField(ExampleClass.class, "enumMap");
+        Field someEnum = getField(ExampleClass.class, "someEnum");
+        // then
+        assertThat(isHavingElementsType(someStreamField)).isTrue();
+        assertThat(isHavingElementsType(someElementsField)).isTrue();
+        assertThat(isHavingElementsType(enumMapField)).isTrue();
+        assertThat(isHavingElementsType(someEnum)).isFalse();
+    }
+
     private static FieldExpectation create(Class<?> type, String fieldName, boolean expectedResult) {
         return new FieldExpectation(getField(type, fieldName), expectedResult);
     }
