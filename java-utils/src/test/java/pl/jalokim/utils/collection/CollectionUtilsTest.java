@@ -1,6 +1,8 @@
 package pl.jalokim.utils.collection;
 
 
+import java.util.Collection;
+import java.util.Objects;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -102,7 +104,7 @@ public class CollectionUtilsTest {
         Set<Integer> integers = CollectionUtils.mapToSet(collection, text -> {
             try {
                 return Integer.valueOf(text);
-            } catch(NumberFormatException ex) {
+            } catch (NumberFormatException ex) {
                 return 0;
             }
 
@@ -118,8 +120,8 @@ public class CollectionUtilsTest {
 
         // when
         Set<Integer> integers = CollectionUtils.filterToSet(collection,
-                                                            text -> !text.contains("x"),
-                                                            Integer::valueOf);
+            text -> !text.contains("x"),
+            Integer::valueOf);
         // then
         assertThat(integers).containsExactlyInAnyOrder(1, 4, 15);
     }
@@ -152,7 +154,7 @@ public class CollectionUtilsTest {
         List<Integer> integers = CollectionUtils.mapToList(collection, text -> {
             try {
                 return Integer.valueOf(text);
-            } catch(NumberFormatException ex) {
+            } catch (NumberFormatException ex) {
                 return 0;
             }
 
@@ -168,8 +170,8 @@ public class CollectionUtilsTest {
 
         // when
         List<Integer> integers = CollectionUtils.filterToList(collection,
-                                                              text -> !text.contains("x"),
-                                                              Integer::valueOf);
+            text -> !text.contains("x"),
+            Integer::valueOf);
         // then
         assertThat(integers).containsExactly(1, 4, 15);
     }
@@ -241,15 +243,15 @@ public class CollectionUtilsTest {
     @Test
     public void cannotGetFirstFromList() {
         // when
-        when(()-> CollectionUtils.getFirst(empty))
-                .thenException(CollectionUtilsException.class, "cannot get first element from empty list: []");
+        when(() -> CollectionUtils.getFirst(empty))
+            .thenException(CollectionUtilsException.class, "cannot get first element from empty list: []");
     }
 
     @Test
     public void cannotGetLastFromList() {
         // when
-        when(()-> CollectionUtils.getLast(empty))
-                .thenException(CollectionUtilsException.class, "cannot get last element from empty list: []");
+        when(() -> CollectionUtils.getLast(empty))
+            .thenException(CollectionUtilsException.class, "cannot get last element from empty list: []");
     }
 
     @Test
@@ -357,5 +359,21 @@ public class CollectionUtilsTest {
         List<Integer> intersection = intersection(elementsList, elementsSet);
         // then
         assertThat(intersection).containsExactly(1, 2, 5);
+    }
+
+    @Test
+    public void handleNullCollectionAsInputAsExpected() {
+        // given
+        Collection<String> nullCollection = null;
+        // when
+        List<Integer> integerList1 = CollectionUtils.mapToList(nullCollection, Integer::valueOf);
+        Set<Integer> integerSet1 = CollectionUtils.mapToSet(nullCollection, Integer::valueOf);
+        List<Integer> integerList2 = CollectionUtils.filterToList(nullCollection, Objects::nonNull, Integer::valueOf);
+        Set<Integer> integerSet3 = CollectionUtils.filterToSet(nullCollection, Objects::nonNull, Integer::valueOf);
+        // then
+        assertThat(integerList1).isEmpty();
+        assertThat(integerSet1).isEmpty();
+        assertThat(integerList2).isEmpty();
+        assertThat(integerSet3).isEmpty();
     }
 }
