@@ -1,6 +1,10 @@
 package pl.jalokim.utils.reflection.beans.inheritiance;
 
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.Period;
 import java.util.stream.Stream;
 import lombok.Data;
 import lombok.Getter;
@@ -17,6 +21,7 @@ import pl.jalokim.utils.collection.Elements;
 
 @Data
 public class ExampleClass {
+
     private Event[] events;
     private List<Event> eventsAsList;
     private TransactionType[] transactionTypes;
@@ -66,6 +71,10 @@ public class ExampleClass {
     private StringTuple<RawTuple<List<Map<String, RawTuple<ConcreteClass[][][]>>>[][][]>, Map<Number, List<String>>>[][] superMixedArray;
     private Stream<String> someStream;
     private Elements<String> someElements;
+    private OffsetDateTime offsetDateTimeField;
+    private Duration durationField;
+    private Period periodField;
+    private Instant instantField;
 
     public void checkTypesOfStringTupleNexObject() {
         Map<Number, List<String>> rawValueE = stringTupleNexObject.getRawValueE();
@@ -81,12 +90,14 @@ public class ExampleClass {
     }
 
     public static class IntegerInfo {
+
         private String string;
         private byte simpleByte;
         private NextObject nextObject;
     }
 
     public static class NextObject {
+
         private String value;
         private Integer intValue;
         private Integer channel;
@@ -98,6 +109,7 @@ public class ExampleClass {
     }
 
     public static class ClassForTest2 {
+
         private Map<String, IntegerInfo> integerInfoByNumber;
     }
 
@@ -107,6 +119,7 @@ public class ExampleClass {
 
     @Getter
     public static class TupleClass<T, F> extends RawTuple<F> {
+
         private T valueOfT;
         private F valueOfF;
         private List<F> listOfF;
@@ -114,6 +127,7 @@ public class ExampleClass {
 
     @Getter
     public static class RawTuple<E> {
+
         private E rawValueE;
         private TupleClass tupleClassRaw;
     }
@@ -132,11 +146,13 @@ public class ExampleClass {
 
     @Getter
     public static class StringTuple<A, G> extends TupleClass<String, G> {
+
         private A fromStringA;
     }
 
     @Getter
     public static class ConcreteClass extends StringTuple<String, NextObject> {
+
         @Override
         public NextObject getRawValueE() {
             return super.getRawValueE();

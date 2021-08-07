@@ -359,7 +359,11 @@ public class MetadataReflectionUtilsTest {
                 create(ExampleClass.class, "localDate", true),
                 create(ExampleClass.class, "localDateTime", true),
                 create(ExampleClass.class, "localTime", true),
-                create(ExampleClass.class, "booleanWrapper", true)
+                create(ExampleClass.class, "booleanWrapper", true),
+            create(ExampleClass.class, "offsetDateTimeField", true),
+            create(ExampleClass.class, "durationField", true),
+            create(ExampleClass.class, "periodField", true),
+            create(ExampleClass.class, "instantField", true)
                                                                 );
         fieldExpectations.forEach(fieldExpectation -> {
             // when
