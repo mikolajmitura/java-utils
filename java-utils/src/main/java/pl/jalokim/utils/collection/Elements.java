@@ -39,12 +39,12 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import javax.annotation.Nullable;
 import pl.jalokim.utils.file.FileUtils;
 import pl.jalokim.utils.string.StringUtils;
 
 /**
- * Simpler API than native java Stream API.
- * Contains some shortcut methods for return some types.
+ * Simpler API than native java Stream API. Contains some shortcut methods for return some types.
  *
  * @param <T> type of elements.
  */
@@ -53,19 +53,30 @@ public final class Elements<T> implements Stream<T> {
 
     private final Stream<T> stream;
 
-    private Elements(Stream<T> stream) {
-        this.stream = stream;
+    private Elements(@Nullable Stream<T> stream) {
+        this.stream = Optional.ofNullable(stream)
+            .orElse(Stream.empty());
     }
 
-    public static <T> Elements<T> elements(Iterable<T> iterable) {
-        return new Elements<>(StreamSupport.stream(iterable.spliterator(), false));
+    public static <T> Elements<T> elements(@Nullable Iterable<T> iterable) {
+        return new Elements<>(Optional.ofNullable(iterable)
+            .map(nonNullIterable -> StreamSupport.stream(nonNullIterable.spliterator(), false))
+            .orElse(Stream.empty()));
     }
 
-    public static <T> Elements<T> elements(T... array) {
-        return new Elements<>(Stream.of(array));
+    public static <T> Elements<T> elements(@Nullable Iterator<T> iterator) {
+        return Optional.ofNullable(iterator)
+            .map(nonNullIterator -> elements(() -> iterator))
+            .orElse(Elements.empty());
     }
 
-    public static <T> Elements<T> elements(Stream<T> stream) {
+    public static <T> Elements<T> elements(@Nullable T... array) {
+        return new Elements<>(Optional.ofNullable(array)
+            .map(Stream::of)
+            .orElse(Elements.empty()));
+    }
+
+    public static <T> Elements<T> elements(@Nullable Stream<T> stream) {
         return new Elements<>(stream);
     }
 
@@ -126,7 +137,7 @@ public final class Elements<T> implements Stream<T> {
     }
 
     public <K, V> Map<K, V> asMap(Function<? super T, ? extends K> keyMapper,
-                                  Function<? super T, ? extends V> valueMapper) {
+        Function<? super T, ? extends V> valueMapper) {
         return stream.collect(Collectors.toMap(keyMapper, valueMapper));
     }
 
@@ -367,8 +378,8 @@ public final class Elements<T> implements Stream<T> {
     }
 
     @SafeVarargs
-    public static <T> Elements<T> of(T... values) {
-        return Elements.elements(Stream.of(values));
+    public static <T> Elements<T> of(@Nullable T... values) {
+        return Elements.elements(values);
     }
 
     public static <T> Elements<T> iterate(T seed, UnaryOperator<T> f) {
@@ -419,5 +430,4 @@ public final class Elements<T> implements Stream<T> {
     public void close() {
         stream.close();
     }
-
 }

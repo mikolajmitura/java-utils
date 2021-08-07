@@ -109,7 +109,7 @@ public class TypeMetadataAssertionUtils {
             assertThat(typeMetadata.isSimpleType()).isFalse();
             assertThat(typeMetadata.isEnumType()).isFalse();
             assertThat(typeMetadata.isArrayType()).isFalse();
-            assertThat(typeMetadata.isHavingElementsType()).isFalse();
+            assertThat(typeMetadata.isHavingElementsType()).isTrue();
             assertThat(typeMetadata.isMapType()).isTrue();
         }),
         HAVING_ELEMENTS(typeMetadata -> {

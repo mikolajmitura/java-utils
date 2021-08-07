@@ -1,6 +1,5 @@
 package pl.jalokim.utils.collection;
 
-
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static pl.jalokim.utils.collection.Elements.elements;
@@ -506,6 +505,43 @@ public class ElementsTest {
         assertThat(getTextElements().isParallel()).isFalse();
     }
 
+    @Test
+    public void elementsHandleWithNullableArguments() {
+        // when
+        String[] array = null;
+        Elements<String> elementsFromArray = elements(array);
+        Elements<String> elementsFromArray2 = Elements.of(array);
+        Stream<Integer> stream = null;
+        Elements<Integer> elementsFromStream = elements(stream);
+        Iterator<String> iterator = null;
+        Elements<String> elementsFromIterator = elements(iterator);
+        List<String> list = null;
+        Elements<String> elementsFromIterable = elements(list);
+
+        // then
+        elementsIsEmptyNotNull(elementsFromArray);
+        elementsIsEmptyNotNull(elementsFromArray2);
+        elementsIsEmptyNotNull(elementsFromStream);
+        elementsIsEmptyNotNull(elementsFromIterator);
+        elementsIsEmptyNotNull(elementsFromIterable);
+    }
+
+    @Test
+    public void elementsFromIterator() {
+        // given
+        Iterator<String> iterator = Arrays.asList("1", "2", "3").iterator();
+        // when
+        Elements<String> elementsFromIterator = elements(iterator);
+        // then
+        List<String> resultList = elementsFromIterator.asList();
+        assertThat(resultList).containsExactly("1", "2", "3");
+    }
+
+    void elementsIsEmptyNotNull(Elements<?> elements) {
+        assertThat(elements).isNotNull();
+        assertThat(elements.asList().isEmpty()).isTrue();
+    }
+
     private Elements<String> getTextElements() {
         return Elements.of("1", "2", "3", "4");
     }
@@ -528,7 +564,7 @@ public class ElementsTest {
     }
 
     private Elements<Event> getEventsAsElements() {
-        return Elements.elements(getSomeEventsArray());
+        return elements(getSomeEventsArray());
     }
 
     private Event[] getSomeEventsArray() {
