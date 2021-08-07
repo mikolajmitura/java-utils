@@ -1,24 +1,8 @@
 package pl.jalokim.utils.reflection;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import junit.framework.TestCase;
-import org.junit.Test;
-import pl.jalokim.utils.reflection.beans.inheritiance.ClassWithoutDefConstr;
-import pl.jalokim.utils.reflection.beans.inheritiance.SecondLevelSomeConcreteObject;
-import pl.jalokim.utils.reflection.beans.inheritiance.SomeConcreteObject;
-import pl.jalokim.utils.reflection.beans.inheritiance.SuperAbstractObject;
-import pl.jalokim.utils.reflection.beans.inheritiance.SuperObject;
-
-import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.List;
-import pl.jalokim.utils.test.DataFakerHelper;
-
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.in;
 import static pl.jalokim.utils.collection.Elements.elements;
 import static pl.jalokim.utils.reflection.InvokableReflectionUtils.getValueForStaticField;
 import static pl.jalokim.utils.reflection.InvokableReflectionUtils.getValueOfField;
@@ -33,6 +17,22 @@ import static pl.jalokim.utils.reflection.beans.inheritiance.SuperObject.getCAN_
 import static pl.jalokim.utils.reflection.beans.inheritiance.SuperObject.getSTATIC_FINAL_INTEGER;
 import static pl.jalokim.utils.reflection.beans.inheritiance.SuperObject.getSTATIC_FINAL_INTEGER2;
 import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.when;
+
+import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
+import junit.framework.TestCase;
+import lombok.SneakyThrows;
+import org.junit.Test;
+import pl.jalokim.utils.reflection.beans.inheritiance.ClassWithoutDefConstr;
+import pl.jalokim.utils.reflection.beans.inheritiance.SecondLevelSomeConcreteObject;
+import pl.jalokim.utils.reflection.beans.inheritiance.SomeConcreteObject;
+import pl.jalokim.utils.reflection.beans.inheritiance.SuperAbstractObject;
+import pl.jalokim.utils.reflection.beans.inheritiance.SuperObject;
+import pl.jalokim.utils.test.DataFakerHelper;
 
 public class InvokableReflectionUtilsTest {
 
@@ -463,7 +463,7 @@ public class InvokableReflectionUtilsTest {
     public void rethrowRuntimeExceptionDuringInvokeMethod() {
         // given
         ExampleClassWithMethods instance = new ExampleClassWithMethods();
-        Method errorProneMethod = findMethodByName(ExampleClassWithMethods.class, "errorProneMethod");
+        Method errorProneMethod = findMethodByName("errorProneMethod");
         // when
         when(() -> {
             invokeMethod(instance, errorProneMethod);
@@ -475,7 +475,7 @@ public class InvokableReflectionUtilsTest {
     public void throwReflectionOperationExceptionDuringInvokeMethod() {
         // given
         ExampleClassWithMethods instance = new ExampleClassWithMethods();
-        Method errorProneMethod2 = findMethodByName(ExampleClassWithMethods.class, "errorProneMethod2");
+        Method errorProneMethod2 = findMethodByName("errorProneMethod2");
         // when
         when(() -> {
             invokeMethod(instance, errorProneMethod2);
@@ -489,7 +489,7 @@ public class InvokableReflectionUtilsTest {
     public void returnRealValueFromMethod() {
         // given
         ExampleClassWithMethods instance = new ExampleClassWithMethods();
-        Method validMethod = findMethodByName(ExampleClassWithMethods.class, "validMethod");
+        Method validMethod = findMethodByName("validMethod");
         // when
         String result = invokeMethod(instance, validMethod);
         // then
@@ -499,7 +499,7 @@ public class InvokableReflectionUtilsTest {
     @Test
     public void invokeStaticMethodByMethodInstance() {
         // given
-        Method staticIntMethod = findMethodByName(ExampleClassWithMethods.class, "staticIntMethod");
+        Method staticIntMethod = findMethodByName("staticIntMethod");
         // when
         Integer result = invokeStaticMethod(staticIntMethod, 15);
         // then
@@ -541,8 +541,60 @@ public class InvokableReflectionUtilsTest {
         assertThat(result).isEqualTo(fieldValue);
     }
 
-    private Method findMethodByName(Class<?> targetClass, String methodName) {
-        List<Method> methods = elements(targetClass.getDeclaredMethods())
+    @Test
+    public void invokeExpectedMethodByNameAndGivenArgs() {
+        // given
+        ExampleClassWithMethods inExampleClassWithMethods = new ExampleClassWithMethods();
+        Integer someNumber = DataFakerHelper.randomInteger();
+        Double someDouble = 12.1;
+        String someText = DataFakerHelper.randomText();
+        SuperDog superDog = new SuperDog();
+        SuperCat superCat = new SuperCat();
+        Cat cat = new Cat();
+
+        // when
+        String expected2 = invokeMethod(inExampleClassWithMethods, "overloadMethod", someNumber, someText);
+        // then
+        assertThat(expected2).isEqualTo("2");
+
+        // when
+        when(() -> invokeMethod(inExampleClassWithMethods, "overloadMethod", someDouble, superDog))
+            // then
+            .thenException(AmbiguousMethodCallException.class,
+                "Found more than one method which match:",
+                getOverloadMethodByArgTypes(Number.class, Flyable.class).toString(),
+                getOverloadMethodByArgTypes(Number.class, Animal.class).toString(),
+                getOverloadMethodByArgTypes(Number.class, Dog.class).toString());
+
+        // when
+        when(() -> invokeMethod(inExampleClassWithMethods, "overloadMethod", someDouble, superCat))
+            // then
+            .thenException(AmbiguousMethodCallException.class,
+                "Found more than one method which match:",
+                getOverloadMethodByArgTypes(Number.class, Flyable.class).toString(),
+                getOverloadMethodByArgTypes(Number.class, Animal.class).toString());
+
+        // when
+        when(() -> invokeMethod(inExampleClassWithMethods, "overloadMethod", someDouble, inExampleClassWithMethods))
+            // then
+            .thenException(ReflectionOperationException.class)
+            .thenNestedException(NoSuchMethodException.class);
+
+        // when
+        String result7 = invokeMethod(inExampleClassWithMethods, "overloadMethod",
+            someDouble, superCat, cat, superDog);
+
+        // then
+        assertThat(result7).isEqualTo("7");
+    }
+
+    @SneakyThrows
+    private Method getOverloadMethodByArgTypes(Class<?>... argTypes) {
+        return ExampleClassWithMethods.class.getDeclaredMethod("overloadMethod", argTypes);
+    }
+
+    private Method findMethodByName(String methodName) {
+        List<Method> methods = elements(ExampleClassWithMethods.class.getDeclaredMethods())
             .filter(method -> method.getName().equals(methodName))
             .asList();
 
@@ -572,6 +624,34 @@ public class InvokableReflectionUtilsTest {
         private static Integer staticIntMethod(int arg) {
             return 11 + arg;
         }
+
+        public String overloadMethod(Number number, CharSequence text) {
+            return "1";
+        }
+
+        public String overloadMethod(Number number, String text) {
+            return "2";
+        }
+
+        public String overloadMethod(Number number, Serializable serializable) {
+            return "3";
+        }
+
+        public String overloadMethod(Number number, Flyable flyable) {
+            return "4";
+        }
+
+        public String overloadMethod(Number number, Dog dog) {
+            return "5";
+        }
+
+        public String overloadMethod(Number number, Animal animal) {
+            return "6";
+        }
+
+        public String overloadMethod(Number number, Animal animal, Animal animal2, Flyable flyable) {
+            return "7";
+        }
     }
 
     public static class MyOwnException extends Exception {
@@ -579,5 +659,29 @@ public class InvokableReflectionUtilsTest {
         public MyOwnException() {
             super("thrown not runtime exception");
         }
+    }
+
+    public static class Animal {
+
+    }
+
+    public interface Flyable {
+
+    }
+
+    public static class Dog extends Animal {
+
+    }
+
+    public static class SuperDog extends Dog implements Flyable {
+
+    }
+
+    public static class Cat extends Animal {
+
+    }
+
+    public static class SuperCat extends Cat implements Flyable {
+
     }
 }

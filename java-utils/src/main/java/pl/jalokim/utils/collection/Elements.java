@@ -191,6 +191,10 @@ public final class Elements<T> implements Stream<T> {
         return concatElements(asList(), joinText);
     }
 
+    public String concatWithNewLines() {
+        return asConcatText(System.lineSeparator());
+    }
+
     /**
      * For each with index and element.
      *

@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ClassUtils;
@@ -171,6 +172,8 @@ public final class MetadataReflectionUtils {
             currentClass = currentClass.getSuperclass();
         }
 
+        method = Optional.ofNullable(method)
+            .orElseGet(() -> MethodByArgsMatcher.findMethod(targetClass, methodName, argClasses));
         if (method == null) {
             throw new ReflectionOperationException(new NoSuchMethodException(StringUtils.concatElementsAsLines(noSuchMethodExceptions)));
         }
