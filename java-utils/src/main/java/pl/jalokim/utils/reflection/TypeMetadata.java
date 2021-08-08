@@ -5,12 +5,14 @@ import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 import static pl.jalokim.utils.collection.CollectionUtils.isEmpty;
 import static pl.jalokim.utils.collection.CollectionUtils.isNotEmpty;
+import static pl.jalokim.utils.collection.CollectionUtils.mapToList;
 import static pl.jalokim.utils.collection.Elements.elements;
 import static pl.jalokim.utils.constants.Constants.COMMA;
 import static pl.jalokim.utils.constants.Constants.DOT;
 import static pl.jalokim.utils.constants.Constants.EMPTY;
 import static pl.jalokim.utils.constants.Constants.SPACE;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getField;
+import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getMethod;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getParametrizedRawTypes;
 import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildFromClass;
 import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildFromField;
@@ -20,7 +22,10 @@ import static pl.jalokim.utils.string.StringUtils.concatElements;
 import static pl.jalokim.utils.string.StringUtils.concatElementsAsLines;
 import static pl.jalokim.utils.string.StringUtils.concatObjects;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -31,9 +36,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import lombok.Data;
 
 /**
- * Class which represents real types for generic types.
- * This can store information about real generic nested type in classes and in fields.
- * This needs all generic types resolved as real types.
+ * Class which represents real types for generic types. This can store information about real generic nested type in classes and in fields. This needs all
+ * generic types resolved as real types.
  */
 @Data
 public class TypeMetadata {
@@ -52,9 +56,9 @@ public class TypeMetadata {
         if (isEmpty(parametrizedTypesForClass) && isNotEmpty(tempGenerics) && !rawType.isArray()) {
             AtomicInteger index = new AtomicInteger();
             throw new ReflectionOperationException(format("raw class: %s doesn't have any parametrized types, but tried put generic types:%n%s",
-                                                          rawType.getCanonicalName(),
-                                                          concatElementsAsLines(tempGenerics, text -> concatObjects(index.getAndIncrement(), DOT, SPACE, text))
-                                                         ));
+                rawType.getCanonicalName(),
+                concatElementsAsLines(tempGenerics, text -> concatObjects(index.getAndIncrement(), DOT, SPACE, text))
+            ));
         }
 
         Map<String, TypeMetadata> tempMap = new ConcurrentHashMap<>();
@@ -75,8 +79,8 @@ public class TypeMetadata {
     }
 
     private TypeMetadata buildParentMetadata(TypeMetadata childMetadata,
-                                             Class<?> childClass,
-                                             Map<String, TypeMetadata> childGenericTypesByRawLabel) {
+        Class<?> childClass,
+        Map<String, TypeMetadata> childGenericTypesByRawLabel) {
         Class<?> parentClass = childClass.getSuperclass();
         if (parentClass == null) {
             return null;
@@ -91,8 +95,8 @@ public class TypeMetadata {
             return new TypeMetadata(parentClass, null);
         } else {
             List<TypeMetadata> types = elements(((ParameterizedType) genericSuperclass).getActualTypeArguments())
-                    .map(type -> mapFromType(type, childGenericTypesByRawLabel))
-                    .asList();
+                .map(type -> mapFromType(type, childGenericTypesByRawLabel))
+                .asList();
             return new TypeMetadata(parentClass, types);
         }
     }
@@ -110,8 +114,7 @@ public class TypeMetadata {
     }
 
     /**
-     * If raw class is generic types then this will return true.
-     * And if raw class is array then it has generic types too.
+     * If raw class is generic types then this will return true. And if raw class is array then it has generic types too.
      *
      * @return boolean
      */
@@ -132,10 +135,10 @@ public class TypeMetadata {
      * It returns resolved metadata for some raw generic type when exists one.
      *
      * @param fieldOwner real owner of raw generic field.
-     * @param typeName   real name of label from generic class.
+     * @param typeName real name of label from generic class.
      * @return instance of TypeMetadata
      */
-    public TypeMetadata getTypeMetadataForField(Class<?> fieldOwner, String typeName) {
+    public TypeMetadata getTypeMetadataByGenericLabel(Class<?> fieldOwner, String typeName) {
         TypeMetadata currentMeta = this;
         while (currentMeta != null) {
             if (currentMeta.getRawType().equals(fieldOwner)) {
@@ -147,16 +150,15 @@ public class TypeMetadata {
             currentMeta = currentMeta.getParentTypeMetadata();
         }
         throw new ReflectionOperationException(
-                format("Cannot find raw type: '%s' for class: '%s' in current context: %s ",
-                       typeName, fieldOwner.getCanonicalName(), toString())
+            format("Cannot find raw type: '%s' for class: '%s' in current context: %s ",
+                typeName, fieldOwner.getCanonicalName(), toString())
         );
     }
 
     /**
      * It returns metadata for raw generic label for current class, it not search in parents classes.
      *
-     * @param genericLabel real name of generic raw type. For example raw type is List&lt;E&gt;
-     *                     It Returns real metadata for E label in List.
+     * @param genericLabel real name of generic raw type. For example raw type is List&lt;E&gt; It Returns real metadata for E label in List.
      * @return instance of TypeMetadata
      */
     public TypeMetadata getByGenericLabel(String genericLabel) {
@@ -203,25 +205,63 @@ public class TypeMetadata {
     }
 
     /**
-     * It returns metadata for field stored in current raw class
-     * It searches for field in whole raw class hierarchy.
+     * It returns metadata for field stored in current raw class It searches for field in whole raw class hierarchy.
      *
      * @param fieldName real field name
      * @return metadata for field
      */
     public TypeMetadata getMetaForField(String fieldName) {
         Field field = getField(rawType, fieldName);
-        if (field.getGenericType() instanceof Class) {
-            return buildFromField(field);
-        } else {
-            return buildFromType(field.getGenericType(), field, this);
-        }
+        return getMetaForField(field);
     }
 
     /**
-     * It returns metadata for generic type under provided index.
-     * For arrays type, type of array it stored under first index.
-     * Array is treated as generic list.
+     * It returns metadata for field stored in current raw class
+     *
+     * @param field instance of java reflection field
+     * @return metadata for field
+     */
+    public TypeMetadata getMetaForField(Field field) {
+        if (field.getGenericType() instanceof Class) {
+            return buildFromField(field);
+        } else {
+            return buildFromType(field.getGenericType(), field.getDeclaringClass(), this);
+        }
+    }
+
+    public MethodMetadata getMetaForMethod(String methodName, Object... args) {
+        List<Class<?>> argClasses = mapToList(Object::getClass, args);
+        Method method = getMethod(getRawType(), methodName, argClasses.toArray(new Class[0]));
+        return getMetaForMethod(method);
+    }
+
+    public MethodMetadata getMetaForMethod(Method method) {
+        return MethodMetadata.builder()
+            .annotations(elements(method.getDeclaredAnnotations()).asList())
+            .method(method)
+            .name(method.getName())
+            .returnType(getMetaForType(method.getGenericReturnType(), method.getDeclaringClass()))
+            .parameters(createMethodParametersMeta(method))
+            .build();
+    }
+
+    private List<ParameterMetadata> createMethodParametersMeta(Method method) {
+        List<ParameterMetadata> parameterMetadata = new ArrayList<>();
+        for (int parameterIndex = 0; parameterIndex < method.getGenericParameterTypes().length; parameterIndex++) {
+            Annotation[] parameterAnnotation = method.getParameterAnnotations()[parameterIndex];
+            Parameter parameter = method.getParameters()[parameterIndex];
+            parameterMetadata.add(ParameterMetadata.builder()
+                .annotations(elements(parameterAnnotation).asList())
+                .name(parameter.getName())
+                .parameter(parameter)
+                .typeOfParameter(getMetaForType(method.getGenericParameterTypes()[parameterIndex], method.getDeclaringClass()))
+                .build());
+        }
+        return parameterMetadata;
+    }
+
+    /**
+     * It returns metadata for generic type under provided index. For arrays type, type of array it stored under first index. Array is treated as generic list.
      *
      * @param index of generic type for current raw type.
      * @return metadata of generic type under provided index.
@@ -250,5 +290,13 @@ public class TypeMetadata {
         }
 
         return concat(classType, genericsPart);
+    }
+
+    private TypeMetadata getMetaForType(Type type, Class<?> typeIsFromClass) {
+        if (type instanceof Class) {
+            return buildFromClass((Class<?>) type);
+        } else {
+            return buildFromType(type, typeIsFromClass, this);
+        }
     }
 }

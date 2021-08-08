@@ -1,22 +1,26 @@
 package pl.jalokim.utils.reflection.beans.inheritiance;
 
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.Period;
-import java.util.stream.Stream;
-import lombok.Data;
-import lombok.Getter;
-
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.Period;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import pl.jalokim.utils.collection.Elements;
 
 @Data
@@ -118,11 +122,23 @@ public class ExampleClass {
     }
 
     @Getter
+    @Setter
     public static class TupleClass<T, F> extends RawTuple<F> {
 
         private T valueOfT;
         private F valueOfF;
         private List<F> listOfF;
+
+        public F returnF(@SomeAnnotation @OtherAnnotation List<Number> arArg0,
+            HashMap<F, T> mapOfFAndT, CharSequence string) {
+            return listOfF.get(0);
+        }
+
+        @SomeAnnotation
+        public F returnF(@SomeAnnotation @OtherAnnotation F arArg,
+            Map<F, T> mapOfFAndT, String string) {
+            return valueOfF;
+        }
     }
 
     @Getter
@@ -133,6 +149,10 @@ public class ExampleClass {
     }
 
     public static class TupleClassImpl extends TupleClass<String, List<Number>> {
+
+    }
+
+    public static class TupleClassImpl2 extends TupleClass<String, ArrayList<Number>> {
 
     }
 
@@ -162,5 +182,15 @@ public class ExampleClass {
         public List<NextObject> getListOfF() {
             return super.getListOfF();
         }
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface SomeAnnotation {
+
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface OtherAnnotation {
+
     }
 }

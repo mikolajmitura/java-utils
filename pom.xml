@@ -7,7 +7,7 @@
     <parent>
         <groupId>pl.jalokim.parentpom</groupId>
         <artifactId>java-parent-pom</artifactId>
-        <version>1.0.1</version>
+        <version>1.0.2</version>
     </parent>
 
     <groupId>pl.jalokim.utils</groupId>

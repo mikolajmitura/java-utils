@@ -22,12 +22,16 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import junit.framework.TestCase;
 import lombok.SneakyThrows;
 import org.junit.Test;
 import pl.jalokim.utils.reflection.beans.inheritiance.ClassWithoutDefConstr;
+import pl.jalokim.utils.reflection.beans.inheritiance.ExampleClass.TupleClassImpl2;
 import pl.jalokim.utils.reflection.beans.inheritiance.SecondLevelSomeConcreteObject;
 import pl.jalokim.utils.reflection.beans.inheritiance.SomeConcreteObject;
 import pl.jalokim.utils.reflection.beans.inheritiance.SuperAbstractObject;
@@ -603,6 +607,28 @@ public class InvokableReflectionUtilsTest {
         // then
         assertThat(result8).isEqualTo("8");
         assertThat(result9).isEqualTo("9");
+    }
+
+    @Test
+    public void invokeMethodWhichHaveBetterMatchScoreByGenericsFields() {
+        // given
+        TupleClassImpl2 tupleClass = new TupleClassImpl2();
+
+        ArrayList<Number> listOfNumbers1 = new ArrayList<>(Arrays.asList(1, 2));
+        tupleClass.setValueOfF(listOfNumbers1);
+
+        ArrayList<Number> listOfNumbers2 = new ArrayList<>(Arrays.asList(3, 4));
+        ArrayList<Number> listOfNumbers3 = new ArrayList<>(Arrays.asList(5, 6));
+
+        tupleClass.setListOfF(Arrays.asList(listOfNumbers2, listOfNumbers3));
+
+        String justString = DataFakerHelper.randomText();
+        Map<List<Number>, String> map = new HashMap<>();
+
+        // when
+        List<Number> result = invokeMethod(tupleClass, "returnF", listOfNumbers1, map, justString);
+        // then
+        assertThat(result).isEqualTo(listOfNumbers1);
     }
 
     @SneakyThrows

@@ -21,7 +21,7 @@ class MethodByArgsMatcher {
                 .filter(method -> method.getParameterTypes().length == argClasses.length)
                 .asList();
 
-            matchMethodsByArgTypes(methodsByScore, foundMethods, argClasses);
+            matchMethodsByArgTypes(targetClass, methodsByScore, foundMethods, argClasses);
             currentClass = currentClass.getSuperclass();
         }
 
@@ -41,13 +41,16 @@ class MethodByArgsMatcher {
         return methods.get(0);
     }
 
-    private static void matchMethodsByArgTypes(Map<Integer, List<Method>> methodsByScore,
+    private static void matchMethodsByArgTypes(Class<?> targetClass, Map<Integer, List<Method>> methodsByScore,
         List<Method> foundMethods, Class<?>... argClasses) {
+        TypeMetadata typeMetadata = TypeWrapperBuilder.buildFromClass(targetClass);
         methods:
         for (Method foundMethod : foundMethods) {
             int matchScore = 0;
             for (int argIndex = 0; argIndex < foundMethod.getParameterTypes().length; argIndex++) {
-                Class<?> classFromMethodArg = foundMethod.getParameterTypes()[argIndex];
+                MethodMetadata metaForMethod = typeMetadata.getMetaForMethod(foundMethod);
+                Class<?> classFromMethodArg = metaForMethod.getParameters().get(argIndex)
+                    .getTypeOfParameter().getRawType();
                 Class<?> classFromToInvoke = argClasses[argIndex];
                 if (classFromMethodArg.equals(classFromToInvoke)) {
                     matchScore = matchScore + 2;
