@@ -588,6 +588,23 @@ public class InvokableReflectionUtilsTest {
         assertThat(result7).isEqualTo("7");
     }
 
+    @Test
+    public void invokeMethodWhichHaveBetterMatchScore() {
+        // given
+        ExampleClassWithMethods inExampleClassWithMethods = new ExampleClassWithMethods();
+        SuperDog superDog = new SuperDog();
+        SuperCat superCat = new SuperCat();
+        Cat cat = new Cat();
+
+        // when
+        String result8 = invokeMethod(inExampleClassWithMethods, "overloadMethod", superCat, cat, superDog);
+        String result9 = invokeMethod(inExampleClassWithMethods, "overloadMethod", superCat, superDog, superDog);
+
+        // then
+        assertThat(result8).isEqualTo("8");
+        assertThat(result9).isEqualTo("9");
+    }
+
     @SneakyThrows
     private Method getOverloadMethodByArgTypes(Class<?>... argTypes) {
         return ExampleClassWithMethods.class.getDeclaredMethod("overloadMethod", argTypes);
@@ -651,6 +668,13 @@ public class InvokableReflectionUtilsTest {
 
         public String overloadMethod(Number number, Animal animal, Animal animal2, Flyable flyable) {
             return "7";
+        }
+
+        public String overloadMethod(Animal animal, Cat cat, Dog dog) {
+            return "8";
+        }
+        public String overloadMethod(Animal animal, Animal cat, Dog dog) {
+            return "9";
         }
     }
 
