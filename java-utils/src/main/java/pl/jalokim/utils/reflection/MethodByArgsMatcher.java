@@ -14,26 +14,26 @@ class MethodByArgsMatcher {
 
     public static Method findMethod(Class<?> targetClass, String methodName, Class<?>... argClasses) {
         Class<?> currentClass = targetClass;
-        Map<Integer, List<Method>> methodsByScore = new HashMap<>();
+        Map<Integer, List<Method>> methodsByLengthOfPath = new HashMap<>();
         while (currentClass != null) {
             List<Method> foundMethods = elements(currentClass.getDeclaredMethods())
                 .filter(method -> method.getName().equals(methodName))
                 .filter(method -> method.getParameterTypes().length == argClasses.length)
                 .asList();
 
-            matchMethodsByArgTypes(targetClass, methodsByScore, foundMethods, argClasses);
+            matchMethodsByArgTypes(targetClass, methodsByLengthOfPath, foundMethods, argClasses);
             currentClass = currentClass.getSuperclass();
         }
 
-        if (methodsByScore.isEmpty()) {
+        if (methodsByLengthOfPath.isEmpty()) {
             return null;
         }
 
-        Integer maxScore = elements(methodsByScore.keySet())
-            .max(Integer::compareTo)
+        Integer shortestPath = elements(methodsByLengthOfPath.keySet())
+            .min(Integer::compareTo)
             .get();
 
-        List<Method> methods = methodsByScore.get(maxScore);
+        List<Method> methods = methodsByLengthOfPath.get(shortestPath);
 
         if (methods.size() != 1) {
             throw new AmbiguousMethodCallException(methods);
@@ -46,21 +46,20 @@ class MethodByArgsMatcher {
         TypeMetadata typeMetadata = TypeWrapperBuilder.buildFromClass(targetClass);
         methods:
         for (Method foundMethod : foundMethods) {
-            int matchScore = 0;
+            int typeDifferenceLevel = 0;
             for (int argIndex = 0; argIndex < foundMethod.getParameterTypes().length; argIndex++) {
                 MethodMetadata metaForMethod = typeMetadata.getMetaForMethod(foundMethod);
                 Class<?> classFromMethodArg = metaForMethod.getParameters().get(argIndex)
                     .getTypeOfParameter().getRawType();
-                Class<?> classFromToInvoke = argClasses[argIndex];
-                if (classFromMethodArg.equals(classFromToInvoke)) {
-                    matchScore = matchScore + 2;
-                } else if (classFromMethodArg.isAssignableFrom(classFromToInvoke)) {
-                    matchScore = matchScore + 1;
-                } else {
+                ClassParentsInfo parentsInfo = ClassParentsParser.parentsInfoFromClass(argClasses[argIndex]);
+
+                if (parentsInfo.canBeCastTo(classFromMethodArg)) {
+                    typeDifferenceLevel = typeDifferenceLevel + parentsInfo.getHierarchyDiffLength(classFromMethodArg);
+                }  else {
                     continue methods;
                 }
             }
-            putFoundMethodByScore(methodsByScore, foundMethod, matchScore);
+            putFoundMethodByScore(methodsByScore, foundMethod, typeDifferenceLevel);
         }
     }
 

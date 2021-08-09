@@ -8,6 +8,8 @@ import static pl.jalokim.utils.reflection.TypeMetadataAssertionUtils.assertTypeM
 import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildFromClass;
 import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.when;
 
+import com.google.common.collect.Sets;
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -18,7 +20,9 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Test;
 import pl.jalokim.utils.reflection.beans.inheritiance.ExampleClass;
+import pl.jalokim.utils.reflection.beans.inheritiance.ExampleClass.GenericInterface;
 import pl.jalokim.utils.reflection.beans.inheritiance.ExampleClass.OtherAnnotation;
+import pl.jalokim.utils.reflection.beans.inheritiance.ExampleClass.OtherInterface;
 import pl.jalokim.utils.reflection.beans.inheritiance.ExampleClass.SomeAnnotation;
 import pl.jalokim.utils.reflection.beans.inheritiance.ExampleClass.TupleClass;
 import pl.jalokim.utils.reflection.beans.inheritiance.ExampleClass.TupleClassImpl;
@@ -78,7 +82,7 @@ public class TypeMetadataTest {
         TypeMetadata tupleImplMeta = buildFromClass(ExampleClass.TupleClassImpl.class);
         // then
         assertThat(tupleImplMeta.toString())
-            .isEqualTo("{TupleClassImpl extends {TupleClass extends RawTuple<List<Number>><String,List<Number>>}}");
+            .isEqualTo("TupleClassImpl extends TupleClass<String,List<Number>> extends RawTuple<List<Number>>");
     }
 
     @Test
@@ -206,7 +210,9 @@ public class TypeMetadataTest {
         TypeMetadata superMixedArray = exampleClassMeta.getMetaForField("superMixedArray");
         // then
         assertThat(
-            "{StringTuple extends {TupleClass extends RawTuple<Map<Number,List<String>>><String,Map<Number,List<String>>>}<RawTuple<List<Map<String,RawTuple<{ConcreteClass extends {StringTuple extends {TupleClass extends RawTuple<NextObject><String,NextObject>}<String,NextObject>}}[][][]>>>[][][]>,Map<Number,List<String>>>}[][]")
+            "StringTuple<RawTuple<List<Map<String,RawTuple<ConcreteClass extends StringTuple<String,NextObject> "
+                + "extends TupleClass<String,NextObject> extends RawTuple<NextObject>[][][]>>>[][][]>,Map<Number,List<String>>> "
+                + "extends TupleClass<String,Map<Number,List<String>>> extends RawTuple<Map<Number,List<String>>>[][]")
             .isEqualTo(superMixedArray.toString());
     }
 
@@ -293,16 +299,56 @@ public class TypeMetadataTest {
             .asList())
             .isEqualTo(Collections.singletonList(SomeAnnotation.class));
 
-        String metaForArrayList = "{ArrayList extends {AbstractList extends AbstractCollection<Number><Number>}<Number>}";
+        String metaForArrayList = "ArrayList<Number> extends AbstractList<Number> extends AbstractCollection<Number>";
 
-        assertThat(returnEMethodMeta.getReturnType().toString()).isEqualTo(metaForArrayList);
+        assertGenericMethodReturnF(metaForArrayList, returnEMethodMeta);
 
-        assertParameterMetadata(returnEMethodMeta.getParameters(), 0, "arArg", metaForArrayList,
+        // when
+        MethodMetadata returnEMethodMetaByNameAndClasses = typeMetadata.getMetaForMethod("returnF", Object.class, Map.class, String.class);
+
+        assertGenericMethodReturnF(metaForArrayList, returnEMethodMetaByNameAndClasses);
+    }
+
+    private void assertGenericMethodReturnF(String metaForArrayList, MethodMetadata returnEMethodMetaByNameAndClasses) {
+        assertThat(returnEMethodMetaByNameAndClasses.getReturnType().toString()).isEqualTo(metaForArrayList);
+
+        assertParameterMetadata(returnEMethodMetaByNameAndClasses.getParameters(), 0, "arArg", metaForArrayList,
             SomeAnnotation.class, OtherAnnotation.class);
 
-        assertParameterMetadata(returnEMethodMeta.getParameters(), 1, "mapOfFAndT", "Map<" + metaForArrayList + ",String>");
+        assertParameterMetadata(returnEMethodMetaByNameAndClasses.getParameters(), 1, "mapOfFAndT", "Map<" + metaForArrayList + ",String>");
 
-        assertParameterMetadata(returnEMethodMeta.getParameters(), 2, "string", "String");
+        assertParameterMetadata(returnEMethodMetaByNameAndClasses.getParameters(), 2, "string", "String");
+    }
+
+    @Test
+    public void listMetaAboutInterfacesMetadata() {
+        // when
+        TypeMetadata typeMetadata = buildFromClass(TupleClassImpl2.class);
+        // then
+        assertThat(typeMetadata.getRawType()).isEqualTo(TupleClassImpl2.class);
+        assertThat(typeMetadata.getParentInterfaces()).isEmpty();
+
+        TypeMetadata tupleClassMetadata = typeMetadata.getParentTypeMetadata();
+        List<TypeMetadata> parentInterfaces = tupleClassMetadata.getParentInterfaces();
+
+        assertThat(tupleClassMetadata.getRawType()).isEqualTo(TupleClass.class);
+        assertThat(parentInterfaces).hasSize(2);
+
+        TypeMetadata genericInterfaceMetadata = parentInterfaces.get(0);
+        assertThat(genericInterfaceMetadata.getRawType()).isEqualTo(GenericInterface.class);
+        TypeMetadata typeMetadataOfGeneric1 = genericInterfaceMetadata.getGenericTypes().get(0);
+        assertThat(typeMetadataOfGeneric1.getRawType()).isEqualTo(String.class);
+        assertThat(typeMetadataOfGeneric1.getParentInterfaces()).hasSize(3);
+        assertThat(elements(typeMetadataOfGeneric1.getParentInterfaces())
+            .map(TypeMetadata::getRawType)
+            .asSet()).isEqualTo(Sets.newHashSet(Serializable.class, CharSequence.class, Comparable.class));
+
+        assertThat(genericInterfaceMetadata.getGenericTypes().get(1).getRawType()).isEqualTo(ArrayList.class);
+
+        TypeMetadata otherInterfaceMetadata = parentInterfaces.get(1);
+        assertThat(otherInterfaceMetadata.getRawType()).isEqualTo(OtherInterface.class);
+        assertThat(otherInterfaceMetadata.getGenericTypes().get(0).getRawType()).isEqualTo(List.class);
+        assertThat(otherInterfaceMetadata.getGenericTypes().get(1).getRawType()).isEqualTo(ArrayList.class);
     }
 
     private void assertParameterMetadata(List<ParameterMetadata> parameters, int index, String name, String typeOfParameter, Class<?>... annotations) {

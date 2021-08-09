@@ -116,7 +116,8 @@ public final class MetadataReflectionUtils {
         }
 
         if (foundField == null) {
-            throw new ReflectionOperationException("field '" + fieldName + "' not exist in classes: " + mapToList(searchedClasses, Class::getCanonicalName));
+            throw new ReflectionOperationException("field '" + fieldName + "' not exist in classes: "
+                + mapToList(searchedClasses, Class::getCanonicalName));
         }
         return foundField;
     }
@@ -142,8 +143,7 @@ public final class MetadataReflectionUtils {
      * @param argClasses types of arguments.
      * @return instance of method.
      */
-    public static Method getMethod(Object targetObject, String methodName,
-        Class<?>... argClasses) {
+    public static Method getMethod(Object targetObject, String methodName, Class<?>... argClasses) {
         return getMethod(targetObject.getClass(), methodName, argClasses);
     }
 
@@ -155,8 +155,7 @@ public final class MetadataReflectionUtils {
      * @param argClasses types of arguments.
      * @return instance of method.
      */
-    public static Method getMethod(Class<?> targetClass, String methodName,
-        Class<?>... argClasses) {
+    public static Method getMethod(Class<?> targetClass, String methodName, Class<?>... argClasses) {
         Method method = null;
         Class<?> currentClass = targetClass;
         List<String> noSuchMethodExceptions = new ArrayList<>();

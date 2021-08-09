@@ -90,6 +90,15 @@ public final class Elements<T> implements Stream<T> {
         return new Elements<>(this.stream.map(mapper));
     }
 
+    public <R> Elements<R> mapWithIndex(BiFunction<Integer, ? super T, ? extends R> mapper) {
+        List<R> resultList = new ArrayList<>();
+        List<T> sourceList = new Elements<>(this.stream).asList();
+        for (int index = 0; index < sourceList.size(); index++) {
+            resultList.add(mapper.apply(index, sourceList.get(index)));
+        }
+        return elements(resultList);
+    }
+
     @Override
     public <R> Elements<R> flatMap(Function<? super T, ? extends Stream<? extends R>> mapper) {
         return new Elements<>(this.stream.flatMap(mapper));

@@ -554,6 +554,8 @@ public class InvokableReflectionUtilsTest {
         String someText = DataFakerHelper.randomText();
         SuperDog superDog = new SuperDog();
         SuperCat superCat = new SuperCat();
+        Dog superBulldog = new SuperBulldog();
+        Dog bulldog = new Bulldog();
         Cat cat = new Cat();
 
         // when
@@ -567,16 +569,13 @@ public class InvokableReflectionUtilsTest {
             .thenException(AmbiguousMethodCallException.class,
                 "Found more than one method which match:",
                 getOverloadMethodByArgTypes(Number.class, Flyable.class).toString(),
-                getOverloadMethodByArgTypes(Number.class, Animal.class).toString(),
                 getOverloadMethodByArgTypes(Number.class, Dog.class).toString());
 
         // when
-        when(() -> invokeMethod(inExampleClassWithMethods, "overloadMethod", someDouble, superCat))
-            // then
-            .thenException(AmbiguousMethodCallException.class,
-                "Found more than one method which match:",
-                getOverloadMethodByArgTypes(Number.class, Flyable.class).toString(),
-                getOverloadMethodByArgTypes(Number.class, Animal.class).toString());
+        String result4 = invokeMethod(inExampleClassWithMethods, "overloadMethod", someDouble, superCat);
+
+        // then
+        assertThat(result4).isEqualTo("4");
 
         // when
         when(() -> invokeMethod(inExampleClassWithMethods, "overloadMethod", someDouble, inExampleClassWithMethods))
@@ -590,6 +589,18 @@ public class InvokableReflectionUtilsTest {
 
         // then
         assertThat(result7).isEqualTo("7");
+
+        // when
+        String result5 = invokeMethod(inExampleClassWithMethods, "overloadMethod", someDouble, bulldog);
+
+        // then
+        assertThat(result5).isEqualTo("5");
+
+        // when
+        result4 = invokeMethod(inExampleClassWithMethods, "overloadMethod", someDouble, superBulldog);
+
+        // then
+        assertThat(result4).isEqualTo("4");
     }
 
     @Test
@@ -720,6 +731,14 @@ public class InvokableReflectionUtilsTest {
     }
 
     public static class Dog extends Animal {
+
+    }
+
+    public static class Bulldog extends Dog {
+
+    }
+
+    public static class SuperBulldog extends Bulldog implements Flyable {
 
     }
 

@@ -22,6 +22,7 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+import lombok.Value;
 import org.junit.Test;
 import pl.jalokim.utils.file.FileUtils;
 import pl.jalokim.utils.reflection.beans.inheritiance.Event;
@@ -393,7 +394,7 @@ public class ElementsTest {
     public void toArrayTest() {
         // when
         Object[] toArray = getTextElements().toArray();
-        String[] toStringArray = getTextElements().toArray(number-> new String[]{"1", "2", "3", "44"});
+        String[] toStringArray = getTextElements().toArray(number -> new String[]{"1", "2", "3", "44"});
         // then
         toArray[0] = "1";
         toStringArray[3] = "44";
@@ -450,7 +451,7 @@ public class ElementsTest {
         // when
         List<Integer> iterated = Elements.iterate(0, value -> value + 1)
             .limit(3).asList();
-        List<Integer> generated = Elements.generate(()-> 1)
+        List<Integer> generated = Elements.generate(() -> 1)
             .limit(3).asList();
         Iterator<String> iterator = getTextElements().iterator();
         List<String> list = new ArrayList<>();
@@ -484,7 +485,7 @@ public class ElementsTest {
     public void testCloseElements() {
         // when
         AtomicBoolean closed = new AtomicBoolean();
-        Runnable runnable = ()-> closed.set(true);
+        Runnable runnable = () -> closed.set(true);
 
         getTextElements()
             .onClose(runnable)
@@ -535,6 +536,26 @@ public class ElementsTest {
         // then
         List<String> resultList = elementsFromIterator.asList();
         assertThat(resultList).containsExactly("1", "2", "3");
+    }
+
+    @Test
+    public void mapWithIndexAsExpected() {
+        // given
+        List<Integer> sourceList = Arrays.asList(12, 15, 3, 44);
+
+        // when
+        List<Pair> result = elements(sourceList)
+            .mapWithIndex(Pair::new)
+            .asList();
+
+        // then
+        assertThat(elements(result)
+            .map(Pair::getIndex)
+            .asList()).containsExactly(0, 1, 2, 3);
+
+        assertThat(elements(result)
+            .map(Pair::getValue)
+            .asList()).containsExactly(12, 15, 3, 44);
     }
 
     void elementsIsEmptyNotNull(Elements<?> elements) {
@@ -590,5 +611,12 @@ public class ElementsTest {
         event.setTypeName(typeName);
         event.setIndex(index);
         return event;
+    }
+
+    @Value
+    private static class Pair {
+
+        Integer index;
+        Integer value;
     }
 }

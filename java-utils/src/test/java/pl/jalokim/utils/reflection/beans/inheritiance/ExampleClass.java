@@ -121,9 +121,19 @@ public class ExampleClass {
 
     }
 
+    public interface GenericInterface<D, U> {
+
+        D convertFromU(U value);
+    }
+
+    public interface OtherInterface<D, U> {
+
+        D convertFromU(U value, D value2);
+    }
+
     @Getter
     @Setter
-    public static class TupleClass<T, F> extends RawTuple<F> {
+    public static class TupleClass<T, F> extends RawTuple<F> implements GenericInterface<T, F>, OtherInterface<List<T>, F> {
 
         private T valueOfT;
         private F valueOfF;
@@ -138,6 +148,16 @@ public class ExampleClass {
         public F returnF(@SomeAnnotation @OtherAnnotation F arArg,
             Map<F, T> mapOfFAndT, String string) {
             return valueOfF;
+        }
+
+        @Override
+        public T convertFromU(F value) {
+            return null;
+        }
+
+        @Override
+        public List<T> convertFromU(F value, List<T> value2) {
+            return null;
         }
     }
 

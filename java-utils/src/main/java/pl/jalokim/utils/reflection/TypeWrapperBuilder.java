@@ -8,6 +8,7 @@ import static pl.jalokim.utils.reflection.ClassNameFixer.fixClassName;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getClassForName;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getParametrizedRawTypes;
 import static pl.jalokim.utils.reflection.TypeMetadata.NATIVE_OBJECT_META;
+import static pl.jalokim.utils.reflection.TypeMetadata.newTypeMetadata;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -37,10 +38,10 @@ final class TypeWrapperBuilder {
         List<Type> genericsTypes = getParametrizedRawTypes(someClass);
 
         if (genericsTypes.isEmpty()) {
-            return new TypeMetadata(someClass, null);
+            return newTypeMetadata(someClass, null);
         }
 
-        return new TypeMetadata(someClass, elements(genericsTypes)
+        return newTypeMetadata(someClass, elements(genericsTypes)
             .map(type -> NATIVE_OBJECT_META)
             .asList());
     }
@@ -75,11 +76,11 @@ final class TypeWrapperBuilder {
     static TypeMetadata buildFromInnerTypeMetaData(InnerTypeMetaData typeWrapper) {
         String typeName = typeWrapper.getClassName();
         if (QUESTION_SIGN.equals(typeName)) {
-            return new TypeMetadata(Object.class, null);
+            return newTypeMetadata(Object.class, null);
         } else if (typeName.matches("^\\?extends(.)+")) {
             typeName = typeName.replace("?extends", EMPTY);
         } else if (typeName.matches("^\\?super(.)+")) {
-            return new TypeMetadata(Object.class, null);
+            return newTypeMetadata(Object.class, null);
         }
         if (hasArraySignature(typeName)) {
             return buildFromArrayClass(typeWrapper, typeName);
@@ -96,7 +97,7 @@ final class TypeWrapperBuilder {
             }
             throw new UnresolvedRealClassException(exception);
         }
-        return new TypeMetadata(realClass,
+        return newTypeMetadata(realClass,
             buildGenericsList(typeWrapper.getGenericTypes()));
     }
 
@@ -110,10 +111,10 @@ final class TypeWrapperBuilder {
         if (hasArraySignature(typeOfStoredInArray)) {
             genericDataOfArray = buildFromArrayClass(typeWrapper, typeOfStoredInArray);
         } else {
-            genericDataOfArray = new TypeMetadata(getFixedClassName(typeOfStoredInArray),
+            genericDataOfArray = newTypeMetadata(getFixedClassName(typeOfStoredInArray),
                 buildGenericsList(typeWrapper.getGenericTypes()));
         }
-        return new TypeMetadata(rawClassForArray, singletonList(genericDataOfArray));
+        return newTypeMetadata(rawClassForArray, singletonList(genericDataOfArray));
     }
 
     private static boolean hasArraySignature(String className) {
