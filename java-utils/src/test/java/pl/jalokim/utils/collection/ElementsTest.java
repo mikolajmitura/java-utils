@@ -1,6 +1,5 @@
 package pl.jalokim.utils.collection;
 
-
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static pl.jalokim.utils.collection.Elements.elements;
@@ -23,6 +22,7 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
+import lombok.Value;
 import org.junit.Test;
 import pl.jalokim.utils.file.FileUtils;
 import pl.jalokim.utils.reflection.beans.inheritiance.Event;
@@ -394,7 +394,7 @@ public class ElementsTest {
     public void toArrayTest() {
         // when
         Object[] toArray = getTextElements().toArray();
-        String[] toStringArray = getTextElements().toArray(number-> new String[]{"1", "2", "3", "44"});
+        String[] toStringArray = getTextElements().toArray(number -> new String[]{"1", "2", "3", "44"});
         // then
         toArray[0] = "1";
         toStringArray[3] = "44";
@@ -451,7 +451,7 @@ public class ElementsTest {
         // when
         List<Integer> iterated = Elements.iterate(0, value -> value + 1)
             .limit(3).asList();
-        List<Integer> generated = Elements.generate(()-> 1)
+        List<Integer> generated = Elements.generate(() -> 1)
             .limit(3).asList();
         Iterator<String> iterator = getTextElements().iterator();
         List<String> list = new ArrayList<>();
@@ -485,7 +485,7 @@ public class ElementsTest {
     public void testCloseElements() {
         // when
         AtomicBoolean closed = new AtomicBoolean();
-        Runnable runnable = ()-> closed.set(true);
+        Runnable runnable = () -> closed.set(true);
 
         getTextElements()
             .onClose(runnable)
@@ -504,6 +504,71 @@ public class ElementsTest {
         assertThat(parallel.sequential().isParallel()).isFalse();
         assertThat(parallel.unordered().isParallel()).isFalse();
         assertThat(getTextElements().isParallel()).isFalse();
+    }
+
+    @Test
+    public void elementsHandleWithNullableArguments() {
+        // when
+        String[] array = null;
+        Elements<String> elementsFromArray = elements(array);
+        Elements<String> elementsFromArray2 = Elements.of(array);
+        Stream<Integer> stream = null;
+        Elements<Integer> elementsFromStream = elements(stream);
+        Iterator<String> iterator = null;
+        Elements<String> elementsFromIterator = elements(iterator);
+        List<String> list = null;
+        Elements<String> elementsFromIterable = elements(list);
+
+        // then
+        elementsIsEmptyNotNull(elementsFromArray);
+        elementsIsEmptyNotNull(elementsFromArray2);
+        elementsIsEmptyNotNull(elementsFromStream);
+        elementsIsEmptyNotNull(elementsFromIterator);
+        elementsIsEmptyNotNull(elementsFromIterable);
+    }
+
+    @Test
+    public void elementsFromIterator() {
+        // given
+        Iterator<String> iterator = Arrays.asList("1", "2", "3").iterator();
+        // when
+        Elements<String> elementsFromIterator = elements(iterator);
+        // then
+        List<String> resultList = elementsFromIterator.asList();
+        assertThat(resultList).containsExactly("1", "2", "3");
+    }
+
+    @Test
+    public void mapWithIndexAsExpected() {
+        // given
+        List<Integer> sourceList = Arrays.asList(12, 15, 3, 44);
+
+        // when
+        List<Pair> result = elements(sourceList)
+            .mapWithIndex(Pair::new)
+            .asList();
+
+        // then
+        assertThat(elements(result)
+            .map(Pair::getIndex)
+            .asList()).containsExactly(0, 1, 2, 3);
+
+        assertThat(elements(result)
+            .map(Pair::getValue)
+            .asList()).containsExactly(12, 15, 3, 44);
+    }
+
+    @Test
+    public void elementsToGenericArray() {
+        // when
+        String[] array = elements("1", "2", "3").toArray(new String[0]);
+        // then
+        assertThat(array).containsExactly("1", "2", "3");
+    }
+
+    void elementsIsEmptyNotNull(Elements<?> elements) {
+        assertThat(elements).isNotNull();
+        assertThat(elements.asList().isEmpty()).isTrue();
     }
 
     private Elements<String> getTextElements() {
@@ -528,7 +593,7 @@ public class ElementsTest {
     }
 
     private Elements<Event> getEventsAsElements() {
-        return Elements.elements(getSomeEventsArray());
+        return elements(getSomeEventsArray());
     }
 
     private Event[] getSomeEventsArray() {
@@ -554,5 +619,12 @@ public class ElementsTest {
         event.setTypeName(typeName);
         event.setIndex(index);
         return event;
+    }
+
+    @Value
+    private static class Pair {
+
+        Integer index;
+        Integer value;
     }
 }

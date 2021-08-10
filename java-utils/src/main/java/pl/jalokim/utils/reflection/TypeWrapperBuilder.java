@@ -8,6 +8,7 @@ import static pl.jalokim.utils.reflection.ClassNameFixer.fixClassName;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getClassForName;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getParametrizedRawTypes;
 import static pl.jalokim.utils.reflection.TypeMetadata.NATIVE_OBJECT_META;
+import static pl.jalokim.utils.reflection.TypeMetadata.newTypeMetadata;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -37,12 +38,12 @@ final class TypeWrapperBuilder {
         List<Type> genericsTypes = getParametrizedRawTypes(someClass);
 
         if (genericsTypes.isEmpty()) {
-            return new TypeMetadata(someClass, null);
+            return newTypeMetadata(someClass, null);
         }
 
-        return new TypeMetadata(someClass, elements(genericsTypes)
-                .map(type -> NATIVE_OBJECT_META)
-                .asList());
+        return newTypeMetadata(someClass, elements(genericsTypes)
+            .map(type -> NATIVE_OBJECT_META)
+            .asList());
     }
 
     static TypeMetadata buildFromField(Field field) {
@@ -62,12 +63,10 @@ final class TypeWrapperBuilder {
         return buildFromType(type, null, null);
     }
 
-    static TypeMetadata buildFromType(Type type,
-                                      Field originalField,
-                                      TypeMetadata currentContext) {
+    static TypeMetadata buildFromType(Type type, Class<?> declaredInClass, TypeMetadata currentContext) {
         String fullName = type.getTypeName();
         char[] arrayOfChars = fullName.toCharArray();
-        InnerTypeMetaData current = new InnerTypeMetaData(originalField, currentContext);
+        InnerTypeMetaData current = new InnerTypeMetaData(declaredInClass, currentContext);
         for (char nextChar : arrayOfChars) {
             current = CHARS_PARSER.parse(nextChar, current);
         }
@@ -77,11 +76,11 @@ final class TypeWrapperBuilder {
     static TypeMetadata buildFromInnerTypeMetaData(InnerTypeMetaData typeWrapper) {
         String typeName = typeWrapper.getClassName();
         if (QUESTION_SIGN.equals(typeName)) {
-            return new TypeMetadata(Object.class, null);
+            return newTypeMetadata(Object.class, null);
         } else if (typeName.matches("^\\?extends(.)+")) {
             typeName = typeName.replace("?extends", EMPTY);
         } else if (typeName.matches("^\\?super(.)+")) {
-            return new TypeMetadata(Object.class, null);
+            return newTypeMetadata(Object.class, null);
         }
         if (hasArraySignature(typeName)) {
             return buildFromArrayClass(typeWrapper, typeName);
@@ -92,19 +91,18 @@ final class TypeWrapperBuilder {
             realClass = getFixedClassName(typeName);
         } catch (ReflectionOperationException exception) {
             if (typeWrapper.getAvailableContext() != null) {
-                Field originalField = typeWrapper.getOriginalField();
-                Class<?> fieldOwner = originalField.getDeclaringClass();
+                Class<?> fieldOwner = typeWrapper.getDeclaredInClass();
                 TypeMetadata availableContext = typeWrapper.getAvailableContext();
-                return availableContext.getTypeMetadataForField(fieldOwner, typeName);
+                return availableContext.getTypeMetadataByGenericLabel(fieldOwner, typeName);
             }
             throw new UnresolvedRealClassException(exception);
         }
-        return new TypeMetadata(realClass,
-                                buildGenericsList(typeWrapper.getGenericTypes()));
+        return newTypeMetadata(realClass,
+            buildGenericsList(typeWrapper.getGenericTypes()));
     }
 
     private static TypeMetadata buildFromArrayClass(InnerTypeMetaData typeWrapper,
-                                                    String rawCurrentClassName) {
+        String rawCurrentClassName) {
         Class<?> rawClassForArray = getFixedClassName(rawCurrentClassName);
         String currentClassName = rawClassForArray.getTypeName();
         String typeOfStoredInArray = currentClassName.replaceAll("(\\[])$", EMPTY);
@@ -113,10 +111,10 @@ final class TypeWrapperBuilder {
         if (hasArraySignature(typeOfStoredInArray)) {
             genericDataOfArray = buildFromArrayClass(typeWrapper, typeOfStoredInArray);
         } else {
-            genericDataOfArray = new TypeMetadata(getFixedClassName(typeOfStoredInArray),
-                                                  buildGenericsList(typeWrapper.getGenericTypes()));
+            genericDataOfArray = newTypeMetadata(getFixedClassName(typeOfStoredInArray),
+                buildGenericsList(typeWrapper.getGenericTypes()));
         }
-        return new TypeMetadata(rawClassForArray, singletonList(genericDataOfArray));
+        return newTypeMetadata(rawClassForArray, singletonList(genericDataOfArray));
     }
 
     private static boolean hasArraySignature(String className) {
@@ -125,9 +123,9 @@ final class TypeWrapperBuilder {
 
     static List<TypeMetadata> buildGenericsList(List<InnerTypeMetaData> generics) {
         return elements(generics)
-                .map(TypeWrapperBuilder::buildFromInnerTypeMetaData)
-                .filter(Objects::nonNull)
-                .asList();
+            .map(TypeWrapperBuilder::buildFromInnerTypeMetaData)
+            .filter(Objects::nonNull)
+            .asList();
     }
 
     private static Class<?> getFixedClassName(String className) {
@@ -136,11 +134,12 @@ final class TypeWrapperBuilder {
 
     @Data
     static class InnerTypeMetaData {
+
         private InnerTypeMetaData parent;
         @SuppressWarnings("PMD.AvoidStringBufferField")
         private final StringBuilder classNameBuilder = new StringBuilder();
         private final List<InnerTypeMetaData> genericTypes = new ArrayList<>();
-        private final Field originalField;
+        private final Class<?> declaredInClass;
         private final TypeMetadata availableContext;
 
         void addChild(InnerTypeMetaData innerTypeMetaData) {
@@ -159,10 +158,10 @@ final class TypeWrapperBuilder {
         public String toString() {
             String parentText = parent == null ? "null" : parent.getClassName();
             return "InnerTypeMetaData{"
-                   + "parent=" + parentText
-                   + ", className=" + getClassName()
-                   + ", genericTypes=" + genericTypes
-                   + '}';
+                + "parent=" + parentText
+                + ", className=" + getClassName()
+                + ", genericTypes=" + genericTypes
+                + '}';
         }
     }
 
@@ -175,15 +174,15 @@ final class TypeWrapperBuilder {
 
         InnerTypeMetaData parse(char nextChar, InnerTypeMetaData currentMetadata) {
             if (nextChar == START_GENERIC_CHAR) {
-                InnerTypeMetaData child = new InnerTypeMetaData(currentMetadata.getOriginalField(),
-                                                                currentMetadata.getAvailableContext());
+                InnerTypeMetaData child = new InnerTypeMetaData(currentMetadata.getDeclaredInClass(),
+                    currentMetadata.getAvailableContext());
                 currentMetadata.addChild(child);
                 child.setParent(currentMetadata);
                 return child;
             } else if (nextChar == COMMA_CHAR) {
                 InnerTypeMetaData parent = currentMetadata.getParent();
-                InnerTypeMetaData child = new InnerTypeMetaData(currentMetadata.getOriginalField(),
-                                                                currentMetadata.getAvailableContext());
+                InnerTypeMetaData child = new InnerTypeMetaData(currentMetadata.getDeclaredInClass(),
+                    currentMetadata.getAvailableContext());
                 parent.addChild(child);
                 child.setParent(parent);
                 return child;

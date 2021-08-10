@@ -1,24 +1,14 @@
 package pl.jalokim.utils.reflection;
 
-import junit.framework.TestCase;
-import org.junit.Test;
-import pl.jalokim.utils.reflection.beans.inheritiance.ClassWithoutDefConstr;
-import pl.jalokim.utils.reflection.beans.inheritiance.SecondLevelSomeConcreteObject;
-import pl.jalokim.utils.reflection.beans.inheritiance.SomeConcreteObject;
-import pl.jalokim.utils.reflection.beans.inheritiance.SuperAbstractObject;
-import pl.jalokim.utils.reflection.beans.inheritiance.SuperObject;
-
-import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.List;
-
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static pl.jalokim.utils.collection.Elements.elements;
 import static pl.jalokim.utils.reflection.InvokableReflectionUtils.getValueForStaticField;
 import static pl.jalokim.utils.reflection.InvokableReflectionUtils.getValueOfField;
 import static pl.jalokim.utils.reflection.InvokableReflectionUtils.invokeMethod;
 import static pl.jalokim.utils.reflection.InvokableReflectionUtils.invokeStaticMethod;
+import static pl.jalokim.utils.reflection.InvokableReflectionUtils.newInstance;
 import static pl.jalokim.utils.reflection.InvokableReflectionUtils.setValueForField;
 import static pl.jalokim.utils.reflection.InvokableReflectionUtils.setValueForStaticField;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getField;
@@ -28,6 +18,27 @@ import static pl.jalokim.utils.reflection.beans.inheritiance.SuperObject.getCAN_
 import static pl.jalokim.utils.reflection.beans.inheritiance.SuperObject.getSTATIC_FINAL_INTEGER;
 import static pl.jalokim.utils.reflection.beans.inheritiance.SuperObject.getSTATIC_FINAL_INTEGER2;
 import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.when;
+
+import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import junit.framework.TestCase;
+import lombok.Getter;
+import lombok.SneakyThrows;
+import org.junit.Test;
+import pl.jalokim.utils.reflection.beans.inheritiance.ClassWithoutDefConstr;
+import pl.jalokim.utils.reflection.beans.inheritiance.ExampleClass.TupleClassImpl2;
+import pl.jalokim.utils.reflection.beans.inheritiance.SecondLevelSomeConcreteObject;
+import pl.jalokim.utils.reflection.beans.inheritiance.SomeConcreteObject;
+import pl.jalokim.utils.reflection.beans.inheritiance.SuperAbstractObject;
+import pl.jalokim.utils.reflection.beans.inheritiance.SuperObject;
+import pl.jalokim.utils.test.DataFakerHelper;
 
 public class InvokableReflectionUtilsTest {
 
@@ -84,17 +95,17 @@ public class InvokableReflectionUtilsTest {
     public void cannotFindFieldInWholeHierarchy() {
         // given
         List<String> expectedClasses = asList(SecondLevelSomeConcreteObject.class.getCanonicalName(),
-                                              SomeConcreteObject.class.getCanonicalName(),
-                                              SuperObject.class.getCanonicalName(),
-                                              SuperAbstractObject.class.getCanonicalName(),
-                                              Object.class.getCanonicalName());
+            SomeConcreteObject.class.getCanonicalName(),
+            SuperObject.class.getCanonicalName(),
+            SuperAbstractObject.class.getCanonicalName(),
+            Object.class.getCanonicalName());
         try {
             SecondLevelSomeConcreteObject superObject = new SecondLevelSomeConcreteObject();
             // when
             setValueForField(superObject, "_some_field", NEW_VALUE);
             TestCase.fail();
             // then
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             assertThat(ex.getMessage()).isEqualTo("field '_some_field' not exist in classes: " + expectedClasses.toString());
             throw ex;
         }
@@ -109,8 +120,9 @@ public class InvokableReflectionUtilsTest {
             setValueForField(superObject, "privateField", new Object());
             TestCase.fail();
             // then
-        } catch(Exception ex) {
-            assertThat(ex.getCause().getMessage()).isEqualTo("Can not set java.lang.String field pl.jalokim.utils.reflection.beans.inheritiance.SuperObject.privateField to java.lang.Object");
+        } catch (Exception ex) {
+            assertThat(ex.getCause().getMessage())
+                .isEqualTo("Can not set java.lang.String field pl.jalokim.utils.reflection.beans.inheritiance.SuperObject.privateField to java.lang.Object");
             throw ex;
         }
     }
@@ -181,7 +193,8 @@ public class InvokableReflectionUtilsTest {
         when(() -> {
             Field foundField = getField(SuperObject.class, "STATIC_FINAL_INTEGER2");
             foundField.set(null, 123);
-        }).thenException(IllegalAccessException.class, "Class pl.jalokim.utils.reflection.InvokableReflectionUtilsTest can not access a member of class pl.jalokim.utils.reflection.beans.inheritiance.SuperObject with modifiers \"private static final\"");
+        }).thenException(IllegalAccessException.class,
+            "Class pl.jalokim.utils.reflection.InvokableReflectionUtilsTest can not access a member of class pl.jalokim.utils.reflection.beans.inheritiance.SuperObject with modifiers \"private static final\"");
     }
 
     @Test
@@ -222,9 +235,9 @@ public class InvokableReflectionUtilsTest {
         SecondLevelSomeConcreteObject instance = new SecondLevelSomeConcreteObject();
         // when
         String result = invokeMethod(instance,
-                                     "returnResultOf",
-                                     Arrays.asList(String.class, Object.class),
-                                     Arrays.asList("_1", 2));
+            "returnResultOf",
+            Arrays.asList(String.class, Object.class),
+            Arrays.asList("_1", 2));
         // then
         assertThat(result).isEqualTo("SecondLevelSomeConcreteObject" + "_1" + "2");
     }
@@ -275,9 +288,9 @@ public class InvokableReflectionUtilsTest {
         SecondLevelSomeConcreteObject instance = new SecondLevelSomeConcreteObject();
         // when
         Integer result = invokeMethod(instance, SuperObject.class,
-                                      "returnIntegerVal",
-                                      asList(String.class, Number.class),
-                                      asList("text", 1L));
+            "returnIntegerVal",
+            asList(String.class, Number.class),
+            asList("text", 1L));
         // then
         assertThat(result).isEqualTo(10);
     }
@@ -285,11 +298,11 @@ public class InvokableReflectionUtilsTest {
     @Test
     public void cannotInvokeNonStaticMethodWithoutTargetInstance() {
         when(() -> invokeMethod(null, SuperObject.class,
-                                "returnIntegerVal",
-                                asList(String.class, Number.class),
-                                asList("text", 1L)))
-                .thenException(
-                        new ReflectionOperationException("Cannot invoke non static method on null target object"));
+            "returnIntegerVal",
+            asList(String.class, Number.class),
+            asList("text", 1L)))
+            .thenException(
+                new ReflectionOperationException("Cannot invoke non static method on null target object"));
         SuperAbstractObject.reset();
     }
 
@@ -297,9 +310,9 @@ public class InvokableReflectionUtilsTest {
     public void invokePrivateStaticMethodFromSuperClassWithExplicitArgTypes() {
         // given
         Integer result = invokeStaticMethod(SuperObject.class,
-                                            "incrementValue",
-                                            singletonList(Number.class),
-                                            singletonList(12L));
+            "incrementValue",
+            singletonList(Number.class),
+            singletonList(12L));
         // then
         assertThat(result).isEqualTo(1);
     }
@@ -309,8 +322,8 @@ public class InvokableReflectionUtilsTest {
         // given
         String new_value = "new_value";
         invokeStaticMethod(SuperObject.class,
-                           "updateSTATIC_STRING",
-                           singletonList(new_value));
+            "updateSTATIC_STRING",
+            singletonList(new_value));
         // then
         assertThat(SuperAbstractObject.STATIC_STRING).isEqualTo(new_value);
     }
@@ -320,8 +333,8 @@ public class InvokableReflectionUtilsTest {
         // given
         String new_value = "new_value";
         invokeStaticMethod(SuperObject.class,
-                           "updateSTATIC_STRING",
-                           new_value);
+            "updateSTATIC_STRING",
+            new_value);
         // then
         assertThat(SuperAbstractObject.STATIC_STRING).isEqualTo(new_value);
     }
@@ -377,9 +390,9 @@ public class InvokableReflectionUtilsTest {
     @Test
     public void cannotFindNonStaticFieldWithoutTargetInstance() {
         when(() -> getValueForStaticField(SuperObject.class,
-                                          "anotherPrivateField"))
-                .thenException(
-                        new ReflectionOperationException("Cannot find non static field on null target object"));
+            "anotherPrivateField"))
+            .thenException(
+                new ReflectionOperationException("Cannot find non static field on null target object"));
         SuperAbstractObject.reset();
     }
 
@@ -438,8 +451,8 @@ public class InvokableReflectionUtilsTest {
     @Test
     public void cannotCreateObjectWithEmptyArguments() {
         when(() ->
-                     InvokableReflectionUtils.newInstance(ClassWithoutDefConstr.class)
-            ).thenException(ReflectionOperationException.class);
+            InvokableReflectionUtils.newInstance(ClassWithoutDefConstr.class)
+        ).thenException(ReflectionOperationException.class);
     }
 
     @Test
@@ -450,5 +463,344 @@ public class InvokableReflectionUtilsTest {
         SuperObject superObject = InvokableReflectionUtils.newInstance(SuperObject.class, var1);
         // then
         assertThat(superObject.getConstructorNr()).isEqualTo(3);
+    }
+
+    @Test
+    public void rethrowRuntimeExceptionDuringInvokeMethod() {
+        // given
+        ExampleClassWithMethods instance = new ExampleClassWithMethods();
+        Method errorProneMethod = findMethodByName("errorProneMethod");
+        // when
+        when(() -> {
+            invokeMethod(instance, errorProneMethod);
+            // then
+        }).thenException(IllegalStateException.class, "errorProneMethod invalid");
+    }
+
+    @Test
+    public void throwReflectionOperationExceptionDuringInvokeMethod() {
+        // given
+        ExampleClassWithMethods instance = new ExampleClassWithMethods();
+        Method errorProneMethod2 = findMethodByName("errorProneMethod2");
+        // when
+        when(() -> {
+            invokeMethod(instance, errorProneMethod2);
+            // then
+        }).thenException(ReflectionOperationException.class)
+            .thenNestedException(InvocationTargetException.class)
+            .thenNestedException(MyOwnException.class, "thrown not runtime exception");
+    }
+
+    @Test
+    public void returnRealValueFromMethod() {
+        // given
+        ExampleClassWithMethods instance = new ExampleClassWithMethods();
+        Method validMethod = findMethodByName("validMethod");
+        // when
+        String result = invokeMethod(instance, validMethod);
+        // then
+        assertThat(result).isEqualTo("string value");
+    }
+
+    @Test
+    public void invokeStaticMethodByMethodInstance() {
+        // given
+        Method staticIntMethod = findMethodByName("staticIntMethod");
+        // when
+        Integer result = invokeStaticMethod(staticIntMethod, 15);
+        // then
+        assertThat(result.equals(26)).isTrue();
+    }
+
+    @Test
+    public void setValueOnFieldByFieldInstance() throws NoSuchFieldException {
+        // given
+        ExampleClassWithMethods instance = new ExampleClassWithMethods();
+        Field field = ExampleClassWithMethods.class.getDeclaredField("someString");
+        assertThat(instance.someString).isNull();
+
+        // when
+        String fieldValue = DataFakerHelper.randomText();
+        setValueForField(instance, field, fieldValue);
+        // then
+        assertThat(instance.someString).isEqualTo(fieldValue);
+
+        // when
+        String result = getValueOfField(instance, field);
+        assertThat(result).isEqualTo(fieldValue);
+    }
+
+    @Test
+    public void setValueOnStaticFieldByFieldInstance() throws NoSuchFieldException {
+        // given
+        Field field = ExampleClassWithMethods.class.getDeclaredField("nextId");
+        assertThat(ExampleClassWithMethods.nextId).isNull();
+
+        // when
+        Integer fieldValue = DataFakerHelper.randomInteger();
+        setValueForStaticField(field, fieldValue);
+        // then
+        assertThat(ExampleClassWithMethods.nextId).isEqualTo(fieldValue);
+
+        // when
+        Integer result = getValueForStaticField(field);
+        assertThat(result).isEqualTo(fieldValue);
+    }
+
+    @Test
+    public void invokeExpectedMethodByNameAndGivenArgs() {
+        // given
+        ExampleClassWithMethods inExampleClassWithMethods = new ExampleClassWithMethods();
+        Integer someNumber = DataFakerHelper.randomInteger();
+        Double someDouble = 12.1;
+        String someText = DataFakerHelper.randomText();
+        SuperDog superDog = new SuperDog();
+        SuperCat superCat = new SuperCat();
+        Dog superBulldog = new SuperBulldog();
+        Dog bulldog = new Bulldog();
+        Cat cat = new Cat();
+
+        // when
+        String expected2 = invokeMethod(inExampleClassWithMethods, "overloadMethod", someNumber, someText);
+        // then
+        assertThat(expected2).isEqualTo("2");
+
+        // when
+        when(() -> invokeMethod(inExampleClassWithMethods, "overloadMethod", someDouble, superDog))
+            // then
+            .thenException(AmbiguousExecutableCallException.class,
+                "Found more than one method which match:",
+                getOverloadMethodByArgTypes(Number.class, Flyable.class).toString(),
+                getOverloadMethodByArgTypes(Number.class, Dog.class).toString());
+
+        // when
+        String result4 = invokeMethod(inExampleClassWithMethods, "overloadMethod", someDouble, superCat);
+
+        // then
+        assertThat(result4).isEqualTo("4");
+
+        // when
+        when(() -> invokeMethod(inExampleClassWithMethods, "overloadMethod", someDouble, inExampleClassWithMethods))
+            // then
+            .thenException(ReflectionOperationException.class)
+            .thenNestedException(NoSuchMethodException.class);
+
+        // when
+        String result7 = invokeMethod(inExampleClassWithMethods, "overloadMethod",
+            someDouble, superCat, cat, superDog);
+
+        // then
+        assertThat(result7).isEqualTo("7");
+
+        // when
+        String result5 = invokeMethod(inExampleClassWithMethods, "overloadMethod", someDouble, bulldog);
+
+        // then
+        assertThat(result5).isEqualTo("5");
+
+        // when
+        result4 = invokeMethod(inExampleClassWithMethods, "overloadMethod", someDouble, superBulldog);
+
+        // then
+        assertThat(result4).isEqualTo("4");
+    }
+
+    @Test
+    public void invokeMethodWhichHaveBetterMatchScore() {
+        // given
+        ExampleClassWithMethods inExampleClassWithMethods = new ExampleClassWithMethods();
+        SuperDog superDog = new SuperDog();
+        SuperCat superCat = new SuperCat();
+        Cat cat = new Cat();
+
+        // when
+        String result8 = invokeMethod(inExampleClassWithMethods, "overloadMethod", superCat, cat, superDog);
+        String result9 = invokeMethod(inExampleClassWithMethods, "overloadMethod", superCat, superDog, superDog);
+
+        // then
+        assertThat(result8).isEqualTo("8");
+        assertThat(result9).isEqualTo("9");
+    }
+
+    @Test
+    public void invokeMethodWhichHaveBetterMatchScoreByGenericsFields() {
+        // given
+        TupleClassImpl2 tupleClass = new TupleClassImpl2();
+
+        ArrayList<Number> listOfNumbers1 = new ArrayList<>(Arrays.asList(1, 2));
+        tupleClass.setValueOfF(listOfNumbers1);
+
+        ArrayList<Number> listOfNumbers2 = new ArrayList<>(Arrays.asList(3, 4));
+        ArrayList<Number> listOfNumbers3 = new ArrayList<>(Arrays.asList(5, 6));
+
+        tupleClass.setListOfF(Arrays.asList(listOfNumbers2, listOfNumbers3));
+
+        String justString = DataFakerHelper.randomText();
+        Map<List<Number>, String> map = new HashMap<>();
+
+        // when
+        List<Number> result = invokeMethod(tupleClass, "returnF", listOfNumbers1, map, justString);
+        // then
+        assertThat(result).isEqualTo(listOfNumbers1);
+    }
+
+    @Test
+    public void newInstanceByBestArgMatch() {
+        // given
+        SuperCat superCat = new SuperCat();
+        SuperBulldog superBulldog = new SuperBulldog();
+        SuperDog superDog = new SuperDog();
+        Cat cat = new Cat();
+        Bulldog bulldog = new Bulldog();
+
+        // when
+        Zoo zoo = newInstance(Zoo.class, superDog, superCat, superBulldog);
+
+        // then
+        assertThat(zoo.getConstrIndex()).isEqualTo(1);
+
+        // and
+        // when
+        zoo = newInstance(Zoo.class, superCat, superDog, cat);
+
+        // then
+        assertThat(zoo.getConstrIndex()).isEqualTo(2);
+
+        // and
+        // when
+        zoo = newInstance(Zoo.class, superDog, superCat, bulldog);
+
+        // then
+        assertThat(zoo.getConstrIndex()).isEqualTo(3);
+    }
+
+    @SneakyThrows
+    private Method getOverloadMethodByArgTypes(Class<?>... argTypes) {
+        return ExampleClassWithMethods.class.getDeclaredMethod("overloadMethod", argTypes);
+    }
+
+    private Method findMethodByName(String methodName) {
+        List<Method> methods = elements(ExampleClassWithMethods.class.getDeclaredMethods())
+            .filter(method -> method.getName().equals(methodName))
+            .asList();
+
+        if (methods.size() != 1) {
+            throw new IllegalStateException("Found more than one method");
+        }
+        return methods.get(0);
+    }
+
+    private static class ExampleClassWithMethods {
+
+        static Integer nextId;
+        String someString;
+
+        public String validMethod() {
+            return "string value";
+        }
+
+        public void errorProneMethod() {
+            throw new IllegalStateException("errorProneMethod invalid");
+        }
+
+        public void errorProneMethod2() throws MyOwnException {
+            throw new MyOwnException();
+        }
+
+        private static Integer staticIntMethod(int arg) {
+            return 11 + arg;
+        }
+
+        public String overloadMethod(Number number, CharSequence text) {
+            return "1";
+        }
+
+        public String overloadMethod(Number number, String text) {
+            return "2";
+        }
+
+        public String overloadMethod(Number number, Serializable serializable) {
+            return "3";
+        }
+
+        public String overloadMethod(Number number, Flyable flyable) {
+            return "4";
+        }
+
+        public String overloadMethod(Number number, Dog dog) {
+            return "5";
+        }
+
+        public String overloadMethod(Number number, Animal animal) {
+            return "6";
+        }
+
+        public String overloadMethod(Number number, Animal animal, Animal animal2, Flyable flyable) {
+            return "7";
+        }
+
+        public String overloadMethod(Animal animal, Cat cat, Dog dog) {
+            return "8";
+        }
+        public String overloadMethod(Animal animal, Animal cat, Dog dog) {
+            return "9";
+        }
+    }
+
+    public static class MyOwnException extends Exception {
+
+        public MyOwnException() {
+            super("thrown not runtime exception");
+        }
+    }
+
+    public static class Animal {
+
+    }
+
+    public interface Flyable {
+
+    }
+
+    public static class Dog extends Animal {
+
+    }
+
+    public static class Bulldog extends Dog {
+
+    }
+
+    public static class SuperBulldog extends Bulldog implements Flyable {
+
+    }
+
+    public static class SuperDog extends Dog implements Flyable {
+
+    }
+
+    public static class Cat extends Animal {
+
+    }
+
+    public static class SuperCat extends Cat implements Flyable {
+
+    }
+
+    @Getter
+    public static class Zoo {
+
+        private final int constrIndex;
+
+        private Zoo(Dog dog, Cat cat, Flyable flyable) {
+            constrIndex = 1;
+        }
+
+        private Zoo(Animal animal, Animal animal2, Animal animal3) {
+            constrIndex = 2;
+        }
+
+        private Zoo(Dog dog, Cat cat, Dog dog2) {
+            constrIndex = 3;
+        }
     }
 }

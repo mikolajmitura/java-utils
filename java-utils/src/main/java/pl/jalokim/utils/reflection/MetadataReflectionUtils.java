@@ -8,26 +8,34 @@ import static pl.jalokim.utils.collection.CollectionUtils.filterToSet;
 import static pl.jalokim.utils.collection.CollectionUtils.mapToList;
 import static pl.jalokim.utils.collection.Elements.elements;
 import static pl.jalokim.utils.reflection.ClassNameFixer.fixClassName;
+import static pl.jalokim.utils.reflection.ExecutableByArgsFinder.findConstructor;
 import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildForArrayField;
 import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildFromClass;
 import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildFromField;
 import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildFromType;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.Period;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.ClassUtils;
 import org.reflections.Reflections;
 import pl.jalokim.utils.string.StringUtils;
@@ -35,7 +43,7 @@ import pl.jalokim.utils.string.StringUtils;
 /**
  * Gather some metadata about classes.
  */
-@SuppressWarnings("PMD.GodClass")
+@SuppressWarnings({"PMD.GodClass", "PMD.CouplingBetweenObjects"})
 public final class MetadataReflectionUtils {
 
     private static final List<Class<?>> SIMPLE_CLASSES = createSimpleClassesList();
@@ -57,6 +65,10 @@ public final class MetadataReflectionUtils {
         classes.add(LocalDateTime.class);
         classes.add(LocalTime.class);
         classes.add(ZonedDateTime.class);
+        classes.add(OffsetDateTime.class);
+        classes.add(Duration.class);
+        classes.add(Period.class);
+        classes.add(Instant.class);
         return unmodifiableList(classes);
     }
 
@@ -72,11 +84,10 @@ public final class MetadataReflectionUtils {
     }
 
     /**
-     * Returns lang.reflect.Field for given target object and fieldName.
-     * It searches for first mach field in class hierarchy.
+     * Returns lang.reflect.Field for given target object and fieldName. It searches for first mach field in class hierarchy.
      *
      * @param targetObject object from which we will start searching.
-     * @param fieldName    name of object property.
+     * @param fieldName name of object property.
      * @return instance of Field.
      */
     public static Field getField(Object targetObject, String fieldName) {
@@ -84,11 +95,10 @@ public final class MetadataReflectionUtils {
     }
 
     /**
-     * Returns lang.reflect.Field for given target class and fieldName.
-     * It searches for first mach field in class hierarchy.
+     * Returns lang.reflect.Field for given target class and fieldName. It searches for first mach field in class hierarchy.
      *
      * @param targetClass class from which will start searching.
-     * @param fieldName   name of object property.
+     * @param fieldName name of object property.
      * @return instance of Field.
      */
     public static Field getField(Class<?> targetClass, String fieldName) {
@@ -108,7 +118,8 @@ public final class MetadataReflectionUtils {
         }
 
         if (foundField == null) {
-            throw new ReflectionOperationException("field '" + fieldName + "' not exist in classes: " + mapToList(searchedClasses, Class::getCanonicalName));
+            throw new ReflectionOperationException("field '" + fieldName + "' not exist in classes: "
+                + mapToList(searchedClasses, Class::getCanonicalName));
         }
         return foundField;
     }
@@ -130,25 +141,47 @@ public final class MetadataReflectionUtils {
      * It returns method for given target object.
      *
      * @param targetObject instance for which will start looking for method in object hierarchy.
-     * @param methodName   method name.
-     * @param argClasses   types of arguments.
+     * @param methodName method name.
+     * @param argClasses types of arguments.
      * @return instance of method.
      */
-    public static Method getMethod(Object targetObject, String methodName,
-                                   Class<?>... argClasses) {
+    public static Method getMethod(Object targetObject, String methodName, Class<?>... argClasses) {
         return getMethod(targetObject.getClass(), methodName, argClasses);
     }
 
     /**
      * It returns method for given target object.
      *
-     * @param targetClass target class for which will start looking for method in object hierarchy.
-     * @param methodName  method name.
-     * @param argClasses  types of arguments.
+     * @param targetObject instance for which will start looking for method in object hierarchy.
+     * @param methodName method name.
+     * @param argClasses types of arguments.
      * @return instance of method.
      */
-    public static Method getMethod(Class<?> targetClass, String methodName,
-                                   Class<?>... argClasses) {
+    public static Method getMethod(Object targetObject, String methodName, List<Class<?>> argClasses) {
+        return getMethod(targetObject.getClass(), methodName, argClasses.toArray(new Class<?>[0]));
+    }
+
+    /**
+     * It returns method for given target object.
+     *
+     * @param targetClass instance class for which will start looking for method in object hierarchy.
+     * @param methodName method name.
+     * @param argClasses types of arguments.
+     * @return instance of method.
+     */
+    public static Method getMethod(Class<?> targetClass, String methodName, List<Class<?>> argClasses) {
+        return getMethod(targetClass, methodName, argClasses.toArray(new Class<?>[0]));
+    }
+
+    /**
+     * It returns method for given target object.
+     *
+     * @param targetClass target class for which will start looking for method in object hierarchy.
+     * @param methodName method name.
+     * @param argClasses types of arguments.
+     * @return instance of method.
+     */
+    public static Method getMethod(Class<?> targetClass, String methodName, Class<?>... argClasses) {
         Method method = null;
         Class<?> currentClass = targetClass;
         List<String> noSuchMethodExceptions = new ArrayList<>();
@@ -164,6 +197,8 @@ public final class MetadataReflectionUtils {
             currentClass = currentClass.getSuperclass();
         }
 
+        method = Optional.ofNullable(method)
+            .orElseGet(() -> ExecutableByArgsFinder.findMethod(targetClass, methodName, argClasses));
         if (method == null) {
             throw new ReflectionOperationException(new NoSuchMethodException(StringUtils.concatElementsAsLines(noSuchMethodExceptions)));
         }
@@ -171,13 +206,40 @@ public final class MetadataReflectionUtils {
     }
 
     /**
-     * It will search for all classes which inherit from provided super type.
-     * It will not add to result class for superType argument. It can add abstract classes to result or not.
+     * Get Constructor instance of target class with expected argument types
      *
-     * @param superType           super type which will not added to result set.
-     * @param packageDefinition   package from which will search for child classes.
+     * @param targetClass for this class will be returned Constructor
+     * @param argsClasses types of constructor arguments
+     * @return instance of Constructor
+     */
+    public static Constructor<?> getConstructor(Class<?> targetClass, Class<?>... argsClasses) {
+        try {
+            return targetClass.getDeclaredConstructor(argsClasses);
+        } catch (NoSuchMethodException noSuchConstructor) {
+            return Optional.ofNullable(findConstructor(targetClass, argsClasses))
+                .orElseThrow(() -> new ReflectionOperationException("Cannot find constructor", noSuchConstructor));
+        }
+    }
+
+    /**
+     * Get Constructor instance of target instance with expected argument types
+     *
+     * @param targetInstance for this instance class will be returned Constructor
+     * @param argsClasses types of constructor arguments
+     * @return instance of Constructor
+     */
+    public static Constructor<?> getConstructor(Object targetInstance, Class<?>... argsClasses) {
+        return getConstructor(targetInstance.getClass(), argsClasses);
+    }
+
+    /**
+     * It will search for all classes which inherit from provided super type. It will not add to result class for superType argument. It can add abstract
+     * classes to result or not.
+     *
+     * @param superType super type which will not added to result set.
+     * @param packageDefinition package from which will search for child classes.
      * @param withAbstractClasses by this flag depends that result set will have abstract classes in result set.
-     * @param <T>                 generic type of super type of class.
+     * @param <T> generic type of super type of class.
      * @return result set with child classes for super class, without super class instance.
      */
     public static <T> Set<Class<? extends T>> getAllChildClassesForClass(Class<T> superType, String packageDefinition, boolean withAbstractClasses) {
@@ -196,8 +258,8 @@ public final class MetadataReflectionUtils {
     }
 
     /**
-     * It checks that given field is simple type.
-     * If is primitive or class of field inherits from some classes from {@link MetadataReflectionUtils#SIMPLE_CLASSES}
+     * It checks that given field is simple type. If is primitive or class of field inherits from some classes from {@link
+     * MetadataReflectionUtils#SIMPLE_CLASSES}
      *
      * @param field field which will be verified.
      * @return boolean value
@@ -207,8 +269,7 @@ public final class MetadataReflectionUtils {
     }
 
     /**
-     * It checks that given class is simple type.
-     * If is primitive or class inherits from some classes from {@link MetadataReflectionUtils#SIMPLE_CLASSES}
+     * It checks that given class is simple type. If is primitive or class inherits from some classes from {@link MetadataReflectionUtils#SIMPLE_CLASSES}
      *
      * @param someClass class which will be verified.
      * @return boolean value
@@ -218,8 +279,8 @@ public final class MetadataReflectionUtils {
     }
 
     /**
-     * It checks that given field is number type.
-     * If is primitive or class of field inherits from some classes from {@link MetadataReflectionUtils#SIMPLE_NUMBERS}
+     * It checks that given field is number type. If is primitive or class of field inherits from some classes from {@link
+     * MetadataReflectionUtils#SIMPLE_NUMBERS}
      *
      * @param field field which will be verified.
      * @return boolean value
@@ -229,8 +290,7 @@ public final class MetadataReflectionUtils {
     }
 
     /**
-     * It checks that given class is number type.
-     * If is primitive or class inherit from some class from {@link MetadataReflectionUtils#SIMPLE_NUMBERS}
+     * It checks that given class is number type. If is primitive or class inherit from some class from {@link MetadataReflectionUtils#SIMPLE_NUMBERS}
      *
      * @param someClass class which will be verified.
      * @return boolean value
@@ -330,13 +390,14 @@ public final class MetadataReflectionUtils {
     }
 
     /**
-     * It checks that given class is array or collection type.
+     * It checks that given class is array, collection, map or stream.
      *
      * @param someClass class which will be verified.
      * @return boolean value
      */
     public static boolean isHavingElementsType(Class<?> someClass) {
-        return isCollectionType(someClass) || isArrayType(someClass);
+        return isCollectionType(someClass) || isArrayType(someClass)
+            || isMapType(someClass) || Stream.class.isAssignableFrom(someClass);
     }
 
     /**
@@ -376,13 +437,11 @@ public final class MetadataReflectionUtils {
     }
 
     /**
-     * It returns a type of generic object by given index.
-     * It uses native {@link java.lang.Class} not {@link java.lang.reflect.Type} class from target object.
+     * It returns a type of generic object by given index. It uses native {@link java.lang.Class} not {@link java.lang.reflect.Type} class from target object.
      * It search for first super class which contains generic types if cannot find that one then trow exception.
      *
-     *
      * @param targetObject instance object for which will be returned class for generic type.
-     * @param index        of wanted generic type
+     * @param index of wanted generic type
      * @return type of generic type from field from specified index.
      */
     @Deprecated
@@ -391,12 +450,12 @@ public final class MetadataReflectionUtils {
     }
 
     /**
-     * It returns a type of generic class by given index.
-     * It search for first super class which contains generic types if cannot find that one then trow exception.
-     * Better option is use method {@link #getTypeMetadataFromClass(Class)} then you can verify which class in hierarchy has which class as generic types.
+     * It returns a type of generic class by given index. It search for first super class which contains generic types if cannot find that one then trow
+     * exception. Better option is use method {@link #getTypeMetadataFromClass(Class)} then you can verify which class in hierarchy has which class as generic
+     * types.
      *
      * @param originalClass class for which will be returned class for generic type.
-     * @param index         of wanted generic type
+     * @param index of wanted generic type
      * @return type of generic type from field from specified index.
      */
     @Deprecated
@@ -406,7 +465,7 @@ public final class MetadataReflectionUtils {
         while (currentClass != null) {
             try {
                 return (Class<?>) ((ParameterizedType) currentClass
-                        .getGenericSuperclass()).getActualTypeArguments()[index];
+                    .getGenericSuperclass()).getActualTypeArguments()[index];
             } catch (Exception ex) {
                 currentClass = currentClass.getSuperclass();
                 exception = ex;
@@ -416,8 +475,7 @@ public final class MetadataReflectionUtils {
     }
 
     /**
-     * It returns raw class, under the hood is used apache lang3.
-     * When cannot find class name then throws ReflectionOperationException
+     * It returns raw class, under the hood is used apache lang3. When cannot find class name then throws ReflectionOperationException
      *
      * @param className name of class
      * @return instance Of class
@@ -431,9 +489,7 @@ public final class MetadataReflectionUtils {
     }
 
     /**
-     * It returns some parametrized types for given class.
-     * But it not search in whole hierarchy of provided class.
-     * It returns only for certain class.
+     * It returns some parametrized types for given class. But it not search in whole hierarchy of provided class. It returns only for certain class.
      *
      * @param someClass instance of certain class
      * @return list of parametrized types.
@@ -442,16 +498,15 @@ public final class MetadataReflectionUtils {
         TypeVariable<? extends Class<?>>[] typeParameters = someClass.getTypeParameters();
         if (!isEnumType(someClass) && typeParameters.length > 0) {
             List<Type> types = new ArrayList<>(elements(typeParameters)
-                                                       .asList());
+                .asList());
             return unmodifiableList(types);
         }
         return emptyList();
     }
 
     /**
-     * It builds metadata for provided class.
-     * It resolves generic types for this class and for them super classes.
-     * But it cannot be used for class which doesn't have parametrized real types.
+     * It builds metadata for provided class. It resolves generic types for this class and for them super classes. But it cannot be used for class which doesn't
+     * have parametrized real types.
      *
      * @param someClass instance of class which has provided all generic types as real class
      * @return instance of TypeMetadata
@@ -462,6 +517,7 @@ public final class MetadataReflectionUtils {
 
     /**
      * It build metadata from provided field but field needs to have all generic types as real classes.
+     *
      * @param field field with all generic types as real classes.
      * @return instance of TypeMetadata built upon field
      */
@@ -470,13 +526,14 @@ public final class MetadataReflectionUtils {
             return buildFromField(field);
         } catch (UnresolvedRealClassException ex) {
             throw new UnresolvedRealClassException(
-                    format("Cannot resolve some type for field: %s for class: %s",
-                                  field.getName(), field.getDeclaringClass().getCanonicalName()), ex);
+                format("Cannot resolve some type for field: %s for class: %s",
+                    field.getName(), field.getDeclaringClass().getCanonicalName()), ex);
         }
     }
 
     /**
      * It returns generic type from certain field by index.
+     *
      * @param field for which should be resolved instance of type metadata under provided index.
      * @param index index of generic type in field.
      * @return instance of TypeMetadata from generic type under provided index in provided field.
@@ -488,6 +545,7 @@ public final class MetadataReflectionUtils {
 
     /**
      * It build metadata from simple type. Type should contains already info about real classes.
+     *
      * @param type type with real class name for generic types.
      * @return metadata built on provided type.
      */
@@ -500,8 +558,7 @@ public final class MetadataReflectionUtils {
     }
 
     /**
-     * It returns metadata of type stored in field which is array type.
-     * It returns metadata for type of array.
+     * It returns metadata of type stored in field which is array type. It returns metadata for type of array.
      *
      * @param field array field
      * @return metadata for stored type in provided array field.

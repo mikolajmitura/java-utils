@@ -1,6 +1,7 @@
 package pl.jalokim.utils.reflection;
 
 import static pl.jalokim.utils.collection.CollectionUtils.mapToList;
+import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getConstructor;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getField;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getMethod;
 
@@ -15,7 +16,7 @@ import java.util.List;
 /**
  * Set of utils methods for set value, get value for field, invoke methods etc by reflection.
  */
-@SuppressWarnings({"SuppressWarnings", "unchecked"})
+@SuppressWarnings({"SuppressWarnings", "unchecked", "PMD.GodClass"})
 public final class InvokableReflectionUtils {
 
     private InvokableReflectionUtils() {
@@ -53,22 +54,33 @@ public final class InvokableReflectionUtils {
     public static void setValueForField(Object targetObject, Class<?> targetClass,
                                         String fieldName, Object newValue) {
         Field foundField = getField(targetClass, fieldName);
+        setValueForField(targetObject, foundField, newValue);
+    }
+
+    /**
+     * It set value of field
+     *
+     * @param targetObject in this instance field value will be changed
+     * @param field instance field to change
+     * @param newValue is new value for above field.
+     */
+    public static void setValueForField(Object targetObject, Field field, Object newValue) {
         try {
             Field modifiersField = null;
             int oldModifiers = -1;
-            if (Modifier.isFinal(foundField.getModifiers())) {
+            if (Modifier.isFinal(field.getModifiers())) {
                 modifiersField = Field.class.getDeclaredField("modifiers");
-                oldModifiers = foundField.getModifiers();
+                oldModifiers = field.getModifiers();
                 modifiersField.setAccessible(true);
-                modifiersField.setInt(foundField, foundField.getModifiers() & ~Modifier.FINAL);
+                modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
             }
-            foundField.setAccessible(true);
-            foundField.set(targetObject, newValue);
+            field.setAccessible(true);
+            field.set(targetObject, newValue);
             if (modifiersField != null) {
-                modifiersField.setInt(foundField, oldModifiers);
+                modifiersField.setInt(field, oldModifiers);
                 modifiersField.setAccessible(false);
             }
-            foundField.setAccessible(false);
+            field.setAccessible(false);
         } catch (Exception e) {
             throw new ReflectionOperationException(e);
         }
@@ -88,6 +100,16 @@ public final class InvokableReflectionUtils {
     public static void setValueForStaticField(Class<?> targetClass,
                                               String fieldName, Object newValue) {
         setValueForField(null, targetClass, fieldName, newValue);
+    }
+
+    /**
+     * It sets value of static field
+     *
+     * @param field instance of static field
+     * @param newValue is new value to set on field
+     */
+    public static void setValueForStaticField(Field field, Object newValue) {
+        setValueForField(null, field, newValue);
     }
 
     /**
@@ -113,8 +135,20 @@ public final class InvokableReflectionUtils {
      * @param <T>          expected return type
      * @return value from field.
      */
-    public static <T> T getValueOfField(Object targetObject, Class targetClass, String fieldName) {
+    public static <T> T getValueOfField(Object targetObject, Class<?> targetClass, String fieldName) {
         Field field = getField(targetClass, fieldName);
+        return getValueOfField(targetObject, field);
+    }
+
+    /**
+     * It get value of given field from targetObject
+     *
+     * @param targetObject from this instance will be get field value
+     * @param field instance of field
+     * @param <T> expected return type
+     * @return value from field.
+     */
+    public static <T> T getValueOfField(Object targetObject, Field field) {
         if (!Modifier.isStatic(field.getModifiers()) && targetObject == null) {
             throw new ReflectionOperationException("Cannot find non static field on null target object");
         }
@@ -138,8 +172,19 @@ public final class InvokableReflectionUtils {
      * @param <T>         expected return type
      * @return value from field.
      */
-    public static <T> T getValueForStaticField(Class targetClass, String fieldName) {
+    public static <T> T getValueForStaticField(Class<?> targetClass, String fieldName) {
         return getValueOfField(null, targetClass, fieldName);
+    }
+
+    /**
+     * It get value of given static field
+     *
+     * @param field from which will be get value
+     * @param <T> expected return type
+     * @return value from field.
+     */
+    public static <T> T getValueForStaticField(Field field) {
+        return getValueOfField(null, field);
     }
 
     /**
@@ -235,7 +280,6 @@ public final class InvokableReflectionUtils {
      * @return return result of invoked method.
      */
     public static <T> T invokeMethod(Object target, Class<?> targetClass, String methodName, Object... args) {
-
         List<Class<?>> argClasses = mapToList(Object::getClass, args);
         return invokeMethod(target, targetClass, methodName, argClasses, Arrays.asList(args));
     }
@@ -256,8 +300,38 @@ public final class InvokableReflectionUtils {
      * @return return result of invoked method.
      */
     public static <T> T invokeMethod(Object target, Class<?> targetClass, String methodName,
-                                     List<Class<?>> argClasses, List<Object> args) {
+        List<Class<?>> argClasses, List<Object> args) {
         Method method = getMethod(targetClass, methodName, argClasses.toArray(new Class[0]));
+        return invokeMethod(target, method, args);
+    }
+
+    /**
+     * It invokes on target object given method with list of arguments.
+     * It is useful for private method which is hidden in super class. But our concrete class has the same signature and the same name
+     * If target is null, then it will invoke it as static method.
+     *
+     * @param target      on that instance will be invoked method
+     * @param method      on that method will be invoked
+     * @param args        list of arguments for method.
+     * @param <T>         type of returned object.
+     * @return return result of invoked method.
+     */
+    public static <T> T invokeMethod(Object target, Method method, Object... args) {
+        return invokeMethod(target, method, Arrays.asList(args));
+    }
+
+    /**
+     * It invokes on target object given method with list of arguments.
+     * It is useful for private method which is hidden in super class. But our concrete class has the same signature and the same name
+     * If target is null, then it will invoke it as static method.
+     *
+     * @param target      on that instance will be invoked method
+     * @param method      on that method will be invoked
+     * @param args        list of arguments for method.
+     * @param <T>         type of returned object.
+     * @return return result of invoked method.
+     */
+    public static <T> T invokeMethod(Object target, Method method, List<Object> args) {
         if (!Modifier.isStatic(method.getModifiers()) && target == null) {
             throw new ReflectionOperationException("Cannot invoke non static method on null target object");
         }
@@ -267,6 +341,9 @@ public final class InvokableReflectionUtils {
             method.setAccessible(false);
             return result;
         } catch (ReflectiveOperationException e) {
+            if (e.getCause() != null && e.getCause() instanceof RuntimeException) {
+                throw (RuntimeException) e.getCause();
+            }
             throw new ReflectionOperationException(e);
         }
     }
@@ -322,6 +399,18 @@ public final class InvokableReflectionUtils {
     }
 
     /**
+     *It invokes static method with given arguments
+     *
+     * @param method which will be invoked
+     * @param args for method
+     * @param <T> type of result of method
+     * @return return result of method
+     */
+    public static <T> T invokeStaticMethod(Method method, Object... args) {
+        return invokeMethod(null, method, args);
+    }
+
+    /**
      * It create instance of object based on below arguments.
      *
      * @param type        expected type
@@ -345,7 +434,7 @@ public final class InvokableReflectionUtils {
      */
     public static <T> T newInstance(Class<T> type, List<Class<?>> argsClasses, Object... args) {
         try {
-            Constructor<T> constructor = type.getDeclaredConstructor(argsClasses.toArray(new Class<?>[0]));
+            Constructor<T> constructor = (Constructor<T>) getConstructor(type, argsClasses.toArray(new Class<?>[0]));
             constructor.setAccessible(true);
             T instance = constructor.newInstance(args);
             constructor.setAccessible(false);

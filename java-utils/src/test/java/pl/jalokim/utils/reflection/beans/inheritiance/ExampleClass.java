@@ -1,20 +1,31 @@
 package pl.jalokim.utils.reflection.beans.inheritiance;
 
 
-import lombok.Data;
-import lombok.Getter;
-
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.time.DayOfWeek;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.Period;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import pl.jalokim.utils.collection.Elements;
 
 @Data
 public class ExampleClass {
+
     private Event[] events;
     private List<Event> eventsAsList;
     private TransactionType[] transactionTypes;
@@ -62,6 +73,12 @@ public class ExampleClass {
     private StringTuple<NextObject, Map<Number, List<String>>> stringTupleNexObject;
     private ConcreteClass[][][] threeDimConcreteArray;
     private StringTuple<RawTuple<List<Map<String, RawTuple<ConcreteClass[][][]>>>[][][]>, Map<Number, List<String>>>[][] superMixedArray;
+    private Stream<String> someStream;
+    private Elements<String> someElements;
+    private OffsetDateTime offsetDateTimeField;
+    private Duration durationField;
+    private Period periodField;
+    private Instant instantField;
 
     public void checkTypesOfStringTupleNexObject() {
         Map<Number, List<String>> rawValueE = stringTupleNexObject.getRawValueE();
@@ -77,12 +94,14 @@ public class ExampleClass {
     }
 
     public static class IntegerInfo {
+
         private String string;
         private byte simpleByte;
         private NextObject nextObject;
     }
 
     public static class NextObject {
+
         private String value;
         private Integer intValue;
         private Integer channel;
@@ -94,6 +113,7 @@ public class ExampleClass {
     }
 
     public static class ClassForTest2 {
+
         private Map<String, IntegerInfo> integerInfoByNumber;
     }
 
@@ -101,21 +121,76 @@ public class ExampleClass {
 
     }
 
+    public interface GenericInterface<D, U> {
+
+        D convertFromU(U value);
+    }
+
+    public interface OtherInterface<D, U> {
+
+        D convertFromU(U value, D value2);
+    }
+
     @Getter
-    public static class TupleClass<T, F> extends RawTuple<F> {
+    @Setter
+    public static class TupleClass<T, F> extends RawTuple<F> implements GenericInterface<T, F>, OtherInterface<List<T>, F> {
+
         private T valueOfT;
         private F valueOfF;
         private List<F> listOfF;
+
+        @SomeAnnotation
+        public TupleClass(T valueOfT, @OtherAnnotation F valueOfF) {
+            this.valueOfT = valueOfT;
+            this.valueOfF = valueOfF;
+        }
+
+        public TupleClass() {
+        }
+
+        public F returnF(@SomeAnnotation @OtherAnnotation List<Number> arArg0,
+            HashMap<F, T> mapOfFAndT, CharSequence string) {
+            return listOfF.get(0);
+        }
+
+        @SomeAnnotation
+        public F returnF(@SomeAnnotation @OtherAnnotation F arArg,
+            Map<F, T> mapOfFAndT, String string) {
+            return valueOfF;
+        }
+
+        @Override
+        public T convertFromU(F value) {
+            return null;
+        }
+
+        @Override
+        public List<T> convertFromU(F value, List<T> value2) {
+            return null;
+        }
     }
 
     @Getter
     public static class RawTuple<E> {
+
         private E rawValueE;
         private TupleClass tupleClassRaw;
     }
 
     public static class TupleClassImpl extends TupleClass<String, List<Number>> {
 
+    }
+
+    public static class TupleClassImpl2 extends TupleClass<String, ArrayList<Number>> {
+
+        @SomeAnnotation
+        public TupleClassImpl2(String valueOfT, @OtherAnnotation @SomeAnnotation ArrayList<Number> valueOfF) {
+            super(valueOfT, valueOfF);
+        }
+
+        public TupleClassImpl2() {
+            super();
+        }
     }
 
     public static class InvalidTupleExtension extends TupleClass {
@@ -128,11 +203,13 @@ public class ExampleClass {
 
     @Getter
     public static class StringTuple<A, G> extends TupleClass<String, G> {
+
         private A fromStringA;
     }
 
     @Getter
     public static class ConcreteClass extends StringTuple<String, NextObject> {
+
         @Override
         public NextObject getRawValueE() {
             return super.getRawValueE();
@@ -142,5 +219,15 @@ public class ExampleClass {
         public List<NextObject> getListOfF() {
             return super.getListOfF();
         }
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface SomeAnnotation {
+
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface OtherAnnotation {
+
     }
 }

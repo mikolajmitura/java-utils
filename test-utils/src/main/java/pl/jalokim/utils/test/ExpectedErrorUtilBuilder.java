@@ -19,10 +19,25 @@ public class ExpectedErrorUtilBuilder {
     /**
      * pass some code which will throw some exception.
      *
+     *
      * @param instruction some code which can throw exception
      * @return instance of ExpectedErrorUtilBuilder on which you can assert thrown exception, message of them or
      * assert nested exception of thrown exception with message of them.
      */
+    public static ExpectedErrorUtilBuilder assertException(ThrowableRunnable instruction) {
+        return new ExpectedErrorUtilBuilder(instruction);
+    }
+
+    /**
+     * Use method {@link #assertException} because this name can cause conflict names with Mockito.
+     * pass some code which will throw some exception.
+     *
+     *
+     * @param instruction some code which can throw exception
+     * @return instance of ExpectedErrorUtilBuilder on which you can assert thrown exception, message of them or
+     * assert nested exception of thrown exception with message of them.
+     */
+    @Deprecated
     public static ExpectedErrorUtilBuilder when(ThrowableRunnable instruction) {
         return new ExpectedErrorUtilBuilder(instruction);
     }
