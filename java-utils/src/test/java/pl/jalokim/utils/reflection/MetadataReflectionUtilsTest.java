@@ -27,6 +27,7 @@ import java.util.Set;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getAllChildClassesForClass;
+import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getConstructor;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getField;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getMethod;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getParametrizedRawTypes;
@@ -50,7 +51,7 @@ import static pl.jalokim.utils.reflection.TypeMetadataAssertionUtils.TypeMetadat
 import static pl.jalokim.utils.reflection.TypeMetadataAssertionUtils.assertTypeMetadata;
 import static pl.jalokim.utils.string.StringUtils.concat;
 import static pl.jalokim.utils.string.StringUtils.concatElements;
-import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.when;
+import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.assertException;
 
 public class MetadataReflectionUtilsTest {
 
@@ -149,10 +150,10 @@ public class MetadataReflectionUtilsTest {
         // given
         Field eventsAsListField = getField(ExampleClass.class, "eventsAsList");
         // when
-        when(() -> {
+        assertException(() -> {
             getTypeOfArrayField(eventsAsListField);
         }).thenException(ReflectionOperationException.class,
-                         String.format("field: '%s' is not array type, is type: %s", eventsAsListField, eventsAsListField.getType()));
+            String.format("field: '%s' is not array type, is type: %s", eventsAsListField, eventsAsListField.getType()));
     }
 
     @Test
@@ -178,15 +179,15 @@ public class MetadataReflectionUtilsTest {
         // given
         ThirdLevelConcrClass thirdLevelConcrClass = new ThirdLevelConcrClass();
         // when
-        when(() ->
-                     getMethod(thirdLevelConcrClass, "someMethod", Integer.class, Integer.class)
-            ).thenException(ReflectionOperationException.class,
-                            "java.lang.NoSuchMethodException: pl.jalokim.utils.reflection.beans.inheritiance.innerpack.ThirdLevelConcrClass.someMethod(java.lang.Integer, java.lang.Integer)",
-                            "pl.jalokim.utils.reflection.beans.inheritiance.SecondLevelSomeConcreteObject.someMethod(java.lang.Integer, java.lang.Integer)",
-                            "pl.jalokim.utils.reflection.beans.inheritiance.SomeConcreteObject.someMethod(java.lang.Integer, java.lang.Integer)",
-                            "pl.jalokim.utils.reflection.beans.inheritiance.SuperObject.someMethod(java.lang.Integer, java.lang.Integer)",
-                            "pl.jalokim.utils.reflection.beans.inheritiance.SuperAbstractObject.someMethod(java.lang.Integer, java.lang.Integer)",
-                            "java.lang.Object.someMethod(java.lang.Integer, java.lang.Integer)");
+        assertException(() ->
+            getMethod(thirdLevelConcrClass, "someMethod", Integer.class, Integer.class)
+        ).thenException(ReflectionOperationException.class,
+            "java.lang.NoSuchMethodException: pl.jalokim.utils.reflection.beans.inheritiance.innerpack.ThirdLevelConcrClass.someMethod(java.lang.Integer, java.lang.Integer)",
+            "pl.jalokim.utils.reflection.beans.inheritiance.SecondLevelSomeConcreteObject.someMethod(java.lang.Integer, java.lang.Integer)",
+            "pl.jalokim.utils.reflection.beans.inheritiance.SomeConcreteObject.someMethod(java.lang.Integer, java.lang.Integer)",
+            "pl.jalokim.utils.reflection.beans.inheritiance.SuperObject.someMethod(java.lang.Integer, java.lang.Integer)",
+            "pl.jalokim.utils.reflection.beans.inheritiance.SuperAbstractObject.someMethod(java.lang.Integer, java.lang.Integer)",
+            "java.lang.Object.someMethod(java.lang.Integer, java.lang.Integer)");
     }
 
     @Test
@@ -221,14 +222,14 @@ public class MetadataReflectionUtilsTest {
         // given
         Object instance = new Object();
         // when
-        when(() -> getParametrizedType(instance, 0))
-                .thenException(
-                        ReflectionOperationException.class,
-                        format("Cannot find parametrized type for class: '%s', at: %s index", Object.class, 0))
-                .then(ex -> {
-                    Throwable cause = ex.getCause();
-                    assertThat(cause).isNotNull();
-                });
+        assertException(() -> getParametrizedType(instance, 0))
+            .thenException(
+                ReflectionOperationException.class,
+                format("Cannot find parametrized type for class: '%s', at: %s index", Object.class, 0))
+            .then(ex -> {
+                Throwable cause = ex.getCause();
+                assertThat(cause).isNotNull();
+            });
     }
 
     @Test
@@ -250,35 +251,35 @@ public class MetadataReflectionUtilsTest {
         // given
         Field eventsField = getField(ExampleClass.class, "events");
         // when
-        when(() -> getParametrizedType(eventsField, 0))
-                .thenException(ReflectionOperationException.class,
-                               format("Cannot find parametrized type for field with class: '%s', at: %s index", eventsField.getType(), 0));
+        assertException(() -> getParametrizedType(eventsField, 0))
+            .thenException(ReflectionOperationException.class,
+                format("Cannot find parametrized type for field with class: '%s', at: %s index", eventsField.getType(), 0));
     }
 
     @Test
     public void simpleIntIsNumber() {
         // given
         List<FieldExpectation> fieldExpectations = Arrays.asList(
-                create(ExampleClass.class, "textByEvent", false),
-                create(ExampleClass.class, "events", false),
-                create(ExampleClass.class, "simpleFloat", true),
-                create(ExampleClass.class, "simpleInt", true),
-                create(ExampleClass.class, "objectInt", true),
-                create(ExampleClass.class, "simpleDouble", true),
-                create(ExampleClass.class, "simpleShort", true),
-                create(ExampleClass.class, "shortObject", true),
-                create(ExampleClass.class, "objectDouble", true),
-                create(ExampleClass.class, "simpleChar", false),
-                create(ExampleClass.class, "objectChar", false),
-                create(ExampleClass.class, "string", false),
-                create(ExampleClass.class, "simpleByte", true),
-                create(ExampleClass.class, "objectByte", true),
-                create(ExampleClass.class, "dayOfWeek", false),
-                create(ExampleClass.class, "localDate", false),
-                create(ExampleClass.class, "localDateTime", false),
-                create(ExampleClass.class, "localTime", false),
-                create(ExampleClass.class, "booleanWrapper", false)
-                                                                );
+            create(ExampleClass.class, "textByEvent", false),
+            create(ExampleClass.class, "events", false),
+            create(ExampleClass.class, "simpleFloat", true),
+            create(ExampleClass.class, "simpleInt", true),
+            create(ExampleClass.class, "objectInt", true),
+            create(ExampleClass.class, "simpleDouble", true),
+            create(ExampleClass.class, "simpleShort", true),
+            create(ExampleClass.class, "shortObject", true),
+            create(ExampleClass.class, "objectDouble", true),
+            create(ExampleClass.class, "simpleChar", false),
+            create(ExampleClass.class, "objectChar", false),
+            create(ExampleClass.class, "string", false),
+            create(ExampleClass.class, "simpleByte", true),
+            create(ExampleClass.class, "objectByte", true),
+            create(ExampleClass.class, "dayOfWeek", false),
+            create(ExampleClass.class, "localDate", false),
+            create(ExampleClass.class, "localDateTime", false),
+            create(ExampleClass.class, "localTime", false),
+            create(ExampleClass.class, "booleanWrapper", false)
+        );
         fieldExpectations.forEach(fieldExpectation -> {
             // when
             boolean simpleFieldResult = isNumberType(fieldExpectation.getField().getType());
@@ -286,7 +287,7 @@ public class MetadataReflectionUtilsTest {
             assertThat(simpleFieldResult).isEqualTo(isNumberType(fieldExpectation.getField()));
             String msgPart = fieldExpectation.isExpectedResult() ? "" : "not ";
             Assert.assertEquals("field " + fieldExpectation + " expected to be " + msgPart + "number field",
-                                simpleFieldResult, fieldExpectation.isExpectedResult());
+                simpleFieldResult, fieldExpectation.isExpectedResult());
         });
     }
 
@@ -343,28 +344,28 @@ public class MetadataReflectionUtilsTest {
     public void givenFieldIsSimpleOrNotAsExpected() {
         // given
         List<FieldExpectation> fieldExpectations = Arrays.asList(
-                create(ExampleClass.class, "textByEvent", false),
-                create(ExampleClass.class, "events", false),
-                create(ExampleClass.class, "simpleDouble", true),
-                create(ExampleClass.class, "simpleFloat", true),
-                create(ExampleClass.class, "simpleInt", true),
-                create(ExampleClass.class, "objectInt", true),
-                create(ExampleClass.class, "objectDouble", true),
-                create(ExampleClass.class, "simpleChar", true),
-                create(ExampleClass.class, "objectChar", true),
-                create(ExampleClass.class, "string", true),
-                create(ExampleClass.class, "simpleByte", true),
-                create(ExampleClass.class, "objectByte", true),
-                create(ExampleClass.class, "dayOfWeek", true),
-                create(ExampleClass.class, "localDate", true),
-                create(ExampleClass.class, "localDateTime", true),
-                create(ExampleClass.class, "localTime", true),
-                create(ExampleClass.class, "booleanWrapper", true),
+            create(ExampleClass.class, "textByEvent", false),
+            create(ExampleClass.class, "events", false),
+            create(ExampleClass.class, "simpleDouble", true),
+            create(ExampleClass.class, "simpleFloat", true),
+            create(ExampleClass.class, "simpleInt", true),
+            create(ExampleClass.class, "objectInt", true),
+            create(ExampleClass.class, "objectDouble", true),
+            create(ExampleClass.class, "simpleChar", true),
+            create(ExampleClass.class, "objectChar", true),
+            create(ExampleClass.class, "string", true),
+            create(ExampleClass.class, "simpleByte", true),
+            create(ExampleClass.class, "objectByte", true),
+            create(ExampleClass.class, "dayOfWeek", true),
+            create(ExampleClass.class, "localDate", true),
+            create(ExampleClass.class, "localDateTime", true),
+            create(ExampleClass.class, "localTime", true),
+            create(ExampleClass.class, "booleanWrapper", true),
             create(ExampleClass.class, "offsetDateTimeField", true),
             create(ExampleClass.class, "durationField", true),
             create(ExampleClass.class, "periodField", true),
             create(ExampleClass.class, "instantField", true)
-                                                                );
+        );
         fieldExpectations.forEach(fieldExpectation -> {
             // when
             boolean simpleFieldResult = isSimpleType(fieldExpectation.getField().getType());
@@ -372,7 +373,7 @@ public class MetadataReflectionUtilsTest {
             assertThat(simpleFieldResult).isEqualTo(isSimpleType(fieldExpectation.getField()));
             String msgPart = fieldExpectation.isExpectedResult() ? "" : "not ";
             Assert.assertEquals("field " + fieldExpectation + " expected to be " + msgPart + "simple field",
-                                simpleFieldResult, fieldExpectation.isExpectedResult());
+                simpleFieldResult, fieldExpectation.isExpectedResult());
         });
     }
 
@@ -381,36 +382,36 @@ public class MetadataReflectionUtilsTest {
     public void getAllChildClassesForSuperObjectClassFromConcretePackageWithAbstract() {
         // when
         Set<Class<? extends SuperObject>> allChildClassesForAbstractClass =
-                getAllChildClassesForClass(SuperObject.class, "pl.jalokim.utils.reflection.beans.inheritiance", true);
+            getAllChildClassesForClass(SuperObject.class, "pl.jalokim.utils.reflection.beans.inheritiance", true);
         // then
         assertThat(allChildClassesForAbstractClass).containsExactlyInAnyOrder(SomeConcreteObject.class,
-                                                                              SecondLevelSomeConcreteObject.class,
-                                                                              ThirdLevelConcrClass.class,
-                                                                              AbstractClassExSuperObject.class);
+            SecondLevelSomeConcreteObject.class,
+            ThirdLevelConcrClass.class,
+            AbstractClassExSuperObject.class);
     }
 
     @Test
     public void getAllChildClassesForSuperObjectClassFromWiderConcretePackageWithAbstract() {
         // when
         Set<Class<? extends SuperObject>> allChildClassesForAbstractClass =
-                getAllChildClassesForClass(SuperObject.class, "pl.jalokim.utils.reflection.beans", true);
+            getAllChildClassesForClass(SuperObject.class, "pl.jalokim.utils.reflection.beans", true);
         // then
         assertThat(allChildClassesForAbstractClass).containsExactlyInAnyOrder(SomeConcreteObject.class,
-                                                                              SecondLevelSomeConcreteObject.class,
-                                                                              ThirdLevelConcrClass.class,
-                                                                              AbstractClassExSuperObject.class,
-                                                                              SuperObject2.class);
+            SecondLevelSomeConcreteObject.class,
+            ThirdLevelConcrClass.class,
+            AbstractClassExSuperObject.class,
+            SuperObject2.class);
     }
 
     @Test
     public void getAllChildClassesForSuperObjectClassFromConcretePackageWithoutAbstract() {
         // when
         Set<Class<? extends SuperObject>> allChildClassesForAbstractClass =
-                getAllChildClassesForClass(SuperObject.class, "pl.jalokim.utils.reflection.beans.inheritiance", false);
+            getAllChildClassesForClass(SuperObject.class, "pl.jalokim.utils.reflection.beans.inheritiance", false);
         // then
         assertThat(allChildClassesForAbstractClass).containsExactlyInAnyOrder(SomeConcreteObject.class,
-                                                                              SecondLevelSomeConcreteObject.class,
-                                                                              ThirdLevelConcrClass.class);
+            SecondLevelSomeConcreteObject.class,
+            ThirdLevelConcrClass.class);
     }
 
 
@@ -625,12 +626,12 @@ public class MetadataReflectionUtilsTest {
     public void getTypeMetadataFromFieldUnresolvedFieldType() {
         // given
         Field field = getField(ExampleClass.TupleClass.class, "valueOfT");
-        when(() ->
-                     getTypeMetadataFromField(field))
-                .thenException(UnresolvedRealClassException.class,
-                               format("Cannot resolve some type for field: %s for class: %s",
-                                      "valueOfT",
-                                      ExampleClass.TupleClass.class.getCanonicalName()));
+        assertException(() ->
+            getTypeMetadataFromField(field))
+            .thenException(UnresolvedRealClassException.class,
+                format("Cannot resolve some type for field: %s for class: %s",
+                    "valueOfT",
+                    ExampleClass.TupleClass.class.getCanonicalName()));
         // then
     }
 
@@ -651,17 +652,18 @@ public class MetadataReflectionUtilsTest {
         Type type = new Type() {
             @Override
             public String getTypeName() {
-                return buildTypeName(ExampleClass.class, buildTypeName(List.class), buildTypeName(Map.class, buildTypeName(String.class), buildTypeName(Object.class)));
+                return buildTypeName(ExampleClass.class, buildTypeName(List.class),
+                    buildTypeName(Map.class, buildTypeName(String.class), buildTypeName(Object.class)));
             }
         };
         // when
-        when(() -> getTypeMetadataFromType(type))
-                // then
-                .thenException(ReflectionOperationException.class,
-                               format("raw class: %s doesn't have any parametrized types, but tried put generic types:", ExampleClass.class.getCanonicalName()),
-                               "0. List<Object>",
-                               "1. Map<String,Object>"
-                              );
+        assertException(() -> getTypeMetadataFromType(type))
+            // then
+            .thenException(ReflectionOperationException.class,
+                format("raw class: %s doesn't have any parametrized types, but tried put generic types:", ExampleClass.class.getCanonicalName()),
+                "0. List<Object>",
+                "1. Map<String,Object>"
+            );
     }
 
     @Test
@@ -670,14 +672,15 @@ public class MetadataReflectionUtilsTest {
         Type type = new Type() {
             @Override
             public String getTypeName() {
-                return buildTypeName(ExampleClass.class, buildTypeName(List.class), buildTypeName(Map.class, "pl.test.test.SomeClassName", buildTypeName(Object.class)));
+                return buildTypeName(ExampleClass.class, buildTypeName(List.class),
+                    buildTypeName(Map.class, "pl.test.test.SomeClassName", buildTypeName(Object.class)));
             }
         };
         // when
-        when(() -> getTypeMetadataFromType(type))
-                // then
-                .thenException(UnresolvedRealClassException.class,
-                               "pl.jalokim.utils.reflection.ReflectionOperationException: java.lang.ClassNotFoundException: pl.test.test.SomeClassName");
+        assertException(() -> getTypeMetadataFromType(type))
+            // then
+            .thenException(UnresolvedRealClassException.class,
+                "pl.jalokim.utils.reflection.ReflectionOperationException: java.lang.ClassNotFoundException: pl.test.test.SomeClassName");
     }
 
     @Test
@@ -690,10 +693,10 @@ public class MetadataReflectionUtilsTest {
             }
         };
         // when
-        when(() -> getTypeMetadataFromType(type))
-                // then
-                .thenException(UnresolvedRealClassException.class,
-                               "pl.jalokim.utils.reflection.ReflectionOperationException: java.lang.ClassNotFoundException: VALUE");
+        assertException(() -> getTypeMetadataFromType(type))
+            // then
+            .thenException(UnresolvedRealClassException.class,
+                "pl.jalokim.utils.reflection.ReflectionOperationException: java.lang.ClassNotFoundException: VALUE");
     }
 
     private static String buildTypeName(Class<?> rawClass, String... genericTypes) {
@@ -711,7 +714,7 @@ public class MetadataReflectionUtilsTest {
         TypeMetadata rawMapMetadata = getTypeMetadataFromType(type);
         // then
         assertTypeMetadata(rawMapMetadata, Map.class, 2, MAP)
-                .assertGenericTypesAsRawObject();
+            .assertGenericTypesAsRawObject();
     }
 
     @Test
@@ -728,9 +731,9 @@ public class MetadataReflectionUtilsTest {
     public void cannotGetTypeOfArrayWhenIsNotArrayField() {
         // given
         Field field = getField(ExampleClass.class, "eventsAsList");
-        when(() -> getTypeMetadataOfArray(field))
-                .thenException(ReflectionOperationException.class,
-                               "field: '" + field + "' is not array type, is type: " + List.class);
+        assertException(() -> getTypeMetadataOfArray(field))
+            .thenException(ReflectionOperationException.class,
+                "field: '" + field + "' is not array type, is type: " + List.class);
     }
 
     @Test
@@ -740,10 +743,10 @@ public class MetadataReflectionUtilsTest {
         TypeMetadata twoDimArrayMeta = getTypeMetadataFromClass(ExampleClass[][].class);
         // then
         assertTypeMetadata(twoDimArrayMeta, ExampleClass[][].class, 1, NATIVE_ARRAY)
-                .getGenericType(0)
-                .assertTypeMetadata(ExampleClass[].class, 1, NATIVE_ARRAY)
-                .getGenericType(0)
-                .assertTypeMetadata(ExampleClass.class, NORMAL_BEAN);
+            .getGenericType(0)
+            .assertTypeMetadata(ExampleClass[].class, 1, NATIVE_ARRAY)
+            .getGenericType(0)
+            .assertTypeMetadata(ExampleClass.class, NORMAL_BEAN);
     }
 
     @Test
@@ -760,12 +763,23 @@ public class MetadataReflectionUtilsTest {
         assertThat(isHavingElementsType(someEnum)).isFalse();
     }
 
+    @Test
+    public void cannotFindConstructor() {
+        assertException(() ->
+            // when
+            getConstructor(ExampleClass.class, String.class))
+            // then
+            .thenException(ReflectionOperationException.class, "Cannot find constructor")
+            .thenNestedException(NoSuchMethodException.class, "pl.jalokim.utils.reflection.beans.inheritiance.ExampleClass.<init>(java.lang.String)");
+    }
+
     private static FieldExpectation create(Class<?> type, String fieldName, boolean expectedResult) {
         return new FieldExpectation(getField(type, fieldName), expectedResult);
     }
 
     @Data
     private static class FieldExpectation {
+
         private final Field field;
         private final boolean expectedResult;
     }

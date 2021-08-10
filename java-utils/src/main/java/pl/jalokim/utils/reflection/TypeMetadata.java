@@ -11,6 +11,7 @@ import static pl.jalokim.utils.constants.Constants.COMMA;
 import static pl.jalokim.utils.constants.Constants.DOT;
 import static pl.jalokim.utils.constants.Constants.EMPTY;
 import static pl.jalokim.utils.constants.Constants.SPACE;
+import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getConstructor;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getField;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getMethod;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getParametrizedRawTypes;
@@ -24,6 +25,8 @@ import static pl.jalokim.utils.string.StringUtils.concatObjects;
 import static pl.jalokim.utils.string.StringUtils.isNotBlank;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -260,37 +263,140 @@ public final class TypeMetadata {
         }
     }
 
-    public MethodMetadata getMetaForMethod(String methodName, Object... args) {
-        List<Class<?>> argClasses = mapToList(Object::getClass, args);
-        Method method = getMethod(getRawType(), methodName, argClasses.toArray(new Class[0]));
-        return getMetaForMethod(method);
-    }
-
-    public MethodMetadata getMetaForMethod(String methodName, Class<?>... argumentTypes) {
-        Method method = getMethod(getRawType(), methodName, argumentTypes);
-        return getMetaForMethod(method);
-    }
-
+    /**
+     * It returns metadata for method given as argument.
+     *
+     * @param method real method
+     * @return metadata for method
+     */
     public MethodMetadata getMetaForMethod(Method method) {
         return MethodMetadata.builder()
             .annotations(elements(method.getDeclaredAnnotations()).asList())
             .method(method)
             .name(method.getName())
             .returnType(getMetaForType(method.getGenericReturnType(), method.getDeclaringClass()))
-            .parameters(createMethodParametersMeta(method))
+            .parameters(createParametersMetadata(method))
             .build();
     }
 
-    private List<ParameterMetadata> createMethodParametersMeta(Method method) {
+    /**
+     * It returns metadata for given method by and real arguments for invoke.
+     *
+     * @param methodName method name
+     * @param argumentTypes arguments types which are specified in method
+     * @return metadata for method
+     */
+    public MethodMetadata getMetaForMethod(String methodName, Class<?>... argumentTypes) {
+        Method method = getMethod(getRawType(), methodName, argumentTypes);
+        return getMetaForMethod(method);
+    }
+
+    /**
+     * It returns metadata for given method by and real arguments for invoke.
+     *
+     * @param methodName method name
+     * @param argumentTypes arguments types which are specified in method
+     * @return metadata for method
+     */
+    public MethodMetadata getMetaForMethod(String methodName, List<Class<?>> argumentTypes) {
+        Method method = getMethod(getRawType(), methodName, argumentTypes);
+        return getMetaForMethod(method);
+    }
+
+    /**
+     * It returns metadata for given method by and real arguments for invoke. Will try find the best Method by the best match with arguments type.
+     *
+     * @param methodName method name
+     * @param args arguments which can by pass to invoke method
+     * @return metadata for method
+     */
+    public MethodMetadata getMetaForMethodByArgsToInvoke(String methodName, List<Object> args) {
+        List<Class<?>> argClasses = mapToList(args, Object::getClass);
+        Method method = getMethod(getRawType(), methodName, argClasses);
+        return getMetaForMethod(method);
+    }
+
+    /**
+     * It returns metadata for given method by and real arguments for invoke. Will try find the best Method by the best match with arguments type.
+     *
+     * @param methodName method name
+     * @param args arguments which can by pass to invoke method
+     * @return metadata for method
+     */
+    public MethodMetadata getMetaForMethodByArgsToInvoke(String methodName, Object... args) {
+        List<Class<?>> argClasses = mapToList(Object::getClass, args);
+        Method method = getMethod(getRawType(), methodName, argClasses.toArray(new Class[0]));
+        return getMetaForMethod(method);
+    }
+
+    /**
+     * It returns metadata for given Constructor instance.
+     *
+     * @param constructor java reflection Constructor argument
+     * @return instance of ConstructorMetadata
+     */
+    public ConstructorMetadata getMetaForConstructor(Constructor<?> constructor) {
+        return ConstructorMetadata.builder()
+            .annotations(elements(constructor.getDeclaredAnnotations()).asList())
+            .constructor(constructor)
+            .parameters(createParametersMetadata(constructor))
+            .build();
+    }
+
+    /**
+     * Get constructor metadata instance of target class with real class types.
+     *
+     * @param argumentTypes types of expected constructor
+     * @return instance of ConstructorMetadata
+     */
+    public ConstructorMetadata getMetaForConstructor(Class<?>... argumentTypes) {
+        Constructor<?> constructor = getConstructor(getRawType(), argumentTypes);
+        return getMetaForConstructor(constructor);
+    }
+
+    /**
+     * Get constructor metadata instance of target class with real class types.
+     *
+     * @param argumentTypes types of expected constructor
+     * @return instance of ConstructorMetadata
+     */
+    public ConstructorMetadata getMetaForConstructor(List<? extends Class<?>> argumentTypes) {
+        return getMetaForConstructor(argumentTypes.toArray(new Class<?>[0]));
+    }
+
+    /**
+     * Get constructor metadata instance of target class with real arguments to invoke. Will try find the bet Constructor by the best match with arguments
+     * type.
+     *
+     * @param args arguments which can by pass to invoke constructor
+     * @return instance of ConstructorMetadata
+     */
+    public ConstructorMetadata getMetaForConstructorByArgsToInvoke(Object... args) {
+        return getMetaForConstructorByArgsToInvoke(elements(args).asList());
+    }
+
+    /**
+     * Get constructor metadata instance of target class with real arguments to invoke. Will try find the bet Constructor by the best match with arguments
+     * type.
+     *
+     * @param args arguments which can by pass to invoke constructor
+     * @return instance of ConstructorMetadata
+     */
+    public ConstructorMetadata getMetaForConstructorByArgsToInvoke(List<Object> args) {
+        List<? extends Class<?>> argumentTypes = elements(args).map(Object::getClass).asList();
+        return getMetaForConstructor(argumentTypes);
+    }
+
+    private List<ParameterMetadata> createParametersMetadata(Executable executable) {
         List<ParameterMetadata> parameterMetadata = new ArrayList<>();
-        for (int parameterIndex = 0; parameterIndex < method.getGenericParameterTypes().length; parameterIndex++) {
-            Annotation[] parameterAnnotation = method.getParameterAnnotations()[parameterIndex];
-            Parameter parameter = method.getParameters()[parameterIndex];
+        for (int parameterIndex = 0; parameterIndex < executable.getGenericParameterTypes().length; parameterIndex++) {
+            Annotation[] parameterAnnotation = executable.getParameterAnnotations()[parameterIndex];
+            Parameter parameter = executable.getParameters()[parameterIndex];
             parameterMetadata.add(ParameterMetadata.builder()
                 .annotations(elements(parameterAnnotation).asList())
                 .name(parameter.getName())
                 .parameter(parameter)
-                .typeOfParameter(getMetaForType(method.getGenericParameterTypes()[parameterIndex], method.getDeclaringClass()))
+                .typeOfParameter(getMetaForType(executable.getGenericParameterTypes()[parameterIndex], executable.getDeclaringClass()))
                 .build());
         }
         return parameterMetadata;

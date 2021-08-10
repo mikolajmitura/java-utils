@@ -558,6 +558,14 @@ public class ElementsTest {
             .asList()).containsExactly(12, 15, 3, 44);
     }
 
+    @Test
+    public void elementsToGenericArray() {
+        // when
+        String[] array = elements("1", "2", "3").toArray(new String[0]);
+        // then
+        assertThat(array).containsExactly("1", "2", "3");
+    }
+
     void elementsIsEmptyNotNull(Elements<?> elements) {
         assertThat(elements).isNotNull();
         assertThat(elements.asList().isEmpty()).isTrue();

@@ -308,6 +308,10 @@ public final class Elements<T> implements Stream<T> {
         return stream.toArray(generator);
     }
 
+    public <A> A[] toArray(A... aTable) {
+        return asList().toArray(aTable);
+    }
+
     @Override
     public T reduce(T identity, BinaryOperator<T> accumulator) {
         return stream.reduce(identity, accumulator);

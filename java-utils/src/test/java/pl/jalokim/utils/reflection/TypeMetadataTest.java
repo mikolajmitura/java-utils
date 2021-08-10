@@ -3,6 +3,7 @@ package pl.jalokim.utils.reflection;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static pl.jalokim.utils.collection.Elements.elements;
+import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getConstructor;
 import static pl.jalokim.utils.reflection.TypeMetadataAssertionUtils.TypeMetadataKind.NORMAL_BEAN;
 import static pl.jalokim.utils.reflection.TypeMetadataAssertionUtils.assertTypeMetadata;
 import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildFromClass;
@@ -11,10 +12,10 @@ import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.when;
 import com.google.common.collect.Sets;
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,9 @@ import pl.jalokim.utils.reflection.beans.inheritiance.ExampleClass.TupleClassImp
 import pl.jalokim.utils.test.DataFakerHelper;
 
 public class TypeMetadataTest {
+
+    private static final String EXPECTED_META_FOR_ARRAY_LIST = "ArrayList<Number> extends AbstractList<Number> extends AbstractCollection<Number>";
+    private static final String METHOD_NAME_RETURN_F = "returnF";
 
     @Test
     public void getCanonicalNameOfRawClass() {
@@ -262,10 +266,8 @@ public class TypeMetadataTest {
         // then
         assertThat(returnEMethodMeta.getMethod()).isEqualTo(returnEMethod);
         assertThat(returnEMethodMeta.getName()).isEqualTo("returnF");
-        assertThat(elements(returnEMethodMeta.getAnnotations())
-            .map(Annotation::annotationType)
-            .asList())
-            .isEqualTo(Collections.singletonList(SomeAnnotation.class));
+        assertAnnotations(returnEMethodMeta.getAnnotations(), SomeAnnotation.class);
+
         assertThat(returnEMethodMeta.getReturnType().toString()).isEqualTo("List<Number>");
 
         assertParameterMetadata(returnEMethodMeta.getParameters(), 0, "arArg", "List<Number>",
@@ -283,41 +285,50 @@ public class TypeMetadataTest {
         List<Number> numbers = new ArrayList<>();
         String justString = DataFakerHelper.randomText();
         Map<List<Number>, String> map = new HashMap<>();
-        Method returnEMethod = elements(Arrays.stream(TupleClass.class.getDeclaredMethods())
-            .filter(method -> method.getName().equals("returnF")))
+        Method expectedReturnEMethod = elements(Arrays.stream(TupleClass.class.getDeclaredMethods())
+            .filter(method -> method.getName().equals(METHOD_NAME_RETURN_F)))
             .filter(method -> method.getParameterTypes()[2].equals(String.class))
             .getFirst();
 
         // when
-        MethodMetadata returnEMethodMeta = typeMetadata.getMetaForMethod("returnF", numbers, map, justString);
-
+        MethodMetadata returnEMethodMeta = typeMetadata.getMetaForMethodByArgsToInvoke(METHOD_NAME_RETURN_F, numbers, map, justString);
         // then
-        assertThat(returnEMethodMeta.getMethod()).isEqualTo(returnEMethod);
-        assertThat(returnEMethodMeta.getName()).isEqualTo("returnF");
-        assertThat(elements(returnEMethodMeta.getAnnotations())
-            .map(Annotation::annotationType)
-            .asList())
-            .isEqualTo(Collections.singletonList(SomeAnnotation.class));
-
-        String metaForArrayList = "ArrayList<Number> extends AbstractList<Number> extends AbstractCollection<Number>";
-
-        assertGenericMethodReturnF(metaForArrayList, returnEMethodMeta);
+        assertGenericMethodReturnF(expectedReturnEMethod, EXPECTED_META_FOR_ARRAY_LIST, returnEMethodMeta);
 
         // when
-        MethodMetadata returnEMethodMetaByNameAndClasses = typeMetadata.getMetaForMethod("returnF", Object.class, Map.class, String.class);
+        MethodMetadata returnEMethodMetaByRealArgToInvoke = typeMetadata.getMetaForMethodByArgsToInvoke(METHOD_NAME_RETURN_F,
+            Arrays.asList(numbers, map, justString));
+        // then
+        assertGenericMethodReturnF(expectedReturnEMethod, EXPECTED_META_FOR_ARRAY_LIST, returnEMethodMetaByRealArgToInvoke);
 
-        assertGenericMethodReturnF(metaForArrayList, returnEMethodMetaByNameAndClasses);
+        // and
+        // when
+        MethodMetadata returnEMethodMetaByNameAndClasses = typeMetadata.getMetaForMethod(METHOD_NAME_RETURN_F, Object.class, Map.class, String.class);
+        // when
+        assertGenericMethodReturnF(expectedReturnEMethod, EXPECTED_META_FOR_ARRAY_LIST, returnEMethodMetaByNameAndClasses);
+
+        // and
+        // given
+        List<Class<?>> argTypes = Arrays.asList(Object.class, Map.class, String.class);
+        // when
+        MethodMetadata metaForMethodByArgClasses = typeMetadata.getMetaForMethod(METHOD_NAME_RETURN_F, argTypes);
+        // then
+        assertGenericMethodReturnF(expectedReturnEMethod, EXPECTED_META_FOR_ARRAY_LIST, metaForMethodByArgClasses);
     }
 
-    private void assertGenericMethodReturnF(String metaForArrayList, MethodMetadata returnEMethodMetaByNameAndClasses) {
-        assertThat(returnEMethodMetaByNameAndClasses.getReturnType().toString()).isEqualTo(metaForArrayList);
+    private void assertGenericMethodReturnF(Method expectedReturnEMethod, String metaForArrayList, MethodMetadata returnEMethodMeta) {
+        assertThat(returnEMethodMeta.getReturnType().toString()).isEqualTo(metaForArrayList);
 
-        assertParameterMetadata(returnEMethodMetaByNameAndClasses.getParameters(), 0, "arArg", metaForArrayList,
+        assertThat(returnEMethodMeta.getMethod()).isEqualTo(expectedReturnEMethod);
+        assertThat(returnEMethodMeta.getName()).isEqualTo(METHOD_NAME_RETURN_F);
+        assertAnnotations(returnEMethodMeta.getAnnotations(), SomeAnnotation.class);
+
+        assertParameterMetadata(returnEMethodMeta.getParameters(), 0, "arArg", metaForArrayList,
             SomeAnnotation.class, OtherAnnotation.class);
 
-        assertParameterMetadata(returnEMethodMetaByNameAndClasses.getParameters(), 1, "mapOfFAndT", "Map<" + metaForArrayList + ",String>");
+        assertParameterMetadata(returnEMethodMeta.getParameters(), 1, "mapOfFAndT", "Map<" + metaForArrayList + ",String>");
 
-        assertParameterMetadata(returnEMethodMetaByNameAndClasses.getParameters(), 2, "string", "String");
+        assertParameterMetadata(returnEMethodMeta.getParameters(), 2, "string", "String");
     }
 
     @Test
@@ -351,13 +362,65 @@ public class TypeMetadataTest {
         assertThat(otherInterfaceMetadata.getGenericTypes().get(1).getRawType()).isEqualTo(ArrayList.class);
     }
 
+    @Test
+    public void getMetaForConstructor() {
+        // given
+        TypeMetadata typeMetadata = buildFromClass(TupleClassImpl2.class);
+        Constructor<?> constructor = getConstructor(TupleClassImpl2.class, String.class, ArrayList.class);
+
+        // when
+        ConstructorMetadata metaForConstructorByInstance = typeMetadata.getMetaForConstructor(constructor);
+
+        // then
+        assertConstructorMetadata(constructor, metaForConstructorByInstance);
+
+        // and
+        // when
+        ConstructorMetadata metaForConstructorByArgTypes = typeMetadata.getMetaForConstructor(String.class, ArrayList.class);
+
+        // then
+        assertConstructorMetadata(constructor, metaForConstructorByArgTypes);
+
+        // and
+        // when
+        metaForConstructorByArgTypes = typeMetadata.getMetaForConstructor(Arrays.asList(String.class, ArrayList.class));
+
+        // then
+        assertConstructorMetadata(constructor, metaForConstructorByArgTypes);
+
+        // and
+        // given
+        List<String> numbers = new ArrayList<>();
+        String justString = DataFakerHelper.randomText();
+
+        // when
+        metaForConstructorByArgTypes = typeMetadata.getMetaForConstructorByArgsToInvoke(justString, numbers);
+
+        // then
+        assertConstructorMetadata(constructor, metaForConstructorByArgTypes);
+    }
+
+    private void assertConstructorMetadata(Constructor<?> constructor, ConstructorMetadata metaForConstructorByInstance) {
+        assertThat(metaForConstructorByInstance.getConstructor()).isEqualTo(constructor);
+        assertAnnotations(metaForConstructorByInstance.getAnnotations(), SomeAnnotation.class);
+        List<ParameterMetadata> constructorParameters = metaForConstructorByInstance.getParameters();
+        assertParameterMetadata(constructorParameters, 0, "valueOfT", "String");
+        assertParameterMetadata(constructorParameters, 1, "valueOfF", EXPECTED_META_FOR_ARRAY_LIST,
+            OtherAnnotation.class, SomeAnnotation.class);
+    }
+
     private void assertParameterMetadata(List<ParameterMetadata> parameters, int index, String name, String typeOfParameter, Class<?>... annotations) {
         ParameterMetadata parameterMetadata = parameters.get(index);
         assertThat(parameterMetadata.getName()).isEqualTo(name);
         assertThat(parameterMetadata.getParameter().getName()).isEqualTo(name);
         assertThat(parameterMetadata.getTypeOfParameter().toString()).isEqualTo(typeOfParameter);
-        assertThat(elements(parameterMetadata.getAnnotations())
+        assertAnnotations(parameterMetadata.getAnnotations(), annotations);
+    }
+
+    private void assertAnnotations(List<Annotation> toCheck, Class<?>... expectedTypes) {
+        assertThat(elements(toCheck)
             .map(Annotation::annotationType)
-            .asList()).isEqualTo(Arrays.asList(annotations));
+            .asList())
+            .isEqualTo(elements(expectedTypes).asList());
     }
 }

@@ -1,18 +1,16 @@
 package pl.jalokim.utils.reflection;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
+import java.lang.reflect.Constructor;
 import java.util.List;
 import lombok.Builder;
 import lombok.Value;
 
 @Value
 @Builder
-public class MethodMetadata implements ExecutableMetadata<Method> {
+public class ConstructorMetadata implements ExecutableMetadata<Constructor> {
 
-    Method method;
-    String name;
+    Constructor<?> constructor;
     List<Annotation> annotations;
-    TypeMetadata returnType;
     List<ParameterMetadata> parameters;
 }

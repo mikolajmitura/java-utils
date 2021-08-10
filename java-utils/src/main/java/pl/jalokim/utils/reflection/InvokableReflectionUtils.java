@@ -1,6 +1,7 @@
 package pl.jalokim.utils.reflection;
 
 import static pl.jalokim.utils.collection.CollectionUtils.mapToList;
+import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getConstructor;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getField;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getMethod;
 
@@ -433,7 +434,7 @@ public final class InvokableReflectionUtils {
      */
     public static <T> T newInstance(Class<T> type, List<Class<?>> argsClasses, Object... args) {
         try {
-            Constructor<T> constructor = type.getDeclaredConstructor(argsClasses.toArray(new Class<?>[0]));
+            Constructor<T> constructor = (Constructor<T>) getConstructor(type, argsClasses.toArray(new Class<?>[0]));
             constructor.setAccessible(true);
             T instance = constructor.newInstance(args);
             constructor.setAccessible(false);

@@ -139,6 +139,15 @@ public class ExampleClass {
         private F valueOfF;
         private List<F> listOfF;
 
+        @SomeAnnotation
+        public TupleClass(T valueOfT, @OtherAnnotation F valueOfF) {
+            this.valueOfT = valueOfT;
+            this.valueOfF = valueOfF;
+        }
+
+        public TupleClass() {
+        }
+
         public F returnF(@SomeAnnotation @OtherAnnotation List<Number> arArg0,
             HashMap<F, T> mapOfFAndT, CharSequence string) {
             return listOfF.get(0);
@@ -174,6 +183,14 @@ public class ExampleClass {
 
     public static class TupleClassImpl2 extends TupleClass<String, ArrayList<Number>> {
 
+        @SomeAnnotation
+        public TupleClassImpl2(String valueOfT, @OtherAnnotation @SomeAnnotation ArrayList<Number> valueOfF) {
+            super(valueOfT, valueOfF);
+        }
+
+        public TupleClassImpl2() {
+            super();
+        }
     }
 
     public static class InvalidTupleExtension extends TupleClass {

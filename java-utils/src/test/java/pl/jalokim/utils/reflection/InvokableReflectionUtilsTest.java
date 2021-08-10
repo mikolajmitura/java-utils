@@ -8,6 +8,7 @@ import static pl.jalokim.utils.reflection.InvokableReflectionUtils.getValueForSt
 import static pl.jalokim.utils.reflection.InvokableReflectionUtils.getValueOfField;
 import static pl.jalokim.utils.reflection.InvokableReflectionUtils.invokeMethod;
 import static pl.jalokim.utils.reflection.InvokableReflectionUtils.invokeStaticMethod;
+import static pl.jalokim.utils.reflection.InvokableReflectionUtils.newInstance;
 import static pl.jalokim.utils.reflection.InvokableReflectionUtils.setValueForField;
 import static pl.jalokim.utils.reflection.InvokableReflectionUtils.setValueForStaticField;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getField;
@@ -28,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import junit.framework.TestCase;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import org.junit.Test;
 import pl.jalokim.utils.reflection.beans.inheritiance.ClassWithoutDefConstr;
@@ -566,7 +568,7 @@ public class InvokableReflectionUtilsTest {
         // when
         when(() -> invokeMethod(inExampleClassWithMethods, "overloadMethod", someDouble, superDog))
             // then
-            .thenException(AmbiguousMethodCallException.class,
+            .thenException(AmbiguousExecutableCallException.class,
                 "Found more than one method which match:",
                 getOverloadMethodByArgTypes(Number.class, Flyable.class).toString(),
                 getOverloadMethodByArgTypes(Number.class, Dog.class).toString());
@@ -640,6 +642,36 @@ public class InvokableReflectionUtilsTest {
         List<Number> result = invokeMethod(tupleClass, "returnF", listOfNumbers1, map, justString);
         // then
         assertThat(result).isEqualTo(listOfNumbers1);
+    }
+
+    @Test
+    public void newInstanceByBestArgMatch() {
+        // given
+        SuperCat superCat = new SuperCat();
+        SuperBulldog superBulldog = new SuperBulldog();
+        SuperDog superDog = new SuperDog();
+        Cat cat = new Cat();
+        Bulldog bulldog = new Bulldog();
+
+        // when
+        Zoo zoo = newInstance(Zoo.class, superDog, superCat, superBulldog);
+
+        // then
+        assertThat(zoo.getConstrIndex()).isEqualTo(1);
+
+        // and
+        // when
+        zoo = newInstance(Zoo.class, superCat, superDog, cat);
+
+        // then
+        assertThat(zoo.getConstrIndex()).isEqualTo(2);
+
+        // and
+        // when
+        zoo = newInstance(Zoo.class, superDog, superCat, bulldog);
+
+        // then
+        assertThat(zoo.getConstrIndex()).isEqualTo(3);
     }
 
     @SneakyThrows
@@ -752,5 +784,23 @@ public class InvokableReflectionUtilsTest {
 
     public static class SuperCat extends Cat implements Flyable {
 
+    }
+
+    @Getter
+    public static class Zoo {
+
+        private final int constrIndex;
+
+        private Zoo(Dog dog, Cat cat, Flyable flyable) {
+            constrIndex = 1;
+        }
+
+        private Zoo(Animal animal, Animal animal2, Animal animal3) {
+            constrIndex = 2;
+        }
+
+        private Zoo(Dog dog, Cat cat, Dog dog2) {
+            constrIndex = 3;
+        }
     }
 }

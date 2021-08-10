@@ -8,11 +8,13 @@ import static pl.jalokim.utils.collection.CollectionUtils.filterToSet;
 import static pl.jalokim.utils.collection.CollectionUtils.mapToList;
 import static pl.jalokim.utils.collection.Elements.elements;
 import static pl.jalokim.utils.reflection.ClassNameFixer.fixClassName;
+import static pl.jalokim.utils.reflection.ExecutableByArgsFinder.findConstructor;
 import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildForArrayField;
 import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildFromClass;
 import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildFromField;
 import static pl.jalokim.utils.reflection.TypeWrapperBuilder.buildFromType;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -150,6 +152,30 @@ public final class MetadataReflectionUtils {
     /**
      * It returns method for given target object.
      *
+     * @param targetObject instance for which will start looking for method in object hierarchy.
+     * @param methodName method name.
+     * @param argClasses types of arguments.
+     * @return instance of method.
+     */
+    public static Method getMethod(Object targetObject, String methodName, List<Class<?>> argClasses) {
+        return getMethod(targetObject.getClass(), methodName, argClasses.toArray(new Class<?>[0]));
+    }
+
+    /**
+     * It returns method for given target object.
+     *
+     * @param targetClass instance class for which will start looking for method in object hierarchy.
+     * @param methodName method name.
+     * @param argClasses types of arguments.
+     * @return instance of method.
+     */
+    public static Method getMethod(Class<?> targetClass, String methodName, List<Class<?>> argClasses) {
+        return getMethod(targetClass, methodName, argClasses.toArray(new Class<?>[0]));
+    }
+
+    /**
+     * It returns method for given target object.
+     *
      * @param targetClass target class for which will start looking for method in object hierarchy.
      * @param methodName method name.
      * @param argClasses types of arguments.
@@ -172,11 +198,38 @@ public final class MetadataReflectionUtils {
         }
 
         method = Optional.ofNullable(method)
-            .orElseGet(() -> MethodByArgsMatcher.findMethod(targetClass, methodName, argClasses));
+            .orElseGet(() -> ExecutableByArgsFinder.findMethod(targetClass, methodName, argClasses));
         if (method == null) {
             throw new ReflectionOperationException(new NoSuchMethodException(StringUtils.concatElementsAsLines(noSuchMethodExceptions)));
         }
         return method;
+    }
+
+    /**
+     * Get Constructor instance of target class with expected argument types
+     *
+     * @param targetClass for this class will be returned Constructor
+     * @param argsClasses types of constructor arguments
+     * @return instance of Constructor
+     */
+    public static Constructor<?> getConstructor(Class<?> targetClass, Class<?>... argsClasses) {
+        try {
+            return targetClass.getDeclaredConstructor(argsClasses);
+        } catch (NoSuchMethodException noSuchConstructor) {
+            return Optional.ofNullable(findConstructor(targetClass, argsClasses))
+                .orElseThrow(() -> new ReflectionOperationException("Cannot find constructor", noSuchConstructor));
+        }
+    }
+
+    /**
+     * Get Constructor instance of target instance with expected argument types
+     *
+     * @param targetInstance for this instance class will be returned Constructor
+     * @param argsClasses types of constructor arguments
+     * @return instance of Constructor
+     */
+    public static Constructor<?> getConstructor(Object targetInstance, Class<?>... argsClasses) {
+        return getConstructor(targetInstance.getClass(), argsClasses);
     }
 
     /**

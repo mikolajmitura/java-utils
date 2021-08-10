@@ -25,7 +25,7 @@ java-utils
     <dependency>
         <groupId>pl.jalokim.utils</groupId>
         <artifactId>java-utils</artifactId>
-        <version>3.0.2</version>
+        <version>3.1.0</version>
     </dependency>
 ```
 
@@ -323,7 +323,7 @@ how to test exception in test with test-utils module? (class ExpectedErrorUtilBu
       // assert only exception type
       @Test
       public void expectedSomeException() {
-          when(()-> {
+          expectedException(() -> {
               // some code which can rise exception...
           }).thenException(ExpectedException.class);
       }
@@ -331,7 +331,7 @@ how to test exception in test with test-utils module? (class ExpectedErrorUtilBu
       // assert exception type and message
       @Test
       public void expectedSomeException() {
-            when(()-> {
+            expectedException(() -> {
                        // some code which can rise exception...
                    }).thenException(ExpectedException.class, "expected message of exception")
                    .then(thrownEx-> {
@@ -342,7 +342,7 @@ how to test exception in test with test-utils module? (class ExpectedErrorUtilBu
       // you can assert some nested exception be method thenNestedException      
       @Test
       public void expectedSomeException() {
-          when(()-> {
+          expectedException(() -> {
               // some code which can rise exception...
           }).thenNestedException(ExpectedException.class, "expected message of exception")
           .then(thrownEx-> {
@@ -353,7 +353,7 @@ how to test exception in test with test-utils module? (class ExpectedErrorUtilBu
       // you can assert some main exception and nested exception
       @Test
       public void expectedSomeException() {
-           when(()-> {
+           expectedException(() -> {
                   // some code which can rise exception...
               }).thenException(ExpectedException.class, "expected message of exception")
                 .thenNestedException(NestedException.class, "text for nested exception");
@@ -386,7 +386,7 @@ Some example code below:
     <dependency>
         <groupId>pl.jalokim.utils</groupId>
         <artifactId>test-utils</artifactId>
-        <version>3.0.2</version>
+        <version>3.1.0</version>
         <scope>test</scope>
     </dependency>
 ```     

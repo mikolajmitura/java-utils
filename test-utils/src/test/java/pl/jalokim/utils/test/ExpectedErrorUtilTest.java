@@ -23,7 +23,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.when;
+import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.assertException;
 import static pl.jalokim.utils.test.TemporaryTestResources.isWindows;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -70,7 +70,7 @@ public class ExpectedErrorUtilTest {
         SimpleException expectedException = new SimpleException(EXPECTED_MSG);
 
         // when
-        when(() -> someTestableObject.validate(ResultType.SIMPLE_EX, EXPECTED_MSG))
+        assertException(() -> someTestableObject.validate(ResultType.SIMPLE_EX, EXPECTED_MSG))
                 .thenException(expectedException)
                 .then(caughtEx ->
                       {
@@ -92,7 +92,7 @@ public class ExpectedErrorUtilTest {
         SimpleException expectedException = new SimpleException(EXPECTED_MSG);
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.SIMPLE_EX, ANOTHER_MESSAGE_NOT_EXPECTED))
+            assertException(() -> someTestableObject.validate(ResultType.SIMPLE_EX, ANOTHER_MESSAGE_NOT_EXPECTED))
                     .thenException(expectedException)
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
@@ -119,7 +119,7 @@ public class ExpectedErrorUtilTest {
         SimpleException expectedException = new SimpleException(EXPECTED_MSG);
         try {
             // when
-            when(() -> someTestableObject.validate(null, EXPECTED_MSG))
+            assertException(() -> someTestableObject.validate(null, EXPECTED_MSG))
                     .thenException(expectedException)
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
@@ -148,7 +148,7 @@ public class ExpectedErrorUtilTest {
         SimpleException expectedException = new SimpleException(EXPECTED_MSG);
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.NONE, EXPECTED_MSG))
+            assertException(() -> someTestableObject.validate(ResultType.NONE, EXPECTED_MSG))
                     .thenException(expectedException)
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
@@ -172,7 +172,7 @@ public class ExpectedErrorUtilTest {
     @Test
     public void thenExpectedExceptionTypeOnlyPassCorrectly() throws Exception {
         // when
-        when(() -> someTestableObject.validate(ResultType.SIMPLE_EX, EXPECTED_MSG))
+        assertException(() -> someTestableObject.validate(ResultType.SIMPLE_EX, EXPECTED_MSG))
                 .thenException(SimpleException.class)
                 .then(caughtEx ->
                       {
@@ -192,7 +192,7 @@ public class ExpectedErrorUtilTest {
     public void thenExpectedExceptionTypeButThrownAnotherExceptionThanExpected() throws Exception {
         try {
             // when
-            when(() -> someTestableObject.validate(null, EXPECTED_MSG))
+            assertException(() -> someTestableObject.validate(null, EXPECTED_MSG))
                     .thenException(SimpleException.class)
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
@@ -220,7 +220,7 @@ public class ExpectedErrorUtilTest {
     public void thenExpectedExceptionTypeButThrownNothing() throws Exception {
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.NONE, EXPECTED_MSG))
+            assertException(() -> someTestableObject.validate(ResultType.NONE, EXPECTED_MSG))
                     .thenException(SimpleException.class)
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
@@ -244,7 +244,7 @@ public class ExpectedErrorUtilTest {
     @Test
     public void thenExpectedExceptionTypeAndMsgPassCorrectly() throws Exception {
         // when
-        when(() -> someTestableObject.validate(ResultType.SIMPLE_EX, EXPECTED_MSG))
+        assertException(() -> someTestableObject.validate(ResultType.SIMPLE_EX, EXPECTED_MSG))
                 .thenException(SimpleException.class, EXPECTED_MSG)
                 .then(caughtEx -> {
                     assertionChecker.invokeMethod();
@@ -263,7 +263,7 @@ public class ExpectedErrorUtilTest {
     public void thenExpectedExceptionTypeAndMsgButNotExpectedMessage() throws Exception {
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.SIMPLE_EX, ANOTHER_MESSAGE_NOT_EXPECTED))
+            assertException(() -> someTestableObject.validate(ResultType.SIMPLE_EX, ANOTHER_MESSAGE_NOT_EXPECTED))
                     .thenException(SimpleException.class, EXPECTED_MSG)
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
@@ -292,7 +292,7 @@ public class ExpectedErrorUtilTest {
     public void thenExpectedExceptionTypeAndMsgButThrownAnotherExceptionThanExpected() throws Exception {
         try {
             // when
-            when(() -> someTestableObject.validate(null, EXPECTED_MSG))
+            assertException(() -> someTestableObject.validate(null, EXPECTED_MSG))
                     .thenException(SimpleException.class, EXPECTED_MSG)
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
@@ -320,7 +320,7 @@ public class ExpectedErrorUtilTest {
     public void thenExpectedExceptionTypeAndMsgButThrownNothing() throws Exception {
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.NONE, EXPECTED_MSG))
+            assertException(() -> someTestableObject.validate(ResultType.NONE, EXPECTED_MSG))
                     .thenException(SimpleException.class, EXPECTED_MSG)
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
@@ -344,7 +344,7 @@ public class ExpectedErrorUtilTest {
     @Test
     public void thenExpectedExceptionTypeAndContainsMsgPassCorrectly() throws Exception {
         // when
-        when(() -> someTestableObject.validate(ResultType.SIMPLE_EX, EXPECTED_MSG))
+        assertException(() -> someTestableObject.validate(ResultType.SIMPLE_EX, EXPECTED_MSG))
                 .thenExceptionContainsMsg(SimpleException.class, EXPECTED_MSG_PART)
                 .then(caughtEx -> {
                     assertionChecker.invokeMethod();
@@ -363,7 +363,7 @@ public class ExpectedErrorUtilTest {
     public void thenExpectedExceptionTypeAndContainsMsgButNotExpectedMessage() throws Exception {
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.SIMPLE_EX, ANOTHER_MESSAGE_NOT_EXPECTED))
+            assertException(() -> someTestableObject.validate(ResultType.SIMPLE_EX, ANOTHER_MESSAGE_NOT_EXPECTED))
                     .thenExceptionContainsMsg(SimpleException.class, EXPECTED_MSG_PART)
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
@@ -394,7 +394,7 @@ public class ExpectedErrorUtilTest {
     public void thenExpectedExceptionTypeAndContainsMsgButThrownAnotherExceptionThanExpected() throws Exception {
         try {
             // when
-            when(() -> someTestableObject.validate(null, EXPECTED_MSG))
+            assertException(() -> someTestableObject.validate(null, EXPECTED_MSG))
                     .thenExceptionContainsMsg(SimpleException.class, EXPECTED_MSG_PART)
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
@@ -422,7 +422,7 @@ public class ExpectedErrorUtilTest {
     public void thenExpectedExceptionTypeAndContainsMsgButThrownNothing() throws Exception {
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.NONE, EXPECTED_MSG))
+            assertException(() -> someTestableObject.validate(ResultType.NONE, EXPECTED_MSG))
                     .thenExceptionContainsMsg(SimpleException.class, EXPECTED_MSG_PART)
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
@@ -450,7 +450,7 @@ public class ExpectedErrorUtilTest {
         SimpleException expectedException = new SimpleException(messageWithLines);
 
         // when
-        when(() -> someTestableObject.validate(ResultType.SIMPLE_EX, messageWithLines))
+        assertException(() -> someTestableObject.validate(ResultType.SIMPLE_EX, messageWithLines))
                 .thenException(SimpleException.class, "first line", "third line", "second line")
                 .then(caughtEx ->
                       {
@@ -473,7 +473,7 @@ public class ExpectedErrorUtilTest {
         String messageWithLines = String.format("first line%nsecond line%nthird line");
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.SIMPLE_EX, messageWithLines))
+            assertException(() -> someTestableObject.validate(ResultType.SIMPLE_EX, messageWithLines))
                     .thenException(SimpleException.class, "first line", "third line")
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
@@ -504,7 +504,7 @@ public class ExpectedErrorUtilTest {
     public void thenExpectedExceptionTypeAndMsgLinesButThrownAnotherExceptionThanExpected() throws Exception {
         try {
             // when
-            when(() -> someTestableObject.validate(null, EXPECTED_MSG))
+            assertException(() -> someTestableObject.validate(null, EXPECTED_MSG))
                     .thenException(SimpleException.class, "first line", "third line", "second line")
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
@@ -532,7 +532,7 @@ public class ExpectedErrorUtilTest {
     public void thenExpectedExceptionTypeAndMsgLinesButThrownNothing() throws Exception {
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.NONE, EXPECTED_MSG))
+            assertException(() -> someTestableObject.validate(ResultType.NONE, EXPECTED_MSG))
                     .thenException(SimpleException.class, "first line", "third line", "second line")
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
@@ -561,7 +561,7 @@ public class ExpectedErrorUtilTest {
         SimpleException expectedException = new SimpleException(EXPECTED_MSG);
 
         // when
-        when(() -> someTestableObject.validate(ResultType.SIMPLE_EX, EXPECTED_MSG))
+        assertException(() -> someTestableObject.validate(ResultType.SIMPLE_EX, EXPECTED_MSG))
                 .thenNestedException(expectedException)
                 .then(caughtEx ->
                       {
@@ -584,7 +584,7 @@ public class ExpectedErrorUtilTest {
         SimpleException expectedException = new SimpleException(EXPECTED_MSG);
 
         // when
-        when(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
+        assertException(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
                 .thenNestedException(expectedException)
                 .then(caughtEx ->
                       {
@@ -607,7 +607,7 @@ public class ExpectedErrorUtilTest {
         SimpleException expectedException = new SimpleException(EXPECTED_MSG);
 
         // when
-        when(() -> someTestableObject.validate(ResultType.SUPER_COMPOSED_EX, EXPECTED_MSG))
+        assertException(() -> someTestableObject.validate(ResultType.SUPER_COMPOSED_EX, EXPECTED_MSG))
                 .thenNestedException(expectedException)
                 .then(caughtEx ->
                       {
@@ -629,7 +629,7 @@ public class ExpectedErrorUtilTest {
         SimpleException expectedException = new SimpleException(EXPECTED_MSG);
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.COMPOSED_EX, ANOTHER_MESSAGE_NOT_EXPECTED))
+            assertException(() -> someTestableObject.validate(ResultType.COMPOSED_EX, ANOTHER_MESSAGE_NOT_EXPECTED))
                     .thenNestedException(expectedException)
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
@@ -657,7 +657,7 @@ public class ExpectedErrorUtilTest {
         IllegalArgumentException expectedException = new IllegalArgumentException(EXPECTED_MSG);
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
+            assertException(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
                     .thenNestedException(expectedException)
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
@@ -681,7 +681,7 @@ public class ExpectedErrorUtilTest {
         SimpleException expectedException = new SimpleException(EXPECTED_MSG);
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.NONE, EXPECTED_MSG))
+            assertException(() -> someTestableObject.validate(ResultType.NONE, EXPECTED_MSG))
                     .thenNestedException(expectedException)
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
@@ -707,7 +707,7 @@ public class ExpectedErrorUtilTest {
     @Test
     public void thenNestedExceptionWithTypeOnlyPassCorrectly() throws Exception {
         // when
-        when(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
+        assertException(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
                 .thenNestedException(SimpleException.class)
                 .then(caughtEx ->
                       {
@@ -726,7 +726,7 @@ public class ExpectedErrorUtilTest {
     @Test
     public void thenNestedExceptionWithTypeOnlyPassCorrectlyWithNoDeeperOne() throws Exception {
         // when
-        when(() -> someTestableObject.validate(ResultType.SUPER_COMPOSED_EX, EXPECTED_MSG))
+        assertException(() -> someTestableObject.validate(ResultType.SUPER_COMPOSED_EX, EXPECTED_MSG))
                 .thenNestedException(SimpleException.class)
                 .then(caughtEx ->
                       {
@@ -747,7 +747,7 @@ public class ExpectedErrorUtilTest {
     public void thenNestedExceptionWithExceptionTypeOnlyButCannotFindNestedExceptionInCaughtEx() throws Exception {
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
+            assertException(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
                     .thenNestedException(IllegalArgumentException.class)
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
@@ -770,7 +770,7 @@ public class ExpectedErrorUtilTest {
     public void thenNestedExceptionWithExceptionTypeOnlyButThrownNothing() throws Exception {
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.NONE, EXPECTED_MSG))
+            assertException(() -> someTestableObject.validate(ResultType.NONE, EXPECTED_MSG))
                     .thenNestedException(SimpleException.class)
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
@@ -794,7 +794,7 @@ public class ExpectedErrorUtilTest {
     @Test
     public void thenNestedExceptionWithExceptionTypeAndMsgPassCorrectly() throws Exception {
         // when
-        when(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
+        assertException(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
                 .thenNestedException(SimpleException.class, EXPECTED_MSG)
                 .then(caughtEx ->
                       {
@@ -814,7 +814,7 @@ public class ExpectedErrorUtilTest {
     @Test
     public void thenNestedExceptionWithExceptionTypeAndMsgCorrectlyWithDeeperOne() throws Exception {
         // when
-        when(() -> someTestableObject.validate(ResultType.SUPER_COMPOSED_EX, EXPECTED_MSG))
+        assertException(() -> someTestableObject.validate(ResultType.SUPER_COMPOSED_EX, EXPECTED_MSG))
                 .thenNestedException(SimpleException.class, EXPECTED_MSG)
                 .then(caughtEx ->
                       {
@@ -834,7 +834,7 @@ public class ExpectedErrorUtilTest {
     public void thenNestedExceptionWithExceptionTypeAndMsgButNotExpectedMessage() throws Exception {
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.COMPOSED_EX, ANOTHER_MESSAGE_NOT_EXPECTED))
+            assertException(() -> someTestableObject.validate(ResultType.COMPOSED_EX, ANOTHER_MESSAGE_NOT_EXPECTED))
                     .thenNestedException(SimpleException.class, EXPECTED_MSG)
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
@@ -862,7 +862,7 @@ public class ExpectedErrorUtilTest {
     public void thenNestedExceptionWithExceptionTypeAndMsgButCannotFindNestedExceptionInCaughtEx() throws Exception {
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
+            assertException(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
                     .thenNestedException(IllegalArgumentException.class, EXPECTED_MSG)
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
@@ -885,7 +885,7 @@ public class ExpectedErrorUtilTest {
     public void thenNestedExceptionWithExceptionTypeAndMsgButThrownNothing() throws Exception {
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.NONE, EXPECTED_MSG))
+            assertException(() -> someTestableObject.validate(ResultType.NONE, EXPECTED_MSG))
                     .thenNestedException(SimpleException.class, EXPECTED_MSG)
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
@@ -909,7 +909,7 @@ public class ExpectedErrorUtilTest {
     @Test
     public void thenNestedExceptionWithExceptionTypeAndContainsMsgPassCorrectly() throws Exception {
         // when
-        when(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
+        assertException(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
                 .thenNestedExceptionContainsMsg(SimpleException.class, EXPECTED_MSG_PART)
                 .then(caughtEx ->
                       {
@@ -928,7 +928,7 @@ public class ExpectedErrorUtilTest {
     @Test
     public void thenNestedExceptionWithExceptionTypeAndContainsMsgCorrectlyWithDeeperOne() throws Exception {
         // when
-        when(() -> someTestableObject.validate(ResultType.SUPER_COMPOSED_EX, EXPECTED_MSG))
+        assertException(() -> someTestableObject.validate(ResultType.SUPER_COMPOSED_EX, EXPECTED_MSG))
                 .thenNestedExceptionContainsMsg(SimpleException.class, EXPECTED_MSG_PART)
                 .then(caughtEx ->
                       {
@@ -948,7 +948,7 @@ public class ExpectedErrorUtilTest {
     public void thenNestedExceptionWithExceptionTypeAndContainsMsgButNotExpectedMessage() throws Exception {
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.COMPOSED_EX, ANOTHER_MESSAGE_NOT_EXPECTED))
+            assertException(() -> someTestableObject.validate(ResultType.COMPOSED_EX, ANOTHER_MESSAGE_NOT_EXPECTED))
                     .thenNestedExceptionContainsMsg(SimpleException.class, EXPECTED_MSG)
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
@@ -977,7 +977,7 @@ public class ExpectedErrorUtilTest {
     public void thenNestedExceptionWithExceptionTypeAndContainsMsgButCannotFindNestedExceptionInCaughtEx() throws Exception {
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
+            assertException(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
                     .thenNestedExceptionContainsMsg(IllegalArgumentException.class, EXPECTED_MSG_PART)
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
@@ -1000,7 +1000,7 @@ public class ExpectedErrorUtilTest {
     public void thenNestedExceptionWithExceptionTypeAndContainsMsgButThrownNothing() throws Exception {
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.NONE, EXPECTED_MSG))
+            assertException(() -> someTestableObject.validate(ResultType.NONE, EXPECTED_MSG))
                     .thenNestedExceptionContainsMsg(SimpleException.class, EXPECTED_MSG_PART)
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
@@ -1028,7 +1028,7 @@ public class ExpectedErrorUtilTest {
         SimpleException expectedException = new SimpleException(messageWithLines);
 
         // when
-        when(() -> someTestableObject.validate(ResultType.COMPOSED_EX, messageWithLines))
+        assertException(() -> someTestableObject.validate(ResultType.COMPOSED_EX, messageWithLines))
                 .thenNestedException(SimpleException.class, "first line", "third line", "second line")
                 .then(caughtEx ->
                       {
@@ -1051,7 +1051,7 @@ public class ExpectedErrorUtilTest {
         String messageWithLines = String.format("first line%nsecond line%nthird line");
 
         // when
-        when(() -> someTestableObject.validate(ResultType.SUPER_COMPOSED_EX, messageWithLines))
+        assertException(() -> someTestableObject.validate(ResultType.SUPER_COMPOSED_EX, messageWithLines))
                 .thenNestedException(SimpleException.class, "first line", "third line", "second line")
                 .then(caughtEx ->
                       {
@@ -1072,7 +1072,7 @@ public class ExpectedErrorUtilTest {
         String messageWithLines = String.format("first line%nsecond line%nthird line");
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.COMPOSED_EX, messageWithLines))
+            assertException(() -> someTestableObject.validate(ResultType.COMPOSED_EX, messageWithLines))
                     .thenNestedException(SimpleException.class, "first line", "third line")
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
@@ -1103,7 +1103,7 @@ public class ExpectedErrorUtilTest {
         String messageWithLines = String.format("first line%nsecond line%nthird line");
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.COMPOSED_EX, messageWithLines))
+            assertException(() -> someTestableObject.validate(ResultType.COMPOSED_EX, messageWithLines))
                     .thenNestedException(IllegalArgumentException.class, "first line", "third line", "second line")
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
@@ -1126,7 +1126,7 @@ public class ExpectedErrorUtilTest {
     public void thenNestedExceptionWithExceptionTypeAndMsgLinesButThrownNothing() throws Exception {
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.NONE, EXPECTED_MSG))
+            assertException(() -> someTestableObject.validate(ResultType.NONE, EXPECTED_MSG))
                     .thenNestedException(SimpleException.class, EXPECTED_MSG)
                     .then(caughtEx ->
                                   assertionChecker.invokeMethod()
@@ -1151,7 +1151,7 @@ public class ExpectedErrorUtilTest {
     public void thenNestedExceptionInstanceInSecondLevelPositivePath() throws Exception {
         SimpleException expectedSimpleException = new SimpleException(EXPECTED_MSG);
         // when
-        when(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
+        assertException(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
                 .thenException(ComposedException.class, COMPOSED_EXCEPTION_MESSAGE)
                 .then(caughtEx -> {
                     assertionChecker.invokeMethod();
@@ -1176,7 +1176,7 @@ public class ExpectedErrorUtilTest {
     public void thenNestedExceptionInstanceInSecondLevelForDeeperExceptionPositivePath() throws Exception {
         SimpleException expectedSimpleException = new SimpleException(EXPECTED_MSG);
         // when
-        when(() -> someTestableObject.validate(ResultType.SUPER_COMPOSED_EX, EXPECTED_MSG))
+        assertException(() -> someTestableObject.validate(ResultType.SUPER_COMPOSED_EX, EXPECTED_MSG))
                 .thenException(ComposedException.class, COMPOSED_EXCEPTION_MESSAGE)
                 .then(caughtEx -> {
                     assertionChecker.invokeMethod();
@@ -1203,7 +1203,7 @@ public class ExpectedErrorUtilTest {
         SimpleException expectedSimpleException = new SimpleException(EXPECTED_MSG);
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.COMPOSED_EX, ANOTHER_MESSAGE_NOT_EXPECTED))
+            assertException(() -> someTestableObject.validate(ResultType.COMPOSED_EX, ANOTHER_MESSAGE_NOT_EXPECTED))
                     .thenException(ComposedException.class, COMPOSED_EXCEPTION_MESSAGE)
                     .then(caughtEx -> {
                         assertionChecker.invokeMethod();
@@ -1239,7 +1239,7 @@ public class ExpectedErrorUtilTest {
         IllegalArgumentException expectedException = new IllegalArgumentException(EXPECTED_MSG);
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
+            assertException(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
                     .thenException(ComposedException.class, COMPOSED_EXCEPTION_MESSAGE)
                     .then(caughtEx -> {
                         assertionChecker.invokeMethod();
@@ -1270,7 +1270,7 @@ public class ExpectedErrorUtilTest {
     @Test
     public void thenNestedExceptionTypeInSecondLevelPositivePath() throws Exception {
         // when
-        when(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
+        assertException(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
                 .thenException(ComposedException.class, COMPOSED_EXCEPTION_MESSAGE)
                 .then(caughtEx -> {
                     assertionChecker.invokeMethod();
@@ -1294,7 +1294,7 @@ public class ExpectedErrorUtilTest {
     @Test
     public void thenNestedExceptionTypeInSecondLevelForDeeperExceptionPositivePath() throws Exception {
         // when
-        when(() -> someTestableObject.validate(ResultType.SUPER_COMPOSED_EX, EXPECTED_MSG))
+        assertException(() -> someTestableObject.validate(ResultType.SUPER_COMPOSED_EX, EXPECTED_MSG))
                 .thenException(ComposedException.class, COMPOSED_EXCEPTION_MESSAGE)
                 .then(caughtEx -> {
                     assertionChecker.invokeMethod();
@@ -1319,7 +1319,7 @@ public class ExpectedErrorUtilTest {
     public void thenNestedExceptionTypeInSecondLevelButCannotFindNestedExceptionInCaughtEx() throws Exception {
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
+            assertException(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
                     .thenException(ComposedException.class, COMPOSED_EXCEPTION_MESSAGE)
                     .then(caughtEx -> {
                         assertionChecker.invokeMethod();
@@ -1350,7 +1350,7 @@ public class ExpectedErrorUtilTest {
     @Test
     public void thenNestedExceptionWithMessageInSecondLevelPositivePath() throws Exception {
         // when
-        when(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
+        assertException(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
                 .thenException(ComposedException.class, COMPOSED_EXCEPTION_MESSAGE)
                 .then(caughtEx -> {
                     assertionChecker.invokeMethod();
@@ -1373,7 +1373,7 @@ public class ExpectedErrorUtilTest {
     @Test
     public void thenNestedExceptionWithMessageInSecondLevelForDeeperExceptionPositivePath() throws Exception {
         // when
-        when(() -> someTestableObject.validate(ResultType.SUPER_COMPOSED_EX, EXPECTED_MSG))
+        assertException(() -> someTestableObject.validate(ResultType.SUPER_COMPOSED_EX, EXPECTED_MSG))
                 .thenException(ComposedException.class, COMPOSED_EXCEPTION_MESSAGE)
                 .then(caughtEx -> {
                     assertionChecker.invokeMethod();
@@ -1397,7 +1397,7 @@ public class ExpectedErrorUtilTest {
     public void thenNestedExceptionWithMessageInSecondLevelButNotExpectedMessage() throws Exception {
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.COMPOSED_EX, ANOTHER_MESSAGE_NOT_EXPECTED))
+            assertException(() -> someTestableObject.validate(ResultType.COMPOSED_EX, ANOTHER_MESSAGE_NOT_EXPECTED))
                     .thenException(ComposedException.class, COMPOSED_EXCEPTION_MESSAGE)
                     .then(caughtEx -> {
                         assertionChecker.invokeMethod();
@@ -1429,7 +1429,7 @@ public class ExpectedErrorUtilTest {
     public void thenNestedExceptionWithMessageInSecondLevelButCannotFindNestedExceptionInCaughtEx() throws Exception {
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
+            assertException(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
                     .thenException(ComposedException.class, COMPOSED_EXCEPTION_MESSAGE)
                     .then(caughtEx -> {
                         assertionChecker.invokeMethod();
@@ -1461,7 +1461,7 @@ public class ExpectedErrorUtilTest {
     @Test
     public void thenNestedExceptionContainsMsgInSecondLevelPositivePath() throws Exception {
         // when
-        when(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
+        assertException(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
                 .thenException(ComposedException.class, COMPOSED_EXCEPTION_MESSAGE)
                 .then(caughtEx -> {
                     assertionChecker.invokeMethod();
@@ -1484,7 +1484,7 @@ public class ExpectedErrorUtilTest {
     @Test
     public void thenNestedExceptionContainsMsgInSecondLevelForDeeperExceptionPositivePath() throws Exception {
         // when
-        when(() -> someTestableObject.validate(ResultType.SUPER_COMPOSED_EX, EXPECTED_MSG))
+        assertException(() -> someTestableObject.validate(ResultType.SUPER_COMPOSED_EX, EXPECTED_MSG))
                 .thenException(ComposedException.class, COMPOSED_EXCEPTION_MESSAGE)
                 .then(caughtEx -> {
                     assertionChecker.invokeMethod();
@@ -1508,7 +1508,7 @@ public class ExpectedErrorUtilTest {
     public void thenNestedExceptionContainsMsgInSecondLevelButNotExpectedMessage() throws Exception {
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.COMPOSED_EX, ANOTHER_MESSAGE_NOT_EXPECTED))
+            assertException(() -> someTestableObject.validate(ResultType.COMPOSED_EX, ANOTHER_MESSAGE_NOT_EXPECTED))
                     .thenException(ComposedException.class, COMPOSED_EXCEPTION_MESSAGE)
                     .then(caughtEx -> {
                         assertionChecker.invokeMethod();
@@ -1543,7 +1543,7 @@ public class ExpectedErrorUtilTest {
     public void thenNestedExceptionContainsMsgInSecondLevelButCannotFindNestedExceptionInCaughtEx() throws Exception {
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
+            assertException(() -> someTestableObject.validate(ResultType.COMPOSED_EX, EXPECTED_MSG))
                     .thenException(ComposedException.class, COMPOSED_EXCEPTION_MESSAGE)
                     .then(caughtEx -> {
                         assertionChecker.invokeMethod();
@@ -1577,7 +1577,7 @@ public class ExpectedErrorUtilTest {
         String messageWithLines = String.format("first line%nsecond line%nthird line");
 
         // when
-        when(() -> someTestableObject.validate(ResultType.COMPOSED_EX, messageWithLines))
+        assertException(() -> someTestableObject.validate(ResultType.COMPOSED_EX, messageWithLines))
                 .thenException(ComposedException.class, COMPOSED_EXCEPTION_MESSAGE)
                 .then(caughtEx -> {
                     assertionChecker.invokeMethod();
@@ -1603,7 +1603,7 @@ public class ExpectedErrorUtilTest {
         String messageWithLines = String.format("first line%nsecond line%nthird line");
 
         // when
-        when(() -> someTestableObject.validate(ResultType.SUPER_COMPOSED_EX, messageWithLines))
+        assertException(() -> someTestableObject.validate(ResultType.SUPER_COMPOSED_EX, messageWithLines))
                 .thenException(ComposedException.class, COMPOSED_EXCEPTION_MESSAGE)
                 .then(caughtEx -> {
                     assertionChecker.invokeMethod();
@@ -1629,7 +1629,7 @@ public class ExpectedErrorUtilTest {
         String messageWithLines = String.format("first line%nsecond line%nthird line");
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.COMPOSED_EX, messageWithLines))
+            assertException(() -> someTestableObject.validate(ResultType.COMPOSED_EX, messageWithLines))
                     .thenException(ComposedException.class, COMPOSED_EXCEPTION_MESSAGE)
                     .then(caughtEx -> {
                         assertionChecker.invokeMethod();
@@ -1668,7 +1668,7 @@ public class ExpectedErrorUtilTest {
         String messageWithLines = String.format("first line%nsecond line%nthird line");
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.COMPOSED_EX, messageWithLines))
+            assertException(() -> someTestableObject.validate(ResultType.COMPOSED_EX, messageWithLines))
                     .thenException(ComposedException.class, COMPOSED_EXCEPTION_MESSAGE)
                     .then(caughtEx -> {
                         assertionChecker.invokeMethod();
@@ -1696,7 +1696,7 @@ public class ExpectedErrorUtilTest {
     @Test
     public void thenAlwaysReturnNextLevelOfException() throws Exception {
         // when
-        when(() -> someTestableObject.validate(ResultType.SUPER_COMPOSED_EX, EXPECTED_MSG))
+        assertException(() -> someTestableObject.validate(ResultType.SUPER_COMPOSED_EX, EXPECTED_MSG))
                 .thenException(ComposedException.class, COMPOSED_EXCEPTION_MESSAGE)
                 .then(caughtEx -> {
                     assertionChecker.invokeMethod();
@@ -1730,7 +1730,7 @@ public class ExpectedErrorUtilTest {
     public void thenNestedExceptionWithMessageIn2LevelButThrownNothingAt1Level() throws Exception {
         try {
             // when
-            when(() -> someTestableObject.validate(ResultType.NONE, EXPECTED_MSG))
+            assertException(() -> someTestableObject.validate(ResultType.NONE, EXPECTED_MSG))
                     .thenException(ComposedException.class, COMPOSED_EXCEPTION_MESSAGE)
                     .then(caughtEx -> {
                         assertionChecker.invokeMethod();
