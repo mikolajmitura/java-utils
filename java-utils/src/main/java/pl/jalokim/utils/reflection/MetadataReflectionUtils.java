@@ -38,6 +38,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ClassUtils;
 import org.reflections.Reflections;
+import pl.jalokim.utils.constants.Constants;
 import pl.jalokim.utils.string.StringUtils;
 
 /**
@@ -56,7 +57,7 @@ public final class MetadataReflectionUtils {
 
     private static List<Class<?>> createSimpleClassesList() {
         List<Class<?>> classes = new ArrayList<>();
-        classes.add(String.class);
+        classes.add(CharSequence.class);
         classes.add(Character.class);
         classes.add(Number.class);
         classes.add(Boolean.class);
@@ -257,6 +258,14 @@ public final class MetadataReflectionUtils {
         return unmodifiableSet(findAllClassesInClassPath);
     }
 
+    public static boolean isTypeOf(Object instance, Class<?> expectedTypeOf) {
+        return instance != null && isTypeOf(instance.getClass(), expectedTypeOf);
+    }
+
+    public static boolean isTypeOf(Class<?> typeToCheck, Class<?> expectedTypeOf) {
+        return expectedTypeOf.isAssignableFrom(typeToCheck);
+    }
+
     /**
      * It checks that given field is simple type. If is primitive or class of field inherits from some classes from {@link
      * MetadataReflectionUtils#SIMPLE_CLASSES}
@@ -316,7 +325,7 @@ public final class MetadataReflectionUtils {
      * @return boolean value
      */
     public static boolean isTextType(Class<?> someClass) {
-        return String.class.isAssignableFrom(someClass);
+        return CharSequence.class.isAssignableFrom(someClass);
     }
 
     /**
@@ -377,6 +386,26 @@ public final class MetadataReflectionUtils {
      */
     public static boolean isCollectionType(Class<?> someClass) {
         return Collection.class.isAssignableFrom(someClass);
+    }
+
+    /**
+     * It checks that given class is list type.
+     *
+     * @param someClass class which will be verified.
+     * @return boolean value
+     */
+    public static boolean isListType(Class<?> someClass) {
+        return List.class.isAssignableFrom(someClass);
+    }
+
+    /**
+     * It checks that given class is set type.
+     *
+     * @param someClass class which will be verified.
+     * @return boolean value
+     */
+    public static boolean isSetType(Class<?> someClass) {
+        return Set.class.isAssignableFrom(someClass);
     }
 
     /**
@@ -486,6 +515,20 @@ public final class MetadataReflectionUtils {
         } catch (ClassNotFoundException e) {
             throw new ReflectionOperationException(e);
         }
+    }
+
+    /**
+     * It gets full canonical name of class of parameter value.
+     *
+     * @param value from this will get full class name
+     *
+     * @return real full name of class or emty string when value is null
+     */
+    public static String getFullClassName(Object value) {
+        return Optional.ofNullable(value)
+            .map(Object::getClass)
+            .map(Class::getCanonicalName)
+            .orElse(Constants.EMPTY);
     }
 
     /**

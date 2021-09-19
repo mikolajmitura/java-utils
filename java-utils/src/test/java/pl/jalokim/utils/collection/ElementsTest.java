@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static pl.jalokim.utils.collection.Elements.elements;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -27,8 +29,9 @@ import org.junit.Test;
 import pl.jalokim.utils.file.FileUtils;
 import pl.jalokim.utils.reflection.beans.inheritiance.Event;
 import pl.jalokim.utils.reflection.beans.inheritiance.ExampleClass;
+import pl.jalokim.utils.test.TemporaryTestResources;
 
-public class ElementsTest {
+public class ElementsTest extends TemporaryTestResources {
 
     @Test
     public void arrayToList() {
@@ -272,25 +275,6 @@ public class ElementsTest {
         // then
         assertThat(eventsByType.get("T")).hasSize(2);
         assertThat(eventsByType.get("N")).hasSize(1);
-    }
-
-    @Test
-    public void writeElementsToFile() {
-        // given
-        File file = new File("from_elements");
-        Event event1 = createEvent("T", 1);
-        Event event2 = createEvent("T", 2);
-        // when
-        elements(event1, event2)
-            .writeToFile(file.toString());
-
-        // then
-        List<String> lines = FileUtils.readAsList(file);
-        assertThat(lines).containsExactly(
-            "Event(typeName=T, index=1)",
-            "Event(typeName=T, index=2)"
-        );
-        FileUtils.deleteFileOrDirectory(file);
     }
 
     @Test
@@ -564,6 +548,110 @@ public class ElementsTest {
         String[] array = elements("1", "2", "3").toArray(new String[0]);
         // then
         assertThat(array).containsExactly("1", "2", "3");
+    }
+
+
+    @Test
+    public void writeElementsToFileByString() {
+        // given
+        File file = new File("from_elements");
+        Event event1 = createEvent("T", 1);
+        Event event2 = createEvent("T", 2);
+        // when
+        elements(event1, event2)
+            .writeToFile(file.toString());
+
+        // then
+        List<String> lines = FileUtils.readAsList(file);
+        assertThat(lines).containsExactly(
+            "Event(typeName=T, index=1)",
+            "Event(typeName=T, index=2)"
+        );
+        FileUtils.deleteFileOrDirectory(file);
+    }
+
+    @Test
+    public void writeElementsToFileByFile() {
+        // given
+        File file = new File("from_elements");
+        Elements<String> textElements = getTextElements();
+        // when
+        textElements.writeToFile(file);
+        // then
+        List<String> lines = FileUtils.readAsList(file);
+        assertThat(lines).containsExactly("1", "2", "3", "4");
+        FileUtils.deleteFileOrDirectory(file);
+    }
+
+    @Test
+    public void writeElementsToFileByPath() {
+        // given
+        Path path = Paths.get("from_elements");
+        Elements<String> textElements = getTextElements();
+        // when
+        textElements.writeToFile(path);
+        // then
+        List<String> lines = FileUtils.readAsList(path);
+        assertThat(lines).containsExactly("1", "2", "3", "4");
+        FileUtils.deleteFileOrDirectory(path);
+    }
+
+    @Test
+    public void concatElements() {
+        // given
+        List<String> list1 = Arrays.asList("1", "2");
+        List<String> list2 = null;
+
+        // when
+        List<String> concatElementsResult1 = getTextElements().concat(list1).asList();
+        List<String> concatElementsResult2 = getTextElements().concat(list2).asList();
+
+        // then
+        assertThat(concatElementsResult1).containsExactly("1", "2", "3", "4", "1", "2");
+        assertThat(concatElementsResult2).containsExactly("1", "2", "3", "4");
+    }
+
+    @Test
+    public void readElementsFromFile() {
+        // given
+        File filePath = newFile("tmp");
+        FileUtils.writeToFile(filePath.toString(), getTextElements().asList());
+        // when
+        Elements<String> elementsFromFile = Elements.fromFile(filePath);
+        // then
+        assertThat(elementsFromFile.asList()).isEqualTo(getTextElements().asList());
+    }
+
+    @Test
+    public void readElementsFromPath() {
+        // given
+        File filePath = newFile("tmp");
+        FileUtils.writeToFile(filePath.toString(), getTextElements().asList());
+        // when
+        Elements<String> elementsFromFile = Elements.fromFile(filePath.toPath());
+        // then
+        assertThat(elementsFromFile.asList()).isEqualTo(getTextElements().asList());
+    }
+
+    @Test
+    public void readElementsFromFilePath() {
+        // given
+        File filePath = newFile("tmp");
+        FileUtils.writeToFile(filePath.toString(), getTextElements().asList());
+        // when
+        Elements<String> elementsFromFile = Elements.fromFile(filePath.toString());
+        // then
+        assertThat(elementsFromFile.asList()).isEqualTo(getTextElements().asList());
+    }
+
+    @Test
+    public void splitTextAsElements() {
+        // given
+        String textToSplit = "part1,part2, part3";
+        // when
+        Elements<String> stringElements = Elements.bySplitText(textToSplit, ",");
+        // then
+        assertThat(stringElements).containsExactly("part1", "part2", " part3");
     }
 
     void elementsIsEmptyNotNull(Elements<?> elements) {

@@ -1,5 +1,8 @@
 package pl.jalokim.utils.reflection;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import lombok.Data;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -29,6 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getAllChildClassesForClass;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getConstructor;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getField;
+import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getFullClassName;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getMethod;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getParametrizedRawTypes;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getParametrizedType;
@@ -41,10 +45,13 @@ import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isArrayType;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isCollectionType;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isEnumType;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isHavingElementsType;
+import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isListType;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isMapType;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isNumberType;
+import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isSetType;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isSimpleType;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isTextType;
+import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isTypeOf;
 import static pl.jalokim.utils.reflection.TypeMetadataAssertionUtils.TypeMetadataKind.MAP;
 import static pl.jalokim.utils.reflection.TypeMetadataAssertionUtils.TypeMetadataKind.NATIVE_ARRAY;
 import static pl.jalokim.utils.reflection.TypeMetadataAssertionUtils.TypeMetadataKind.NORMAL_BEAN;
@@ -771,6 +778,67 @@ public class MetadataReflectionUtilsTest {
             // then
             .thenException(ReflectionOperationException.class, "Cannot find constructor")
             .thenNestedException(NoSuchMethodException.class, "pl.jalokim.utils.reflection.beans.inheritiance.ExampleClass.<init>(java.lang.String)");
+    }
+
+    @Test
+    public void returnHashMapIsMapType() {
+        // given
+        Object hashMapNotNull = new HashMap<>();
+        HashMap<?, ?> hashMapNull = null;
+        // when
+        boolean hasSetNotNullIsMap = isTypeOf(hashMapNotNull, Map.class);
+        boolean hashSetNullIsMap = isTypeOf(hashMapNull, Map.class);
+        // then
+        assertThat(hasSetNotNullIsMap).isTrue();
+        assertThat(hashSetNullIsMap).isFalse();
+    }
+
+    @Test
+    public void returnHashSetIsNotMap() {
+        // given
+        Object hashSetNotNull = new HashSet<>();
+        HashSet<?> hashSetNull = null;
+        // when
+        boolean hasSetNotNullIsMap = isTypeOf(hashSetNotNull, Map.class);
+        boolean hashSetNullIsMap = isTypeOf(hashSetNull, Map.class);
+        // then
+        assertThat(hasSetNotNullIsMap).isFalse();
+        assertThat(hashSetNullIsMap).isFalse();
+    }
+
+    @Test
+    public void returnIsTypeOfList() {
+        // given
+        Object list = new ArrayList<>();
+        Object map = new HashMap<>();
+        Object set = new HashSet<>();
+        // then // when
+        assertThat(isListType(list.getClass())).isTrue();
+        assertThat(isListType(map.getClass())).isFalse();
+        assertThat(isListType(set.getClass())).isFalse();
+    }
+
+    @Test
+    public void returnIsTypeOfSet() {
+        // given
+        Object list = new ArrayList<>();
+        Object map = new HashMap<>();
+        Object set = new HashSet<>();
+        // then // when
+        assertThat(isSetType(list.getClass())).isFalse();
+        assertThat(isSetType(map.getClass())).isFalse();
+        assertThat(isSetType(set.getClass())).isTrue();
+    }
+
+    @Test
+    public void returnFullNameOfGivenClass() {
+        // given
+        String someValue = "text";
+        String someNullValue = null;
+
+        // when // then
+        assertThat(getFullClassName(someValue)).isEqualTo("java.lang.String");
+        assertThat(getFullClassName(someNullValue)).isEqualTo("");
     }
 
     private static FieldExpectation create(Class<?> type, String fieldName, boolean expectedResult) {

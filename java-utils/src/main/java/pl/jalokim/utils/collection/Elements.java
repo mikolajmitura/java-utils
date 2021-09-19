@@ -9,13 +9,15 @@ import static pl.jalokim.utils.constants.Constants.COMMA;
 import static pl.jalokim.utils.constants.Constants.SPACE;
 import static pl.jalokim.utils.string.StringUtils.concatElements;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Spliterator;
@@ -78,6 +80,22 @@ public final class Elements<T> implements Stream<T> {
 
     public static <T> Elements<T> elements(@Nullable Stream<T> stream) {
         return new Elements<>(stream);
+    }
+
+    public static Elements<String> fromFile(File file) {
+        return FileUtils.readAsElements(file);
+    }
+
+    public static Elements<String> fromFile(Path file) {
+        return FileUtils.readAsElements(file);
+    }
+
+    public static Elements<String> fromFile(String filePath) {
+        return FileUtils.readAsElements(filePath);
+    }
+
+    public static Elements<String> bySplitText(String text, String splitValue) {
+        return elements(text.split(splitValue));
     }
 
     @Override
@@ -163,10 +181,6 @@ public final class Elements<T> implements Stream<T> {
         return stream;
     }
 
-    public void writeToFile(String filePath) {
-        FileUtils.writeToFile(filePath, this.map(Objects::toString));
-    }
-
     /**
      * Concatenate all elements in stream to String.
      *
@@ -202,6 +216,33 @@ public final class Elements<T> implements Stream<T> {
 
     public String concatWithNewLines() {
         return asConcatText(System.lineSeparator());
+    }
+
+    /**
+     * Save elements to file
+     *
+     * @param file path to file
+     */
+    public void writeToFile(File file) {
+        FileUtils.writeToFile(file, concatWithNewLines());
+    }
+
+    /**
+     * Save elements to file
+     *
+     * @param filePath path to file
+     */
+    public void writeToFile(String filePath) {
+        FileUtils.writeToFile(filePath, concatWithNewLines());
+    }
+
+    /**
+     * Save elements to file
+     *
+     * @param filePath path to file
+     */
+    public void writeToFile(Path filePath) {
+        FileUtils.writeToFile(filePath, concatWithNewLines());
     }
 
     /**
@@ -379,7 +420,11 @@ public final class Elements<T> implements Stream<T> {
     }
 
     public Elements<T> concat(Stream<? extends T> toConcat) {
-        return Elements.concat(this, toConcat);
+        return Elements.concat(this, Elements.elements(toConcat));
+    }
+
+    public Elements<T> concat(Collection<? extends T> toConcat) {
+        return Elements.concat(this, Elements.elements(toConcat));
     }
 
     public static <T> Elements<T> concat(Stream<? extends T> a, Stream<? extends T> b) {
