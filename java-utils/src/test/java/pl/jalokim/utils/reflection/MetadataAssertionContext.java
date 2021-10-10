@@ -74,7 +74,7 @@ public class MetadataAssertionContext {
     public MetadataAssertionContext assertGenericTypesAsRawObject() {
         assertThat(typeMetadata.hasGenericTypes()).isTrue();
         elements(typeMetadata.getGenericTypes())
-                .forEach((index, typeMetadata1) -> assertGenericType(index, Object.class, false, 0, NORMAL_BEAN));
+                .forEachWithIndex((index, typeMetadata1) -> assertGenericType(index, Object.class, false, 0, NORMAL_BEAN));
         return this;
     }
 }

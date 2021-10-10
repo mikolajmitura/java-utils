@@ -84,7 +84,7 @@ public final class TypeMetadata {
 
         Map<String, TypeMetadata> tempMap = new ConcurrentHashMap<>();
         elements(parametrizedTypesForClass)
-            .forEach((index, type) -> {
+            .forEachWithIndex((index, type) -> {
                     if (tempGenerics.size() == index) {
                         buildFromClass(Object.class);
                         tempGenerics.add(index, NATIVE_OBJECT_META);

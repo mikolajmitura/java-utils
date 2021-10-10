@@ -222,4 +222,14 @@ public class StringUtilsTest {
         // then
         assertThat(s).isEqualTo("1, 2, 3");
     }
+
+    @Test
+    public void shouldClearAllGivenTexts() {
+        // given
+        String textToClear = "//this is some\\$ /text{}/";
+        // when
+        String result = StringUtils.replaceAllWithEmpty(textToClear, "/", "\\$", "{", "}");
+        // then
+        assertThat(result).isEqualTo("this is some text");
+    }
 }

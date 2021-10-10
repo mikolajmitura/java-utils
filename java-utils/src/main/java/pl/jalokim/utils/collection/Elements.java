@@ -117,6 +117,15 @@ public final class Elements<T> implements Stream<T> {
         return elements(resultList);
     }
 
+    public <R> Elements<R> mapWithIndexed(Function<IndexedElement<T>, ? extends R> mapper) {
+        List<R> resultList = new ArrayList<>();
+        List<T> sourceList = new Elements<>(this.stream).asList();
+        for (int index = 0; index < sourceList.size(); index++) {
+            resultList.add(mapper.apply(createIndexedElement(sourceList, index, sourceList.get(index))));
+        }
+        return elements(resultList);
+    }
+
     @Override
     public <R> Elements<R> flatMap(Function<? super T, ? extends Stream<? extends R>> mapper) {
         return new Elements<>(this.stream.flatMap(mapper));
@@ -250,7 +259,7 @@ public final class Elements<T> implements Stream<T> {
      *
      * @param consumer consumer of index and element.
      */
-    public void forEach(BiConsumer<Integer, T> consumer) {
+    public void forEachWithIndex(BiConsumer<Integer, T> consumer) {
         AtomicInteger currentIndex = new AtomicInteger();
         stream.forEach(element -> consumer.accept(currentIndex.getAndIncrement(), element));
     }
@@ -274,9 +283,13 @@ public final class Elements<T> implements Stream<T> {
         List<T> elements = asList();
         int index = 0;
         for (T element : elements) {
-            consumer.accept(new IndexedElement<>(index, element, index == 0, isLastIndex(elements, index)));
+            consumer.accept(createIndexedElement(elements, index, element));
             index++;
         }
+    }
+
+    private IndexedElement<T> createIndexedElement(List<T> elements, int index, T element) {
+        return new IndexedElement<>(index, element, index == 0, isLastIndex(elements, index));
     }
 
     @Override

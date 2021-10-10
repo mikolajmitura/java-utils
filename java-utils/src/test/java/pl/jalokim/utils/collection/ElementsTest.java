@@ -108,7 +108,7 @@ public class ElementsTest extends TemporaryTestResources {
         // when
         List<String> collectedElements = new ArrayList<>();
         List<Integer> collectedIndexes = new ArrayList<>();
-        elements(sourceList).forEach((index, element) -> {
+        elements(sourceList).forEachWithIndex((index, element) -> {
             collectedElements.add(element);
             collectedIndexes.add(index);
         });
@@ -186,7 +186,7 @@ public class ElementsTest extends TemporaryTestResources {
             List<Event> eventsAsList = exampleClass.getEventsAsList();
             Event[] events = new Event[eventsAsList.size()];
             elements(eventsAsList)
-                .forEach((index, element) -> events[index] = element);
+                .forEachWithIndex((index, element) -> events[index] = element);
             exampleClass.setEvents(events);
         });
         // when
@@ -652,6 +652,21 @@ public class ElementsTest extends TemporaryTestResources {
         Elements<String> stringElements = Elements.bySplitText(textToSplit, ",");
         // then
         assertThat(stringElements).containsExactly("part1", "part2", " part3");
+    }
+
+    @Test
+    public void mapWithIndexed() {
+        // when
+        List<String> texts = getTextElements()
+            .mapWithIndexed(indexed -> {
+                if (!indexed.isFirst()) {
+                    return indexed.getIndex() + indexed.getValue();
+                }
+                return indexed.getValue();
+            })
+            .asList();
+        // then
+        assertThat(texts).containsExactly("1", "12", "23", "34");
     }
 
     void elementsIsEmptyNotNull(Elements<?> elements) {

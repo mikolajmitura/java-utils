@@ -2,6 +2,7 @@ package pl.jalokim.utils.collection;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableList;
+import static pl.jalokim.utils.collection.Elements.elements;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,6 +14,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
 /**
@@ -348,6 +350,17 @@ public final class CollectionUtils {
     }
 
     /**
+     * It returns true when stream is null or empty.
+     *
+     * @param stream to verify.
+     * @param <T> generic type.
+     * @return boolean value.
+     */
+    public static <T> boolean isEmpty(Stream<T> stream) {
+        return isEmpty(elements(stream).asList());
+    }
+
+    /**
      * It returns true only when collection is not null, and if not empty.
      *
      * @param list to verify.
@@ -356,6 +369,17 @@ public final class CollectionUtils {
      */
     public static <T> boolean isNotEmpty(Collection<T> list) {
         return !isEmpty(list);
+    }
+
+    /**
+     * It returns true only when stream is not null, and if not empty.
+     *
+     * @param stream to verify.
+     * @param <T> generic type.
+     * @return boolean value.
+     */
+    public static <T> boolean isNotEmpty(Stream<T> stream) {
+        return isNotEmpty(elements(stream).asList());
     }
 
     /**

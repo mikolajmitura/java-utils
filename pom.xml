@@ -22,8 +22,8 @@
     </modules>
 
     <properties>
-        <main-version>3.1</main-version>
-        <minor-version>1-SNAPSHOT</minor-version>
+        <main-version>4.0</main-version>
+        <minor-version>0-SNAPSHOT</minor-version>
 
         <java.version>1.8</java.version>
 

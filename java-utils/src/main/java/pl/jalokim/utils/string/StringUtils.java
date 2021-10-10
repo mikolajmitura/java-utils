@@ -369,4 +369,18 @@ public final class StringUtils {
         }
         return counter;
     }
+
+    /**
+     * Replace all given texts to empty
+     * @param textToClear - this text will be cleared with allToClear chars
+     * @param allToClear - array of chars which should be erased from textToClear
+     * @return cleared textToClear
+     */
+    public static String replaceAllWithEmpty(String textToClear, String... allToClear) {
+        String currentText = textToClear;
+        for (String toRemove : allToClear) {
+            currentText = currentText.replace(toRemove, "");
+        }
+        return currentText;
+    }
 }
