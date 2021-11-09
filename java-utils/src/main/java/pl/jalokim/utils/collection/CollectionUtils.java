@@ -298,6 +298,20 @@ public final class CollectionUtils {
     }
 
     /**
+     * It returns first element from list if present or null.
+     *
+     * @param list as source
+     * @param <T> generic type
+     * @return returns first element if present.
+     */
+    public static <T> T getFirstOrNull(List<T> list) {
+        if (list.isEmpty()) {
+            return null;
+        }
+        return list.get(0);
+    }
+
+    /**
      * It returns last element from list if present.
      *
      * @param list as source
@@ -307,6 +321,20 @@ public final class CollectionUtils {
     public static <T> T getLast(List<T> list) {
         if (list.isEmpty()) {
             throw new CollectionUtilsException("cannot get last element from empty list: " + list);
+        }
+        return list.get(list.size() - 1);
+    }
+
+    /**
+     * It returns last element from list if present.
+     *
+     * @param list as source
+     * @param <T> generic type
+     * @return returns last element if present.
+     */
+    public static <T> T getLastOrNull(List<T> list) {
+        if (list.isEmpty()) {
+            return null;
         }
         return list.get(list.size() - 1);
     }

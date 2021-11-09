@@ -13,6 +13,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -156,8 +157,16 @@ public final class Elements<T> implements Stream<T> {
         return stream.findFirst().get();
     }
 
+    public T getFirstOrNull() {
+        return CollectionUtils.getFirstOrNull(asList());
+    }
+
     public T getLast() {
         return CollectionUtils.getLast(asList());
+    }
+
+    public T getLastOrNull() {
+        return CollectionUtils.getLastOrNull(asList());
     }
 
     public List<T> asList() {
@@ -286,6 +295,12 @@ public final class Elements<T> implements Stream<T> {
             consumer.accept(createIndexedElement(elements, index, element));
             index++;
         }
+    }
+
+    public Elements<T> reversed() {
+        List<T> asList = stream.collect(Collectors.toCollection(ArrayList::new));
+        Collections.reverse(asList);
+        return elements(asList);
     }
 
     private IndexedElement<T> createIndexedElement(List<T> elements, int index, T element) {

@@ -669,6 +669,30 @@ public class ElementsTest extends TemporaryTestResources {
         assertThat(texts).containsExactly("1", "12", "23", "34");
     }
 
+    @Test
+    public void returnReversedElements() {
+        // given
+        Elements<String> elements = getTextElements();
+        // when
+        List<String> result = elements.reversed().asList();
+        // then
+        assertThat(result).containsExactly("4", "3", "2", "1");
+    }
+
+    @Test
+    public void returnFirstOrNull() {
+        // then
+        assertThat(getTextElements().getFirstOrNull()).isEqualTo("1");
+        assertThat(Elements.empty().getFirstOrNull()).isNull();
+    }
+
+    @Test
+    public void returnLastOrNull() {
+        // then
+        assertThat(getTextElements().getLastOrNull()).isEqualTo("4");
+        assertThat(Elements.empty().getLastOrNull()).isNull();
+    }
+
     void elementsIsEmptyNotNull(Elements<?> elements) {
         assertThat(elements).isNotNull();
         assertThat(elements.asList().isEmpty()).isTrue();

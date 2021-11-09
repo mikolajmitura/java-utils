@@ -2,6 +2,7 @@ package pl.jalokim.utils.collection;
 
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.stream.Stream;
 import org.junit.Test;
@@ -413,5 +414,23 @@ public class CollectionUtilsTest {
         assertThat(integerSet1).isEmpty();
         assertThat(integerList2).isEmpty();
         assertThat(integerSet3).isEmpty();
+    }
+
+    @Test
+    public void returnLastElementOrNull() {
+        // then
+        List<Object> emptyList = Collections.emptyList();
+        assertThat(CollectionUtils.getLastOrNull(Arrays.asList(1, 2))).isEqualTo(2);
+        assertThat(CollectionUtils.getLastOrNull(Collections.singletonList(1))).isEqualTo(1);
+        assertThat(CollectionUtils.getLastOrNull(emptyList)).isNull();
+    }
+
+    @Test
+    public void returnFirstElementOrNull() {
+        // then
+        List<Object> emptyList = Collections.emptyList();
+        assertThat(CollectionUtils.getFirstOrNull(Arrays.asList(1, 2))).isEqualTo(1);
+        assertThat(CollectionUtils.getFirstOrNull(Collections.singletonList(1))).isEqualTo(1);
+        assertThat(CollectionUtils.getFirstOrNull(emptyList)).isNull();
     }
 }
