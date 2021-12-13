@@ -13,8 +13,11 @@ import pl.jalokim.utils.reflection.beans.SuperObject2;
 import pl.jalokim.utils.reflection.beans.inheritiance.AbstractClassExSuperObject;
 import pl.jalokim.utils.reflection.beans.inheritiance.Event;
 import pl.jalokim.utils.reflection.beans.inheritiance.ExampleClass;
+import pl.jalokim.utils.reflection.beans.inheritiance.NonAbstractClass;
 import pl.jalokim.utils.reflection.beans.inheritiance.SecondLevelSomeConcreteObject;
+import pl.jalokim.utils.reflection.beans.inheritiance.SomeAbstractClass;
 import pl.jalokim.utils.reflection.beans.inheritiance.SomeConcreteObject;
+import pl.jalokim.utils.reflection.beans.inheritiance.ExampleInterface;
 import pl.jalokim.utils.reflection.beans.inheritiance.SuperObject;
 import pl.jalokim.utils.reflection.beans.inheritiance.innerpack.ThirdLevelConcrClass;
 
@@ -29,7 +32,9 @@ import java.util.Set;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static pl.jalokim.utils.collection.Elements.elements;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getAllChildClassesForClass;
+import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getAllFields;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getConstructor;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getField;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getFullClassName;
@@ -41,10 +46,14 @@ import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getTypeMetadat
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getTypeMetadataFromType;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getTypeMetadataOfArray;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getTypeOfArrayField;
+import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isAbstractClass;
+import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isAbstractClassOrInterface;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isArrayType;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isCollectionType;
+import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isConcreteClass;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isEnumType;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isHavingElementsType;
+import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isInterface;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isListType;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isMapType;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.isNumberType;
@@ -839,6 +848,35 @@ public class MetadataReflectionUtilsTest {
         // when // then
         assertThat(getFullClassName(someValue)).isEqualTo("java.lang.String");
         assertThat(getFullClassName(someNullValue)).isEqualTo("");
+    }
+
+    @Test
+    public void returnThatClassesAreAbstractOrInterfaceKind() {
+        assertThat(isAbstractClassOrInterface(ExampleInterface.class)).isTrue();
+        assertThat(isAbstractClassOrInterface(SomeAbstractClass.class)).isTrue();
+        assertThat(isAbstractClassOrInterface(NonAbstractClass.class)).isFalse();
+        assertThat(isAbstractClass(ExampleInterface.class)).isTrue();
+        assertThat(isAbstractClass(SomeAbstractClass.class)).isTrue();
+        assertThat(isAbstractClass(NonAbstractClass.class)).isFalse();
+        assertThat(isInterface(ExampleInterface.class)).isTrue();
+        assertThat(isInterface(SomeAbstractClass.class)).isFalse();
+        assertThat(isInterface(NonAbstractClass.class)).isFalse();
+        assertThat(isConcreteClass(ExampleInterface.class)).isFalse();
+        assertThat(isConcreteClass(SomeAbstractClass.class)).isFalse();
+        assertThat(isConcreteClass(NonAbstractClass.class)).isTrue();
+    }
+
+    @Test
+    public void returnExpectedFields() {
+        // given
+        List<Field> expectedFields = elements(NonAbstractClass.class.getDeclaredFields())
+            .concat(SomeAbstractClass.class.getDeclaredFields())
+            .asList();
+
+        // when
+        List<Field> allFields = getAllFields(NonAbstractClass.class);
+        // then
+        assertThat(allFields).isEqualTo(expectedFields);
     }
 
     private static FieldExpectation create(Class<?> type, String fieldName, boolean expectedResult) {

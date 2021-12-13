@@ -451,6 +451,10 @@ public final class Elements<T> implements Stream<T> {
         return Elements.concat(this, Elements.elements(toConcat));
     }
 
+    public Elements<T> concat(T... toConcat) {
+        return Elements.concat(this, Elements.elements(toConcat));
+    }
+
     public Elements<T> concat(Collection<? extends T> toConcat) {
         return Elements.concat(this, Elements.elements(toConcat));
     }

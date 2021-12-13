@@ -44,7 +44,7 @@ import pl.jalokim.utils.string.StringUtils;
 /**
  * Gather some metadata about classes.
  */
-@SuppressWarnings({"PMD.GodClass", "PMD.CouplingBetweenObjects"})
+@SuppressWarnings({"PMD.GodClass", "PMD.CouplingBetweenObjects", "PMD.ExcessivePublicCount"})
 public final class MetadataReflectionUtils {
 
     private static final List<Class<?>> SIMPLE_CLASSES = createSimpleClassesList();
@@ -521,7 +521,6 @@ public final class MetadataReflectionUtils {
      * It gets full canonical name of class of parameter value.
      *
      * @param value from this will get full class name
-     *
      * @return real full name of class or emty string when value is null
      */
     public static String getFullClassName(Object value) {
@@ -612,5 +611,34 @@ public final class MetadataReflectionUtils {
         }
         TypeMetadata typeMetadata = buildForArrayField(field);
         return typeMetadata.getGenericType(0);
+    }
+
+    public static boolean isConcreteClass(Class<?> type) {
+        return !isAbstractClassOrInterface(type);
+    }
+
+    public static boolean isAbstractClassOrInterface(Class<?> type) {
+        int modifiers = type.getModifiers();
+        return Modifier.isAbstract(modifiers) || Modifier.isInterface(modifiers);
+    }
+
+    public static boolean isAbstractClass(Class<?> type) {
+        int modifiers = type.getModifiers();
+        return Modifier.isAbstract(modifiers);
+    }
+
+    public static boolean isInterface(Class<?> type) {
+        int modifiers = type.getModifiers();
+        return Modifier.isInterface(modifiers);
+    }
+
+    public static List<Field> getAllFields(Class<?> type) {
+        List<Field> allFields = new ArrayList<>();
+        Class<?> currentClass = type;
+        while (currentClass != Object.class) {
+            allFields.addAll(elements(currentClass.getDeclaredFields()).asList());
+            currentClass = currentClass.getSuperclass();
+        }
+        return allFields;
     }
 }
