@@ -614,7 +614,7 @@ public final class MetadataReflectionUtils {
     }
 
     public static boolean isConcreteClass(Class<?> type) {
-        return !isAbstractClassOrInterface(type);
+        return isArrayType(type) || !isAbstractClassOrInterface(type);
     }
 
     public static boolean isAbstractClassOrInterface(Class<?> type) {

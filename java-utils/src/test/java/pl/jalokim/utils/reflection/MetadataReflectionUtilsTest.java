@@ -864,6 +864,7 @@ public class MetadataReflectionUtilsTest {
         assertThat(isConcreteClass(ExampleInterface.class)).isFalse();
         assertThat(isConcreteClass(SomeAbstractClass.class)).isFalse();
         assertThat(isConcreteClass(NonAbstractClass.class)).isTrue();
+        assertThat(isConcreteClass(String[].class)).isTrue();
     }
 
     @Test
