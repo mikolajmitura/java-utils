@@ -1,7 +1,7 @@
 Java Utils project
 ---------------------------------------------
 
-[![Build Status](https://travis-ci.com/mikolajmitura/java-utils.svg?branch=develop)](https://travis-ci.com/github/mikolajmitura/java-utils)
+[![Build Status](https://github.com/mikolajmitura/java-utils/actions/workflows/maven.yml/badge.svg)](https://github.com/mikolajmitura/java-utils/actions/workflows/maven.yml)
 [![Coverage Status](https://coveralls.io/repos/github/mikolajmitura/java-utils/badge.svg?branch=develop)](https://coveralls.io/github/mikolajmitura/java-utils?branch=develop)
 
 This project contains some utils code for java and for test.
