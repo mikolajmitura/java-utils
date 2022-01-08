@@ -23,7 +23,7 @@
 
     <properties>
         <main-version>4.0</main-version>
-        <minor-version>0-SNAPSHOT</minor-version>
+        <minor-version>0</minor-version>
 
         <java.version>1.8</java.version>
 
