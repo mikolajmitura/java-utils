@@ -244,7 +244,8 @@ public final class MetadataReflectionUtils {
         Elements<Method> methods = Elements.empty();
         Class<?> currentClass = targetClass;
         while (currentClass != Object.class) {
-            methods = methods.concat(currentClass.getDeclaredMethods());
+            methods = methods.concat(elements(currentClass.getDeclaredMethods())
+                .filter(method -> !method.getName().startsWith("$")));
             currentClass = currentClass.getSuperclass();
         }
         return methods.asList();
