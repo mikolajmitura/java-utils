@@ -1,40 +1,12 @@
 package pl.jalokim.utils.reflection;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import lombok.Data;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import pl.jalokim.utils.constants.Constants;
-import pl.jalokim.utils.reflection.beans.SuperObject2;
-import pl.jalokim.utils.reflection.beans.inheritiance.AbstractClassExSuperObject;
-import pl.jalokim.utils.reflection.beans.inheritiance.Event;
-import pl.jalokim.utils.reflection.beans.inheritiance.ExampleClass;
-import pl.jalokim.utils.reflection.beans.inheritiance.NonAbstractClass;
-import pl.jalokim.utils.reflection.beans.inheritiance.SecondLevelSomeConcreteObject;
-import pl.jalokim.utils.reflection.beans.inheritiance.SomeAbstractClass;
-import pl.jalokim.utils.reflection.beans.inheritiance.SomeConcreteObject;
-import pl.jalokim.utils.reflection.beans.inheritiance.ExampleInterface;
-import pl.jalokim.utils.reflection.beans.inheritiance.SuperObject;
-import pl.jalokim.utils.reflection.beans.inheritiance.innerpack.ThirdLevelConcrClass;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static pl.jalokim.utils.collection.Elements.elements;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getAllChildClassesForClass;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getAllFields;
+import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getAllMethods;
+import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getAllNotStaticMethods;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getConstructor;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getField;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getFullClassName;
@@ -68,6 +40,37 @@ import static pl.jalokim.utils.reflection.TypeMetadataAssertionUtils.assertTypeM
 import static pl.jalokim.utils.string.StringUtils.concat;
 import static pl.jalokim.utils.string.StringUtils.concatElements;
 import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.assertException;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import lombok.Data;
+import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import pl.jalokim.utils.constants.Constants;
+import pl.jalokim.utils.reflection.beans.SuperObject2;
+import pl.jalokim.utils.reflection.beans.inheritiance.AbstractClassExSuperObject;
+import pl.jalokim.utils.reflection.beans.inheritiance.Event;
+import pl.jalokim.utils.reflection.beans.inheritiance.ExampleClass;
+import pl.jalokim.utils.reflection.beans.inheritiance.ExampleInterface;
+import pl.jalokim.utils.reflection.beans.inheritiance.NonAbstractClass;
+import pl.jalokim.utils.reflection.beans.inheritiance.NonStaticMethodsConcreteClass;
+import pl.jalokim.utils.reflection.beans.inheritiance.NonStaticMethodsSuperClass;
+import pl.jalokim.utils.reflection.beans.inheritiance.SecondLevelSomeConcreteObject;
+import pl.jalokim.utils.reflection.beans.inheritiance.SomeAbstractClass;
+import pl.jalokim.utils.reflection.beans.inheritiance.SomeConcreteObject;
+import pl.jalokim.utils.reflection.beans.inheritiance.SuperObject;
+import pl.jalokim.utils.reflection.beans.inheritiance.innerpack.ThirdLevelConcrClass;
 
 public class MetadataReflectionUtilsTest {
 
@@ -878,6 +881,53 @@ public class MetadataReflectionUtilsTest {
         List<Field> allFields = getAllFields(NonAbstractClass.class);
         // then
         assertThat(allFields).isEqualTo(expectedFields);
+    }
+
+    @Test
+    public void getAllNotStaticMethodsAsExpected() {
+        // when
+        List<Method> allNotStaticMethods = getAllNotStaticMethods(NonStaticMethodsConcreteClass.class);
+
+        // then
+        assertThat(allNotStaticMethods).hasSize(7);
+
+        assertMethod(allNotStaticMethods, "somePublicMethod", NonStaticMethodsConcreteClass.class);
+        assertMethod(allNotStaticMethods, "somePrivateMethod", NonStaticMethodsConcreteClass.class);
+        assertMethod(allNotStaticMethods, "someDefaultScopeMethod", NonStaticMethodsConcreteClass.class);
+        assertMethod(allNotStaticMethods, "someDefaultScopeMethodOtherMethod", NonStaticMethodsConcreteClass.class);
+
+        assertMethod(allNotStaticMethods, "somePublicMethod", NonStaticMethodsSuperClass.class);
+        assertMethod(allNotStaticMethods, "somePrivateMethod", NonStaticMethodsSuperClass.class);
+        assertMethod(allNotStaticMethods, "someDefaultScopeMethod", NonStaticMethodsSuperClass.class);
+    }
+
+    @Test
+    public void getAllMethodsAsExpected() {
+        // when
+        List<Method> allNotStaticMethods = getAllMethods(NonStaticMethodsConcreteClass.class);
+
+        // then
+        assertThat(allNotStaticMethods).hasSize(11);
+    }
+
+    @Test
+    public void testingThatFieldIsStaticOrNot() {
+        // given
+        Field field = MetadataReflectionUtils.getField(NonAbstractClass.class, "otherInteger");
+        Field staticField = MetadataReflectionUtils.getField(SomeAbstractClass.class, "SOME_STATIC_FIELD");
+        // when
+        assertThat(MetadataReflectionUtils.isStaticField(field)).isFalse();
+        assertThat(MetadataReflectionUtils.isNotStaticField(field)).isTrue();
+        assertThat(MetadataReflectionUtils.isStaticField(staticField)).isTrue();
+        assertThat(MetadataReflectionUtils.isNotStaticField(staticField)).isFalse();
+        // then
+    }
+
+    private void assertMethod(List<Method> allNotStaticMethods, String name, Class<?> inClass) {
+        Method foundMethod = elements(allNotStaticMethods)
+            .filter(method -> method.getName().equals(name) && method.getDeclaringClass().equals(inClass))
+            .getFirst();
+        assertThat(foundMethod).isNotNull();
     }
 
     private static FieldExpectation create(Class<?> type, String fieldName, boolean expectedResult) {

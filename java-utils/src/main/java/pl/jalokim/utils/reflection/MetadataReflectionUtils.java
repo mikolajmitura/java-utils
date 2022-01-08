@@ -38,6 +38,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ClassUtils;
 import org.reflections.Reflections;
+import pl.jalokim.utils.collection.Elements;
 import pl.jalokim.utils.constants.Constants;
 import pl.jalokim.utils.string.StringUtils;
 
@@ -125,6 +126,14 @@ public final class MetadataReflectionUtils {
         return foundField;
     }
 
+    public static boolean isStaticField(Field field) {
+        return Modifier.isStatic(field.getModifiers());
+    }
+
+    public static boolean isNotStaticField(Field field) {
+        return !isStaticField(field);
+    }
+
     /**
      * Return type of field which is expected to be array field.
      *
@@ -204,6 +213,49 @@ public final class MetadataReflectionUtils {
             throw new ReflectionOperationException(new NoSuchMethodException(StringUtils.concatElementsAsLines(noSuchMethodExceptions)));
         }
         return method;
+    }
+
+    /**
+     * It gets all not static methods in whole class hierarchy.
+     *
+     * @param targetClass - class for which will be searched all methods
+     * @return list of all methods in whole class hierarchy.
+     */
+    @SuppressWarnings("PMD.CloseResource")
+    public static List<Method> getAllNotStaticMethods(Class<?> targetClass) {
+        Elements<Method> methods = Elements.empty();
+        Class<?> currentClass = targetClass;
+        while (currentClass != Object.class) {
+            methods = methods.concat(elements(currentClass.getDeclaredMethods())
+                .filter(MetadataReflectionUtils::isNotStaticMethod));
+            currentClass = currentClass.getSuperclass();
+        }
+        return methods.asList();
+    }
+
+    /**
+     * It gets all methods in whole class hierarchy.
+     *
+     * @param targetClass - class for which will be searched all methods
+     * @return list of all methods in whole class hierarchy.
+     */
+    @SuppressWarnings("PMD.CloseResource")
+    public static List<Method> getAllMethods(Class<?> targetClass) {
+        Elements<Method> methods = Elements.empty();
+        Class<?> currentClass = targetClass;
+        while (currentClass != Object.class) {
+            methods = methods.concat(currentClass.getDeclaredMethods());
+            currentClass = currentClass.getSuperclass();
+        }
+        return methods.asList();
+    }
+
+    public static boolean isStaticMethod(Method method) {
+        return Modifier.isStatic(method.getModifiers());
+    }
+
+    public static boolean isNotStaticMethod(Method method) {
+        return !isStaticMethod(method);
     }
 
     /**
