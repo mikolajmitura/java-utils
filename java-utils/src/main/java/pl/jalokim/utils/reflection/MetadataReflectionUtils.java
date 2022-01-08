@@ -38,12 +38,14 @@ import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ClassUtils;
 import org.reflections.Reflections;
+import pl.jalokim.utils.collection.Elements;
+import pl.jalokim.utils.constants.Constants;
 import pl.jalokim.utils.string.StringUtils;
 
 /**
  * Gather some metadata about classes.
  */
-@SuppressWarnings({"PMD.GodClass", "PMD.CouplingBetweenObjects"})
+@SuppressWarnings({"PMD.GodClass", "PMD.CouplingBetweenObjects", "PMD.ExcessivePublicCount"})
 public final class MetadataReflectionUtils {
 
     private static final List<Class<?>> SIMPLE_CLASSES = createSimpleClassesList();
@@ -56,7 +58,7 @@ public final class MetadataReflectionUtils {
 
     private static List<Class<?>> createSimpleClassesList() {
         List<Class<?>> classes = new ArrayList<>();
-        classes.add(String.class);
+        classes.add(CharSequence.class);
         classes.add(Character.class);
         classes.add(Number.class);
         classes.add(Boolean.class);
@@ -122,6 +124,14 @@ public final class MetadataReflectionUtils {
                 + mapToList(searchedClasses, Class::getCanonicalName));
         }
         return foundField;
+    }
+
+    public static boolean isStaticField(Field field) {
+        return Modifier.isStatic(field.getModifiers());
+    }
+
+    public static boolean isNotStaticField(Field field) {
+        return !isStaticField(field);
     }
 
     /**
@@ -206,6 +216,49 @@ public final class MetadataReflectionUtils {
     }
 
     /**
+     * It gets all not static methods in whole class hierarchy.
+     *
+     * @param targetClass - class for which will be searched all methods
+     * @return list of all methods in whole class hierarchy.
+     */
+    @SuppressWarnings("PMD.CloseResource")
+    public static List<Method> getAllNotStaticMethods(Class<?> targetClass) {
+        Elements<Method> methods = Elements.empty();
+        Class<?> currentClass = targetClass;
+        while (currentClass != Object.class) {
+            methods = methods.concat(elements(currentClass.getDeclaredMethods())
+                .filter(MetadataReflectionUtils::isNotStaticMethod));
+            currentClass = currentClass.getSuperclass();
+        }
+        return methods.asList();
+    }
+
+    /**
+     * It gets all methods in whole class hierarchy.
+     *
+     * @param targetClass - class for which will be searched all methods
+     * @return list of all methods in whole class hierarchy.
+     */
+    @SuppressWarnings("PMD.CloseResource")
+    public static List<Method> getAllMethods(Class<?> targetClass) {
+        Elements<Method> methods = Elements.empty();
+        Class<?> currentClass = targetClass;
+        while (currentClass != Object.class) {
+            methods = methods.concat(currentClass.getDeclaredMethods());
+            currentClass = currentClass.getSuperclass();
+        }
+        return methods.asList();
+    }
+
+    public static boolean isStaticMethod(Method method) {
+        return Modifier.isStatic(method.getModifiers());
+    }
+
+    public static boolean isNotStaticMethod(Method method) {
+        return !isStaticMethod(method);
+    }
+
+    /**
      * Get Constructor instance of target class with expected argument types
      *
      * @param targetClass for this class will be returned Constructor
@@ -255,6 +308,14 @@ public final class MetadataReflectionUtils {
                 classMeta -> !Modifier.isAbstract(classMeta.getModifiers()));
         }
         return unmodifiableSet(findAllClassesInClassPath);
+    }
+
+    public static boolean isTypeOf(Object instance, Class<?> expectedTypeOf) {
+        return instance != null && isTypeOf(instance.getClass(), expectedTypeOf);
+    }
+
+    public static boolean isTypeOf(Class<?> typeToCheck, Class<?> expectedTypeOf) {
+        return expectedTypeOf.isAssignableFrom(typeToCheck);
     }
 
     /**
@@ -316,7 +377,7 @@ public final class MetadataReflectionUtils {
      * @return boolean value
      */
     public static boolean isTextType(Class<?> someClass) {
-        return String.class.isAssignableFrom(someClass);
+        return CharSequence.class.isAssignableFrom(someClass);
     }
 
     /**
@@ -377,6 +438,26 @@ public final class MetadataReflectionUtils {
      */
     public static boolean isCollectionType(Class<?> someClass) {
         return Collection.class.isAssignableFrom(someClass);
+    }
+
+    /**
+     * It checks that given class is list type.
+     *
+     * @param someClass class which will be verified.
+     * @return boolean value
+     */
+    public static boolean isListType(Class<?> someClass) {
+        return List.class.isAssignableFrom(someClass);
+    }
+
+    /**
+     * It checks that given class is set type.
+     *
+     * @param someClass class which will be verified.
+     * @return boolean value
+     */
+    public static boolean isSetType(Class<?> someClass) {
+        return Set.class.isAssignableFrom(someClass);
     }
 
     /**
@@ -489,6 +570,19 @@ public final class MetadataReflectionUtils {
     }
 
     /**
+     * It gets full canonical name of class of parameter value.
+     *
+     * @param value from this will get full class name
+     * @return real full name of class or emty string when value is null
+     */
+    public static String getFullClassName(Object value) {
+        return Optional.ofNullable(value)
+            .map(Object::getClass)
+            .map(Class::getCanonicalName)
+            .orElse(Constants.EMPTY);
+    }
+
+    /**
      * It returns some parametrized types for given class. But it not search in whole hierarchy of provided class. It returns only for certain class.
      *
      * @param someClass instance of certain class
@@ -569,5 +663,34 @@ public final class MetadataReflectionUtils {
         }
         TypeMetadata typeMetadata = buildForArrayField(field);
         return typeMetadata.getGenericType(0);
+    }
+
+    public static boolean isConcreteClass(Class<?> type) {
+        return isArrayType(type) || !isAbstractClassOrInterface(type);
+    }
+
+    public static boolean isAbstractClassOrInterface(Class<?> type) {
+        int modifiers = type.getModifiers();
+        return Modifier.isAbstract(modifiers) || Modifier.isInterface(modifiers);
+    }
+
+    public static boolean isAbstractClass(Class<?> type) {
+        int modifiers = type.getModifiers();
+        return Modifier.isAbstract(modifiers);
+    }
+
+    public static boolean isInterface(Class<?> type) {
+        int modifiers = type.getModifiers();
+        return Modifier.isInterface(modifiers);
+    }
+
+    public static List<Field> getAllFields(Class<?> type) {
+        List<Field> allFields = new ArrayList<>();
+        Class<?> currentClass = type;
+        while (currentClass != Object.class) {
+            allFields.addAll(elements(currentClass.getDeclaredFields()).asList());
+            currentClass = currentClass.getSuperclass();
+        }
+        return allFields;
     }
 }

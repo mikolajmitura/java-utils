@@ -62,7 +62,7 @@ public final class DurationFormatter {
         }
 
         List<String> timeAsList = new ArrayList<>();
-        elements(timeSequence).forEach((index, number) ->
+        elements(timeSequence).forEachWithIndex((index, number) ->
             timeAsList.add(number.toString() + SPACE + timeLabels.get(index))
         );
         Collections.reverse(timeAsList);

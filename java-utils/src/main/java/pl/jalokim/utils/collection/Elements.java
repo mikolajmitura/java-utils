@@ -9,13 +9,16 @@ import static pl.jalokim.utils.constants.Constants.COMMA;
 import static pl.jalokim.utils.constants.Constants.SPACE;
 import static pl.jalokim.utils.string.StringUtils.concatElements;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Spliterator;
@@ -80,6 +83,22 @@ public final class Elements<T> implements Stream<T> {
         return new Elements<>(stream);
     }
 
+    public static Elements<String> fromFile(File file) {
+        return FileUtils.readAsElements(file);
+    }
+
+    public static Elements<String> fromFile(Path file) {
+        return FileUtils.readAsElements(file);
+    }
+
+    public static Elements<String> fromFile(String filePath) {
+        return FileUtils.readAsElements(filePath);
+    }
+
+    public static Elements<String> bySplitText(String text, String splitValue) {
+        return elements(text.split(splitValue));
+    }
+
     @Override
     public Elements<T> filter(Predicate<? super T> predicate) {
         return new Elements<>(stream.filter(predicate));
@@ -95,6 +114,15 @@ public final class Elements<T> implements Stream<T> {
         List<T> sourceList = new Elements<>(this.stream).asList();
         for (int index = 0; index < sourceList.size(); index++) {
             resultList.add(mapper.apply(index, sourceList.get(index)));
+        }
+        return elements(resultList);
+    }
+
+    public <R> Elements<R> mapWithIndexed(Function<IndexedElement<T>, ? extends R> mapper) {
+        List<R> resultList = new ArrayList<>();
+        List<T> sourceList = new Elements<>(this.stream).asList();
+        for (int index = 0; index < sourceList.size(); index++) {
+            resultList.add(mapper.apply(createIndexedElement(sourceList, index, sourceList.get(index))));
         }
         return elements(resultList);
     }
@@ -129,8 +157,16 @@ public final class Elements<T> implements Stream<T> {
         return stream.findFirst().get();
     }
 
+    public T getFirstOrNull() {
+        return CollectionUtils.getFirstOrNull(asList());
+    }
+
     public T getLast() {
         return CollectionUtils.getLast(asList());
+    }
+
+    public T getLastOrNull() {
+        return CollectionUtils.getLastOrNull(asList());
     }
 
     public List<T> asList() {
@@ -161,10 +197,6 @@ public final class Elements<T> implements Stream<T> {
 
     public Stream<T> asStream() {
         return stream;
-    }
-
-    public void writeToFile(String filePath) {
-        FileUtils.writeToFile(filePath, this.map(Objects::toString));
     }
 
     /**
@@ -205,11 +237,38 @@ public final class Elements<T> implements Stream<T> {
     }
 
     /**
+     * Save elements to file
+     *
+     * @param file path to file
+     */
+    public void writeToFile(File file) {
+        FileUtils.writeToFile(file, concatWithNewLines());
+    }
+
+    /**
+     * Save elements to file
+     *
+     * @param filePath path to file
+     */
+    public void writeToFile(String filePath) {
+        FileUtils.writeToFile(filePath, concatWithNewLines());
+    }
+
+    /**
+     * Save elements to file
+     *
+     * @param filePath path to file
+     */
+    public void writeToFile(Path filePath) {
+        FileUtils.writeToFile(filePath, concatWithNewLines());
+    }
+
+    /**
      * For each with index and element.
      *
      * @param consumer consumer of index and element.
      */
-    public void forEach(BiConsumer<Integer, T> consumer) {
+    public void forEachWithIndex(BiConsumer<Integer, T> consumer) {
         AtomicInteger currentIndex = new AtomicInteger();
         stream.forEach(element -> consumer.accept(currentIndex.getAndIncrement(), element));
     }
@@ -233,9 +292,19 @@ public final class Elements<T> implements Stream<T> {
         List<T> elements = asList();
         int index = 0;
         for (T element : elements) {
-            consumer.accept(new IndexedElement<>(index, element, index == 0, isLastIndex(elements, index)));
+            consumer.accept(createIndexedElement(elements, index, element));
             index++;
         }
+    }
+
+    public Elements<T> reversed() {
+        List<T> asList = stream.collect(Collectors.toCollection(ArrayList::new));
+        Collections.reverse(asList);
+        return elements(asList);
+    }
+
+    private IndexedElement<T> createIndexedElement(List<T> elements, int index, T element) {
+        return new IndexedElement<>(index, element, index == 0, isLastIndex(elements, index));
     }
 
     @Override
@@ -379,7 +448,15 @@ public final class Elements<T> implements Stream<T> {
     }
 
     public Elements<T> concat(Stream<? extends T> toConcat) {
-        return Elements.concat(this, toConcat);
+        return Elements.concat(this, Elements.elements(toConcat));
+    }
+
+    public Elements<T> concat(T... toConcat) {
+        return Elements.concat(this, Elements.elements(toConcat));
+    }
+
+    public Elements<T> concat(Collection<? extends T> toConcat) {
+        return Elements.concat(this, Elements.elements(toConcat));
     }
 
     public static <T> Elements<T> concat(Stream<? extends T> a, Stream<? extends T> b) {

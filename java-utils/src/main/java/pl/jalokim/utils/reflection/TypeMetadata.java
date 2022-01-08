@@ -36,6 +36,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.Data;
@@ -82,7 +84,7 @@ public final class TypeMetadata {
 
         Map<String, TypeMetadata> tempMap = new ConcurrentHashMap<>();
         elements(parametrizedTypesForClass)
-            .forEach((index, type) -> {
+            .forEachWithIndex((index, type) -> {
                     if (tempGenerics.size() == index) {
                         buildFromClass(Object.class);
                         tempGenerics.add(index, NATIVE_OBJECT_META);
@@ -413,6 +415,42 @@ public final class TypeMetadata {
             return genericTypes.get(index);
         }
         throw new ReflectionOperationException("Cannot find generic type at index: " + index);
+    }
+
+    /**
+     * It search for type metadata for certain parent class. It can be all parent classes as well interfaces.
+     *
+     * @param type - parent class, or parent interface for which will be returned TypeMetadata
+     * @return instance of TypeMetadata for provided parent/interface class.
+     */
+    public TypeMetadata getTypeMetaDataForParentClass(Class<?> type) {
+        TypeMetadata typeMetaDataForParentClass = findTypeMetaDataForParentClass(type);
+        return Optional.ofNullable(typeMetaDataForParentClass)
+            .orElseThrow(() -> new NoSuchElementException("Cannot find metamodel for class: " + type.getCanonicalName()
+                + " as parent in context of class: " + rawType.getCanonicalName()));
+    }
+
+    private TypeMetadata findTypeMetaDataForParentClass(Class<?> type) {
+        if (getRawType().equals(type)) {
+            return this;
+        }
+
+        for (TypeMetadata parentInterface : getParentInterfaces()) {
+            TypeMetadata typeMetadataFromSuperInterface = parentInterface.findTypeMetaDataForParentClass(type);
+            if (typeMetadataFromSuperInterface != null) {
+                return typeMetadataFromSuperInterface;
+            }
+        }
+
+        TypeMetadata parentTypeMetadata = getParentTypeMetadata();
+        if (parentTypeMetadata != null) {
+            TypeMetadata typeMetadataForClass = parentTypeMetadata.findTypeMetaDataForParentClass(type);
+            if (typeMetadataForClass != null) {
+                return typeMetadataForClass;
+            }
+        }
+
+        return null;
     }
 
     @Override

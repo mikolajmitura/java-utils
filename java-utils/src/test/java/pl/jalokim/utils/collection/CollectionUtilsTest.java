@@ -2,7 +2,9 @@ package pl.jalokim.utils.collection;
 
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
+import java.util.stream.Stream;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -17,6 +19,7 @@ import static pl.jalokim.utils.collection.CollectionUtils.hasTheSameElements;
 import static pl.jalokim.utils.collection.CollectionUtils.intersection;
 import static pl.jalokim.utils.collection.CollectionUtils.isEmpty;
 import static pl.jalokim.utils.collection.CollectionUtils.isNotEmpty;
+import static pl.jalokim.utils.collection.Elements.elements;
 import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.when;
 
 public class CollectionUtilsTest {
@@ -263,6 +266,14 @@ public class CollectionUtilsTest {
     }
 
     @Test
+    public void isNotEmptyWhenStreamHasElements() {
+        // when
+        boolean notEmpty = isNotEmpty(elements(collection));
+        // then
+        assertThat(notEmpty).isTrue();
+    }
+
+    @Test
     public void isEmptyWhenHasZeroElements() {
         // when
         boolean notEmpty = isNotEmpty(empty);
@@ -271,17 +282,45 @@ public class CollectionUtilsTest {
     }
 
     @Test
-    public void isEmptyWhenPassedNull() {
+    public void isEmptyWhenStreamHasZeroElements() {
         // when
-        boolean notEmpty = isNotEmpty(null);
+        boolean notEmpty = isNotEmpty(elements(empty));
+        // then
+        assertThat(notEmpty).isFalse();
+    }
+
+    @Test
+    public void isEmptyWhenPassedNull() {
+        List<String> list = null;
+        // when
+        boolean notEmpty = isNotEmpty(list);
+        // then
+        assertThat(notEmpty).isFalse();
+    }
+
+    @Test
+    public void isEmptyWhenPassedNullStream() {
+        Stream<String> stream = null;
+        // when
+        boolean notEmpty = isNotEmpty(stream);
         // then
         assertThat(notEmpty).isFalse();
     }
 
     @Test
     public void passedNullListIsRecognizedAsEmptyList() {
+        List<String> list = null;
         // when
-        boolean isEmpty = isEmpty(null);
+        boolean isEmpty = isEmpty(list);
+        // then
+        assertThat(isEmpty).isTrue();
+    }
+
+    @Test
+    public void passedNullStreamIsRecognizedAsEmpty() {
+        Stream<String> stream = null;
+        // when
+        boolean isEmpty = isEmpty(stream);
         // then
         assertThat(isEmpty).isTrue();
     }
@@ -375,5 +414,23 @@ public class CollectionUtilsTest {
         assertThat(integerSet1).isEmpty();
         assertThat(integerList2).isEmpty();
         assertThat(integerSet3).isEmpty();
+    }
+
+    @Test
+    public void returnLastElementOrNull() {
+        // then
+        List<Object> emptyList = Collections.emptyList();
+        assertThat(CollectionUtils.getLastOrNull(Arrays.asList(1, 2))).isEqualTo(2);
+        assertThat(CollectionUtils.getLastOrNull(Collections.singletonList(1))).isEqualTo(1);
+        assertThat(CollectionUtils.getLastOrNull(emptyList)).isNull();
+    }
+
+    @Test
+    public void returnFirstElementOrNull() {
+        // then
+        List<Object> emptyList = Collections.emptyList();
+        assertThat(CollectionUtils.getFirstOrNull(Arrays.asList(1, 2))).isEqualTo(1);
+        assertThat(CollectionUtils.getFirstOrNull(Collections.singletonList(1))).isEqualTo(1);
+        assertThat(CollectionUtils.getFirstOrNull(emptyList)).isNull();
     }
 }
