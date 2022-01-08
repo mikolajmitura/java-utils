@@ -1,8 +1,0 @@
-language: java
-
-matrix:
-  include:
-  - jdk: openjdk8
-
-script:
-- mvn clean install -Pcoverage jacoco:report coveralls:report
