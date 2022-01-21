@@ -41,6 +41,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.Data;
+import pl.jalokim.utils.string.StringUtils;
 
 /**
  * Class which represents real types for generic types. This can store information about real generic nested type in classes and in fields. This needs all
@@ -50,6 +51,7 @@ import lombok.Data;
 @SuppressWarnings("PMD.GodClass")
 public final class TypeMetadata {
 
+    private static final ThreadLocal<Map<Class<?>, String>> CURRENT_TO_STRING_HELPER = new ThreadLocal<>();
     private static final Map<String, TypeMetadata> RESOLVED_GENERIC_TYPES = new HashMap<>();
 
     static final TypeMetadata NATIVE_OBJECT_META = buildFromClass(Object.class);
@@ -453,23 +455,75 @@ public final class TypeMetadata {
         return null;
     }
 
+    @SuppressWarnings({
+        "PMD.CognitiveComplexity",
+        "PMD.NPathComplexity",
+        "PMD.UseStringBufferForStringAppends"
+    })
+    public String getMetaInfo() {
+        boolean firstInvokeOfGetMetaInfo = isFirstInvokeOfGetMetaInfo();
+        if (firstInvokeOfGetMetaInfo) {
+            CURRENT_TO_STRING_HELPER.set(new HashMap<>());
+        }
+
+        if (!hasGenericTypes()) {
+            Map<Class<?>, String> classStringMap = CURRENT_TO_STRING_HELPER.get();
+            if (classStringMap.containsKey(getRawType())) {
+                return classStringMap.get(getRawType());
+            } else {
+                classStringMap.put(getRawType(), getRawType().getSimpleName());
+            }
+        }
+
+        String returnText = "";
+        String additionalTypeMetadata = EMPTY;
+
+        if (isArrayType()) {
+            returnText = concat(concatElements(getGenericTypes()), ARRAY_MARK);
+        } else if (isSimpleType()) {
+            returnText = rawType.getSimpleName();
+        } else {
+            if (hasGenericTypes()) {
+                additionalTypeMetadata = concatElements("<", getGenericTypes(), TypeMetadata::getMetaInfo, COMMA, ">");
+            }
+
+            if (!rawClassIsComingFromJavaApi()) {
+                if (hasParent()) {
+                    additionalTypeMetadata = additionalTypeMetadata + " extends " + parentTypeMetadata.getMetaInfo();
+                }
+
+                if (hasParentInterfaces()) {
+                    String implementedInterfaces = elements(parentInterfaces)
+                        .map(TypeMetadata::getMetaInfo)
+                        .asConcatText(COMMA);
+
+                    additionalTypeMetadata = additionalTypeMetadata + " implements " + implementedInterfaces;
+                }
+            }
+        }
+
+        if (StringUtils.isEmpty(returnText)) {
+            String classType = rawType.getSimpleName();
+            returnText = isNotBlank(additionalTypeMetadata) ? format("%s%s", classType, additionalTypeMetadata) : classType;
+
+        }
+        if (firstInvokeOfGetMetaInfo) {
+            CURRENT_TO_STRING_HELPER.set(new HashMap<>());
+        }
+        return returnText;
+    }
+
     @Override
     public String toString() {
-        if (isArrayType()) {
-            return concat(concatElements(getGenericTypes()), ARRAY_MARK);
-        }
+        return getMetaInfo();
+    }
 
-        String additionalTypeMetadata = EMPTY;
-        if (hasGenericTypes()) {
-            additionalTypeMetadata = concatElements("<", getGenericTypes(), TypeMetadata::toString, COMMA, ">");
-        }
+    public boolean rawClassIsComingFromJavaApi() {
+        return getRawClass().getCanonicalName().startsWith("java.");
+    }
 
-        if (hasParent()) {
-            additionalTypeMetadata = additionalTypeMetadata + " extends " + parentTypeMetadata.toString();
-        }
-
-        String classType = rawType.getSimpleName();
-        return isNotBlank(additionalTypeMetadata) ? format("%s%s", classType, additionalTypeMetadata) : classType;
+    public Class<?> getRawClass() {
+        return getRawType();
     }
 
     private static String rawTypeAndMetadataToText(Class<?> rawType, List<TypeMetadata> genericTypes) {
@@ -487,4 +541,12 @@ public final class TypeMetadata {
             return buildFromType(type, typeIsFromClass, this);
         }
     }
+
+    private boolean isFirstInvokeOfGetMetaInfo() {
+        return elements(Thread.currentThread().getStackTrace())
+            .filter(element -> element.getClassName().equals(TypeMetadata.class.getCanonicalName())
+                && "getMetaInfo".equals(element.getMethodName()))
+            .asList().size() == 1;
+    }
+
 }

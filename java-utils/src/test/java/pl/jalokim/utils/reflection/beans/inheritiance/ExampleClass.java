@@ -230,4 +230,16 @@ public class ExampleClass {
     public @interface OtherAnnotation {
 
     }
+
+    public static class RecursionGenericClass
+        extends RawTuple<RecursionGenericClass>
+        implements Comparable<RecursionGenericClass> {
+
+        private RecursionGenericClass someObject;
+
+        @Override
+        public int compareTo(RecursionGenericClass o) {
+            return 0;
+        }
+    }
 }

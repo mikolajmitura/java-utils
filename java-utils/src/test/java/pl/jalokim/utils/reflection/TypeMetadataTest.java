@@ -32,7 +32,7 @@ import pl.jalokim.utils.test.DataFakerHelper;
 
 public class TypeMetadataTest {
 
-    private static final String EXPECTED_META_FOR_ARRAY_LIST = "ArrayList<Number> extends AbstractList<Number> extends AbstractCollection<Number>";
+    private static final String EXPECTED_META_FOR_ARRAY_LIST = "ArrayList<Number>";
     private static final String METHOD_NAME_RETURN_F = "returnF";
 
     @Test
@@ -86,7 +86,8 @@ public class TypeMetadataTest {
         TypeMetadata tupleImplMeta = buildFromClass(ExampleClass.TupleClassImpl.class);
         // then
         assertThat(tupleImplMeta.toString())
-            .isEqualTo("TupleClassImpl extends TupleClass<String,List<Number>> extends RawTuple<List<Number>>");
+            .isEqualTo("TupleClassImpl extends TupleClass<String,List<Number>> extends RawTuple<List<Number>> implements GenericInterface<String,"
+                + "List<Number>>,OtherInterface<List<String>,List<Number>>");
     }
 
     @Test
@@ -215,9 +216,23 @@ public class TypeMetadataTest {
         // then
         assertThat(
             "StringTuple<RawTuple<List<Map<String,RawTuple<ConcreteClass extends StringTuple<String,NextObject> "
-                + "extends TupleClass<String,NextObject> extends RawTuple<NextObject>[][][]>>>[][][]>,Map<Number,List<String>>> "
-                + "extends TupleClass<String,Map<Number,List<String>>> extends RawTuple<Map<Number,List<String>>>[][]")
+                + "extends TupleClass<String,NextObject> extends RawTuple<NextObject> "
+                + "implements GenericInterface<String,NextObject>,OtherInterface<List<String>,NextObject>[][][]>>>[][][]>"
+                + ",Map<Number,List<String>>> extends TupleClass<String,Map<Number,List<String>>> extends RawTuple<Map<Number,"
+                + "List<String>>> implements GenericInterface<String,Map<Number,List<String>>>,OtherInterface<List<String>,"
+                + "Map<Number,List<String>>>[][]")
             .isEqualTo(superMixedArray.toString());
+    }
+
+    @Test
+    public void testToStringWithRecursionWillProcessed() {
+        // given
+        TypeMetadata recursionGenericClassMeta = buildFromClass(ExampleClass.RecursionGenericClass.class);
+
+        // when
+        String typeToString = recursionGenericClassMeta.getMetaInfo();
+
+        assertThat(typeToString).isEqualTo("RecursionGenericClass extends RawTuple<RecursionGenericClass> implements Comparable<RecursionGenericClass>");
     }
 
     @Test
