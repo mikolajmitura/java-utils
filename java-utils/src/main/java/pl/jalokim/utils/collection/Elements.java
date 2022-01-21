@@ -73,6 +73,7 @@ public final class Elements<T> implements Stream<T> {
             .orElse(Elements.empty());
     }
 
+    @SafeVarargs
     public static <T> Elements<T> elements(@Nullable T... array) {
         return new Elements<>(Optional.ofNullable(array)
             .map(Stream::of)
