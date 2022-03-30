@@ -108,14 +108,14 @@ public final class StringUtils {
      * Return concatenated text all list elements as new lines.
      *
      * @param elements to concatenate
-     * @param mapper   for from E type to string
-     * @param <E>      generic type for
+     * @param mapper for from E type to string
+     * @param <E> generic type for
      * @return concatenated text.
      */
     public static <E> String concatElementsAsLines(List<E> elements, Function<E, String> mapper) {
         return concatElements(elements,
-                              mapper,
-                              NEW_LINE);
+            mapper,
+            NEW_LINE);
     }
 
     /**
@@ -132,7 +132,7 @@ public final class StringUtils {
      * It create text with n times repeated text.
      *
      * @param nTimes number to repeat
-     * @param text   value to repeat
+     * @param text value to repeat
      * @return created n times text.
      */
     public static String repeatTextNTimes(int nTimes, String text) {
@@ -143,7 +143,7 @@ public final class StringUtils {
      * Concatenate elements with empty text. On every object will be called toString().
      *
      * @param collection elements to concatenate
-     * @param <E>        generic type of collection.
+     * @param <E> generic type of collection.
      * @return concatenated text.
      */
     public static <E> String concatElements(Collection<E> collection) {
@@ -153,8 +153,8 @@ public final class StringUtils {
     /**
      * Concatenate elements with empty text. On every object will be called toString().
      *
-     * @param elements   elements to concatenate
-     * @param <E>        generic type of collection.
+     * @param elements elements to concatenate
+     * @param <E> generic type of collection.
      * @return concatenated text.
      */
     public static <E> String concatElements(Elements<E> elements) {
@@ -165,8 +165,8 @@ public final class StringUtils {
      * Concatenate elements with empty text with mapper from E type to String.
      *
      * @param collection elements to concatenate
-     * @param mapper     from some type to String
-     * @param <E>        generic type of collection.
+     * @param mapper from some type to String
+     * @param <E> generic type of collection.
      * @return concatenated text.
      */
     public static <E> String concatElements(Collection<E> collection, Function<E, String> mapper) {
@@ -176,9 +176,9 @@ public final class StringUtils {
     /**
      * Concatenate elements with joinText value.
      *
-     * @param elements   elements to concatenate
-     * @param joinText   value between all texts.
-     * @param <E>        generic type of collection.
+     * @param elements elements to concatenate
+     * @param joinText value between all texts.
+     * @param <E> generic type of collection.
      * @return concatenated text.
      */
     public static <E> String concatElements(Elements<E> elements, String joinText) {
@@ -189,8 +189,8 @@ public final class StringUtils {
      * Concatenate elements with joinText value.
      *
      * @param collection elements to concatenate
-     * @param joinText   value between all texts.
-     * @param <E>        generic type of collection.
+     * @param joinText value between all texts.
+     * @param <E> generic type of collection.
      * @return concatenated text.
      */
     public static <E> String concatElements(Collection<E> collection, String joinText) {
@@ -201,13 +201,13 @@ public final class StringUtils {
      * Concatenate elements with joinText value with mapper from E type to String.
      *
      * @param collection elements to concatenate
-     * @param mapper     from some type to String
-     * @param joinText   value between all texts.
-     * @param <E>        generic type of collection.
+     * @param mapper from some type to String
+     * @param joinText value between all texts.
+     * @param <E> generic type of collection.
      * @return concatenated text.
      */
     public static <E> String concatElements(Collection<E> collection, Function<E, String> mapper, String joinText) {
-        return concatElements(EMPTY, collection, (t) -> true,  mapper, joinText, EMPTY);
+        return concatElements(EMPTY, collection, (t) -> true, mapper, joinText, EMPTY);
     }
 
     /**
@@ -215,10 +215,10 @@ public final class StringUtils {
      *
      * @param textPrefix text before all concatenated text
      * @param collection elements to concatenate
-     * @param mapper     from some type to String
-     * @param joinText   value between all texts.
+     * @param mapper from some type to String
+     * @param joinText value between all texts.
      * @param textSuffix text after all concatenated text
-     * @param <E>        generic type of collection.
+     * @param <E> generic type of collection.
      * @return concatenated text with empty text.
      */
     public static <E> String concatElements(String textPrefix, Collection<E> collection, Function<E, String> mapper,
@@ -231,11 +231,11 @@ public final class StringUtils {
      *
      * @param textPrefix text before all concatenated text
      * @param collection elements to concatenate
-     * @param filter     predicate filter
-     * @param mapper     from some type to String
-     * @param joinText   value between all texts.
+     * @param filter predicate filter
+     * @param mapper from some type to String
+     * @param joinText value between all texts.
      * @param textSuffix text after all concatenated text
-     * @param <E>        generic type of collection.
+     * @param <E> generic type of collection.
      * @return concatenated text with empty text.
      */
     public static <E> String concatElements(String textPrefix, Collection<E> collection, Predicate<E> filter, Function<E, String> mapper,
@@ -252,9 +252,9 @@ public final class StringUtils {
      *
      * @param textPrefix text before all concatenated text
      * @param collection elements to concatenate
-     * @param joinText   value between all texts.
+     * @param joinText value between all texts.
      * @param textSuffix text after all concatenated text
-     * @param <E>        generic type of collection.
+     * @param <E> generic type of collection.
      * @return concatenated text with empty text.
      */
     public static <E> String concatElements(String textPrefix, Collection<E> collection,
@@ -266,7 +266,7 @@ public final class StringUtils {
      * This method concatenate all texts from array with join Text.
      *
      * @param joinText between all varargs.
-     * @param texts    varargs for text.
+     * @param texts varargs for text.
      * @return concatenated text
      */
     public static String concatElements(String joinText, String... texts) {
@@ -276,8 +276,8 @@ public final class StringUtils {
     /**
      * Concatenate elements with empty text but skip null objects. On every object will be called toString().
      *
-     * @param elements   elements to concatenate
-     * @param <E>        generic type of collection.
+     * @param elements elements to concatenate
+     * @param <E> generic type of collection.
      * @return concatenated text.
      */
     public static <E> String concatElementsSkipNulls(Elements<E> elements) {
@@ -288,7 +288,7 @@ public final class StringUtils {
      * Concatenate elements with empty text but skip null objects. On every object will be called toString().
      *
      * @param collection elements to concatenate
-     * @param <E>        generic type of collection.
+     * @param <E> generic type of collection.
      * @return concatenated text.
      */
     public static <E> String concatElementsSkipNulls(Collection<E> collection) {
@@ -299,8 +299,8 @@ public final class StringUtils {
      * Concatenate elements with joinText value but skip null objects.
      *
      * @param collection elements to concatenate
-     * @param joinText   value between all texts.
-     * @param <E>        generic type of collection.
+     * @param joinText value between all texts.
+     * @param <E> generic type of collection.
      * @return concatenated text.
      */
     public static <E> String concatElementsSkipNulls(Collection<E> collection, String joinText) {
@@ -310,9 +310,9 @@ public final class StringUtils {
     /**
      * Concatenate elements with joinText value but skip null objects.
      *
-     * @param eElements  elements to concatenate
-     * @param joinText   value between all texts.
-     * @param <E>        generic type of collection.
+     * @param eElements elements to concatenate
+     * @param joinText value between all texts.
+     * @param <E> generic type of collection.
      * @return concatenated text.
      */
     public static <E> String concatElementsSkipNulls(Elements<E> eElements, String joinText) {
@@ -323,13 +323,13 @@ public final class StringUtils {
      * Concatenate elements with joinText value with mapper from E type to String but skip null objects.
      *
      * @param collection elements to concatenate
-     * @param mapper     from some type to String
-     * @param joinText   value between all texts.
-     * @param <E>        generic type of collection.
+     * @param mapper from some type to String
+     * @param joinText value between all texts.
+     * @param <E> generic type of collection.
      * @return concatenated text.
      */
     public static <E> String concatElementsSkipNulls(Collection<E> collection, Function<E, String> mapper, String joinText) {
-        return concatElements(EMPTY, collection, Objects::nonNull,  mapper, joinText, EMPTY);
+        return concatElements(EMPTY, collection, Objects::nonNull, mapper, joinText, EMPTY);
     }
 
     /**
@@ -355,7 +355,7 @@ public final class StringUtils {
     /**
      * It returns number of searched char in provided text.
      *
-     * @param text         for search
+     * @param text for search
      * @param searchedChar char which is searched
      * @return number how many times it is in this text
      */
@@ -372,6 +372,7 @@ public final class StringUtils {
 
     /**
      * Replace all given texts to empty
+     *
      * @param textToClear - this text will be cleared with allToClear chars
      * @param allToClear - array of chars which should be erased from textToClear
      * @return cleared textToClear
@@ -382,5 +383,34 @@ public final class StringUtils {
             currentText = currentText.replace(toRemove, "");
         }
         return currentText;
+    }
+
+    /**
+     * replace last found text to given text.
+     *
+     * @return replaced text.
+     */
+    public static String replaceLast(String originText, String changeFrom, String changeTo) {
+        Objects.requireNonNull(originText);
+        Objects.requireNonNull(changeFrom);
+        Objects.requireNonNull(changeTo);
+        if (changeFrom.length() > originText.length()) {
+            throw new IllegalArgumentException("length of originText should be greater than length of originText variable");
+        }
+
+        Integer startMaxIndex = null;
+        for (int i = 0; i < originText.length() - changeFrom.length(); i++) {
+            String cutPart = originText.substring(i, i + changeFrom.length());
+            if (cutPart.equals(changeFrom)) {
+                startMaxIndex = i;
+            }
+        }
+
+        if (startMaxIndex != null) {
+            String firstPart = originText.substring(0, startMaxIndex);
+            String lastPart = originText.substring(startMaxIndex + changeFrom.length());
+            return firstPart + changeTo + lastPart;
+        }
+        return originText;
     }
 }
