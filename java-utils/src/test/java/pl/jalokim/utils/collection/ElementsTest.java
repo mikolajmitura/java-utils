@@ -25,6 +25,9 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import lombok.Value;
+import org.apache.commons.collections4.collection.UnmodifiableCollection;
+import org.apache.commons.collections4.list.UnmodifiableList;
+import org.apache.commons.collections4.set.UnmodifiableSet;
 import org.junit.Test;
 import pl.jalokim.utils.file.FileUtils;
 import pl.jalokim.utils.reflection.beans.inheritiance.Event;
@@ -691,6 +694,27 @@ public class ElementsTest extends TemporaryTestResources {
         // then
         assertThat(getTextElements().getLastOrNull()).isEqualTo("4");
         assertThat(Elements.empty().getLastOrNull()).isNull();
+    }
+
+    @Test
+    public void returnImmutableOrMutableCollections() {
+        // when
+        Set<String> asSet = getTextElements().asSet();
+        Set<String> asMutableSet = getTextElements().asMutableSet();
+        Set<String> asImmutableSet = getTextElements().asImmutableSet();
+
+        List<String> asList = getTextElements().asList();
+        List<String> asMutableList = getTextElements().asMutableList();
+        List<String> asImmutableList = getTextElements().asImmutableList();
+
+        // then
+        assertThat(asSet).isInstanceOf(HashSet.class);
+        assertThat(asMutableSet).isInstanceOf(HashSet.class);
+        assertThat(asImmutableSet).isNotInstanceOf(HashSet.class);
+
+        assertThat(asList).isInstanceOf(ArrayList.class);
+        assertThat(asMutableList).isInstanceOf(ArrayList.class);
+        assertThat(asImmutableList).isNotInstanceOf(ArrayList  .class);
     }
 
     void elementsIsEmptyNotNull(Elements<?> elements) {
