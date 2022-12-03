@@ -234,6 +234,19 @@ public final class MetadataReflectionUtils {
     }
 
     /**
+     * It gets all not static methods only from given class.
+     *
+     * @param targetClass - class for which will be searched all methods
+     * @return list of all methods only in given class
+     */
+    @SuppressWarnings("PMD.CloseResource")
+    public static List<Method> getAllDeclaredNotStaticMethods(Class<?> targetClass) {
+        return elements(targetClass.getDeclaredMethods())
+            .filter(MetadataReflectionUtils::isNotStaticMethod)
+            .asList();
+    }
+
+    /**
      * It gets all methods in whole class hierarchy.
      *
      * @param targetClass - class for which will be searched all methods
@@ -257,6 +270,14 @@ public final class MetadataReflectionUtils {
 
     public static boolean isNotStaticMethod(Method method) {
         return !isStaticMethod(method);
+    }
+
+    public static boolean isPublicMethod(Method method) {
+        return Modifier.isPublic(method.getModifiers());
+    }
+
+    public static boolean isNotPublicMethod(Method method) {
+        return !isPublicMethod(method);
     }
 
     /**

@@ -51,7 +51,7 @@ import pl.jalokim.utils.string.StringUtils;
  *
  * @param <T> type of elements.
  */
-@SuppressWarnings("PMD.ExcessivePublicCount")
+@SuppressWarnings({"PMD.ExcessivePublicCount", "PMD.GodClass"})
 public final class Elements<T> implements Stream<T> {
 
     private final Stream<T> stream;
@@ -73,6 +73,7 @@ public final class Elements<T> implements Stream<T> {
             .orElse(Elements.empty());
     }
 
+    @SafeVarargs
     public static <T> Elements<T> elements(@Nullable T... array) {
         return new Elements<>(Optional.ofNullable(array)
             .map(Stream::of)
@@ -170,11 +171,27 @@ public final class Elements<T> implements Stream<T> {
     }
 
     public List<T> asList() {
-        return unmodifiableList(new ArrayList<>(stream.collect(toList())));
+        return asMutableList();
+    }
+
+    public List<T> asImmutableList() {
+        return unmodifiableList(asMutableList());
+    }
+
+    public List<T> asMutableList() {
+        return stream.collect(toList());
     }
 
     public Set<T> asSet() {
+        return asMutableSet();
+    }
+
+    public Set<T> asImmutableSet() {
         return unmodifiableSet(new HashSet<>(stream.collect(toSet())));
+    }
+
+    public Set<T> asMutableSet() {
+        return stream.collect(toSet());
     }
 
     public <K> Map<K, T> asMap(Function<? super T, ? extends K> keyMapper) {

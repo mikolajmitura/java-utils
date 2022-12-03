@@ -4,6 +4,7 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static pl.jalokim.utils.collection.Elements.elements;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getAllChildClassesForClass;
+import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getAllDeclaredNotStaticMethods;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getAllFields;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getAllMethods;
 import static pl.jalokim.utils.reflection.MetadataReflectionUtils.getAllNotStaticMethods;
@@ -902,6 +903,28 @@ public class MetadataReflectionUtilsTest {
     }
 
     @Test
+    public void getAllDeclaredNotStaticMethodsAsExpected() {
+        // when
+        List<Method> allNotStaticMethods = getAllDeclaredNotStaticMethods(NonStaticMethodsConcreteClass.class);
+
+        // then
+        assertThat(allNotStaticMethods).hasSize(4);
+
+        assertMethod(allNotStaticMethods, "somePublicMethod", NonStaticMethodsConcreteClass.class);
+        assertMethod(allNotStaticMethods, "somePrivateMethod", NonStaticMethodsConcreteClass.class);
+        assertMethod(allNotStaticMethods, "someDefaultScopeMethod", NonStaticMethodsConcreteClass.class);
+        assertMethod(allNotStaticMethods, "someDefaultScopeMethodOtherMethod", NonStaticMethodsConcreteClass.class);
+
+        Method somePublicMethod = findOneMethod(allNotStaticMethods, "somePublicMethod", NonStaticMethodsConcreteClass.class);
+        assertThat(MetadataReflectionUtils.isPublicMethod(somePublicMethod)).isTrue();
+        assertThat(MetadataReflectionUtils.isNotPublicMethod(somePublicMethod)).isFalse();
+
+        Method somePrivateMethod = findOneMethod(allNotStaticMethods, "somePrivateMethod", NonStaticMethodsConcreteClass.class);
+        assertThat(MetadataReflectionUtils.isPublicMethod(somePrivateMethod)).isFalse();
+        assertThat(MetadataReflectionUtils.isNotPublicMethod(somePrivateMethod)).isTrue();
+    }
+
+    @Test
     public void getAllMethodsAsExpected() {
         // when
         List<Method> allNotStaticMethods = getAllMethods(NonStaticMethodsConcreteClass.class);
@@ -924,10 +947,14 @@ public class MetadataReflectionUtilsTest {
     }
 
     private void assertMethod(List<Method> allNotStaticMethods, String name, Class<?> inClass) {
-        Method foundMethod = elements(allNotStaticMethods)
+        Method foundMethod = findOneMethod(allNotStaticMethods, name, inClass);
+        assertThat(foundMethod).isNotNull();
+    }
+
+    private Method findOneMethod(List<Method> allNotStaticMethods, String name, Class<?> inClass) {
+        return elements(allNotStaticMethods)
             .filter(method -> method.getName().equals(name) && method.getDeclaringClass().equals(inClass))
             .getFirst();
-        assertThat(foundMethod).isNotNull();
     }
 
     private static FieldExpectation create(Class<?> type, String fieldName, boolean expectedResult) {
