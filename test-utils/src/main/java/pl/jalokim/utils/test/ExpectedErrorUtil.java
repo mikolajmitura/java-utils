@@ -37,9 +37,9 @@ class ExpectedErrorUtil<T> {
             assertCaughtException(exception);
         }
         if (exceptionNotThrown.get()) {
-            throw new AssertionError("Nothing was thrown! Expected exception: "
-                                     + expectedExceptionType.getCanonicalName()
-                                     + messageBuilder.apply(expectedMessage));
+            throw new AssertionError("Nothing was thrown! Expected exception: " +
+                expectedExceptionType.getCanonicalName() +
+                messageBuilder.apply(expectedMessage));
         }
         return caughtException;
     }
@@ -56,8 +56,8 @@ class ExpectedErrorUtil<T> {
                 throw assertionError;
             }
         } else {
-            throw new AssertionError("Expected exception type: " + expectedExceptionType.getCanonicalName()
-                                     + " but was caught another! " + exception, exception);
+            throw new AssertionError("Expected exception type: " + expectedExceptionType.getCanonicalName() +
+                " but was caught another! " + exception, exception);
         }
     }
 }

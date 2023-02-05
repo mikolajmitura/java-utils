@@ -717,6 +717,16 @@ public class ElementsTest extends TemporaryTestResources {
         assertThat(asImmutableList).isNotInstanceOf(ArrayList  .class);
     }
 
+    @Test
+    public void skipNulls() {
+        // when
+        List<String> strings = elements(null, "1", "null", null, "test")
+            .skipNulls()
+            .asList();
+        // then
+        assertThat(strings).isEqualTo(Arrays.asList("1", "null", "test"));
+    }
+
     void elementsIsEmptyNotNull(Elements<?> elements) {
         assertThat(elements).isNotNull();
         assertThat(elements.asList().isEmpty()).isTrue();

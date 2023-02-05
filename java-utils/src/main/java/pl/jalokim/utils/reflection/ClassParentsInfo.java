@@ -16,8 +16,8 @@ class ClassParentsInfo {
     public Integer getHierarchyDiffLength(Class<?> type) {
         Integer level = levelByType.get(type);
         if (level == null) {
-            throw new IllegalArgumentException("Cannot find class " + type.getCanonicalName()
-                + " as super type for: " + currentClass.getCanonicalName());
+            throw new IllegalArgumentException("Cannot find class " + type.getCanonicalName() +
+                " as super type for: " + currentClass.getCanonicalName());
         }
         return level;
     }

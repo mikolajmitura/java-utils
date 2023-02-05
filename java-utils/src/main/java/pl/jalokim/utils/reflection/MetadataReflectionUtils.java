@@ -120,8 +120,8 @@ public final class MetadataReflectionUtils {
         }
 
         if (foundField == null) {
-            throw new ReflectionOperationException("field '" + fieldName + "' not exist in classes: "
-                + mapToList(searchedClasses, Class::getCanonicalName));
+            throw new ReflectionOperationException("field '" + fieldName + "' not exist in classes: " +
+                mapToList(searchedClasses, Class::getCanonicalName));
         }
         return foundField;
     }
@@ -225,7 +225,7 @@ public final class MetadataReflectionUtils {
     public static List<Method> getAllNotStaticMethods(Class<?> targetClass) {
         Elements<Method> methods = Elements.empty();
         Class<?> currentClass = targetClass;
-        while (currentClass != Object.class) {
+        while (currentClass != Object.class  && currentClass != null) {
             methods = methods.concat(elements(currentClass.getDeclaredMethods())
                 .filter(MetadataReflectionUtils::isNotStaticMethod));
             currentClass = currentClass.getSuperclass();
@@ -256,7 +256,7 @@ public final class MetadataReflectionUtils {
     public static List<Method> getAllMethods(Class<?> targetClass) {
         Elements<Method> methods = Elements.empty();
         Class<?> currentClass = targetClass;
-        while (currentClass != Object.class) {
+        while (currentClass != Object.class  && currentClass != null) {
             methods = methods.concat(elements(currentClass.getDeclaredMethods())
                 .filter(method -> !method.getName().startsWith("$")));
             currentClass = currentClass.getSuperclass();
@@ -499,8 +499,8 @@ public final class MetadataReflectionUtils {
      * @return boolean value
      */
     public static boolean isHavingElementsType(Class<?> someClass) {
-        return isCollectionType(someClass) || isArrayType(someClass)
-            || isMapType(someClass) || Stream.class.isAssignableFrom(someClass);
+        return isCollectionType(someClass) || isArrayType(someClass) ||
+            isMapType(someClass) || Stream.class.isAssignableFrom(someClass);
     }
 
     /**
@@ -709,7 +709,7 @@ public final class MetadataReflectionUtils {
     public static List<Field> getAllFields(Class<?> type) {
         List<Field> allFields = new ArrayList<>();
         Class<?> currentClass = type;
-        while (currentClass != Object.class) {
+        while (currentClass != Object.class  && currentClass != null) {
             allFields.addAll(elements(currentClass.getDeclaredFields()).asList());
             currentClass = currentClass.getSuperclass();
         }

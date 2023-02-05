@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Spliterator;
@@ -382,6 +383,10 @@ public final class Elements<T> implements Stream<T> {
     @Override
     public Elements<T> skip(long n) {
         return Elements.elements(stream.skip(n));
+    }
+
+    public Elements<T> skipNulls() {
+        return Elements.elements(stream.filter(Objects::nonNull));
     }
 
     @Override

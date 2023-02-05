@@ -62,7 +62,7 @@ public final class TypeMetadata {
     private final TypeMetadata parentTypeMetadata;
     private final List<TypeMetadata> parentInterfaces;
 
-    static TypeMetadata newTypeMetadata(Class<?> rawType, List<TypeMetadata> genericTypes) {
+    public static TypeMetadata newTypeMetadata(Class<?> rawType, List<TypeMetadata> genericTypes) {
         String rawTypeAndMetadataToText = rawTypeAndMetadataToText(rawType, genericTypes);
         if (RESOLVED_GENERIC_TYPES.get(rawTypeAndMetadataToText) != null) {
             return RESOLVED_GENERIC_TYPES.get(rawTypeAndMetadataToText);
@@ -428,8 +428,8 @@ public final class TypeMetadata {
     public TypeMetadata getTypeMetaDataForParentClass(Class<?> type) {
         TypeMetadata typeMetaDataForParentClass = findTypeMetaDataForParentClass(type);
         return Optional.ofNullable(typeMetaDataForParentClass)
-            .orElseThrow(() -> new NoSuchElementException("Cannot find metamodel for class: " + type.getCanonicalName()
-                + " as parent in context of class: " + rawType.getCanonicalName()));
+            .orElseThrow(() -> new NoSuchElementException("Cannot find metamodel for class: " + type.getCanonicalName() +
+                " as parent in context of class: " + rawType.getCanonicalName()));
     }
 
     private TypeMetadata findTypeMetaDataForParentClass(Class<?> type) {
@@ -544,8 +544,8 @@ public final class TypeMetadata {
 
     private boolean isFirstInvokeOfGetMetaInfo() {
         return elements(Thread.currentThread().getStackTrace())
-            .filter(element -> element.getClassName().equals(TypeMetadata.class.getCanonicalName())
-                && "getMetaInfo".equals(element.getMethodName()))
+            .filter(element -> element.getClassName().equals(TypeMetadata.class.getCanonicalName()) &&
+                "getMetaInfo".equals(element.getMethodName()))
             .asList().size() == 1;
     }
 

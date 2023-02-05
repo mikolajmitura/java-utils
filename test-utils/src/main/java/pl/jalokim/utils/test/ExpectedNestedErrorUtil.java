@@ -40,7 +40,7 @@ class ExpectedNestedErrorUtil<T> extends ExpectedErrorUtil<T> {
                     throw assertionError;
                 });
 
-        throw new AssertionError("Cannot find any nested expected type : " + getExpectedExceptionType().getCanonicalName()
-                                 + " for caught exception: ", exception);
+        throw new AssertionError("Cannot find any nested expected type : " + getExpectedExceptionType().getCanonicalName() +
+            " for caught exception: ", exception);
     }
 }

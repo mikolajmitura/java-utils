@@ -900,6 +900,15 @@ public class MetadataReflectionUtilsTest {
         assertMethod(allNotStaticMethods, "somePublicMethod", NonStaticMethodsSuperClass.class);
         assertMethod(allNotStaticMethods, "somePrivateMethod", NonStaticMethodsSuperClass.class);
         assertMethod(allNotStaticMethods, "someDefaultScopeMethod", NonStaticMethodsSuperClass.class);
+
+        // and
+        // when
+        allNotStaticMethods = getAllNotStaticMethods(ExecutableMetadata.class);
+
+        // then
+        assertThat(allNotStaticMethods).hasSize(2);
+        assertMethod(allNotStaticMethods, "getAnnotations", ExecutableMetadata.class);
+        assertMethod(allNotStaticMethods, "getParameters", ExecutableMetadata.class);
     }
 
     @Test

@@ -157,11 +157,11 @@ final class TypeWrapperBuilder {
         @Override
         public String toString() {
             String parentText = parent == null ? "null" : parent.getClassName();
-            return "InnerTypeMetaData{"
-                + "parent=" + parentText
-                + ", className=" + getClassName()
-                + ", genericTypes=" + genericTypes
-                + '}';
+            return "InnerTypeMetaData{" +
+                "parent=" + parentText +
+                ", className=" + getClassName() +
+                ", genericTypes=" + genericTypes +
+                '}';
         }
     }
 

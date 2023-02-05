@@ -53,8 +53,8 @@ public class RandomUtilImpl {
         int probabilityOfTrueInPercent = probabilityOfTrueInPercentOriginal;
         List<Boolean> probabilityOfTrueList = new ArrayList<>();
         boolean defaultValue = probabilityOfTrueInPercent <= FIFTY_PERCENT;
-        probabilityOfTrueInPercent = probabilityOfTrueInPercent <= FIFTY_PERCENT
-            ? probabilityOfTrueInPercent : ONE_HUNDRED_PERCENT - probabilityOfTrueInPercent;
+        probabilityOfTrueInPercent = probabilityOfTrueInPercent <= FIFTY_PERCENT ?
+            probabilityOfTrueInPercent : ONE_HUNDRED_PERCENT - probabilityOfTrueInPercent;
         int size = ONE_HUNDRED_PERCENT / probabilityOfTrueInPercent;
         for (int i = 0; i < size; i++) {
             probabilityOfTrueList.add(!defaultValue);
