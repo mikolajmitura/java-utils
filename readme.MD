@@ -25,7 +25,7 @@ java-utils
     <dependency>
         <groupId>pl.jalokim.utils</groupId>
         <artifactId>java-utils</artifactId>
-        <version>4.0.1</version>
+        <version>4.0.2</version>
     </dependency>
 ```
 
@@ -386,7 +386,7 @@ Some example code below:
     <dependency>
         <groupId>pl.jalokim.utils</groupId>
         <artifactId>test-utils</artifactId>
-        <version>4.0.1</version>
+        <version>4.0.2</version>
         <scope>test</scope>
     </dependency>
 ```     
