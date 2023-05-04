@@ -4,6 +4,8 @@ Java Utils project
 [![Build Status](https://github.com/mikolajmitura/java-utils/actions/workflows/maven.yml/badge.svg)](https://github.com/mikolajmitura/java-utils/actions/workflows/maven.yml)
 [![Coverage Status](https://coveralls.io/repos/github/mikolajmitura/java-utils/badge.svg?branch=develop)](https://coveralls.io/github/mikolajmitura/java-utils?branch=develop)
 
+| __JaCoCo Test Coverage__ | [![coverage](https://raw.githubusercontent.com/mikolajmitura/java-utils/badges/jacoco.svg)](https://github.com/mikolajmitura/java-utils/actions/workflows/maven.yml) [![branch coverage](https://raw.githubusercontent.com/mikolajmitura/java-utils/badges/branches.svg)](https://github.com/mikolajmitura/java-utils/actions/workflows/maven.yml) |
+
 This project contains some utils code for java and for test.
 It contains two modules: 
  - java-utils
