@@ -384,7 +384,8 @@ public class MetadataReflectionUtilsTest {
             create(ExampleClass.class, "offsetDateTimeField", true),
             create(ExampleClass.class, "durationField", true),
             create(ExampleClass.class, "periodField", true),
-            create(ExampleClass.class, "instantField", true)
+            create(ExampleClass.class, "instantField", true),
+            create(ExampleClass.class, "someUuid", true)
         );
         fieldExpectations.forEach(fieldExpectation -> {
             // when

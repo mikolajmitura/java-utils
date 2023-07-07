@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ClassUtils;
 import org.reflections.Reflections;
@@ -71,6 +72,7 @@ public final class MetadataReflectionUtils {
         classes.add(Duration.class);
         classes.add(Period.class);
         classes.add(Instant.class);
+        classes.add(UUID.class);
         return unmodifiableList(classes);
     }
 

@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static pl.jalokim.utils.file.FileUtilsTest.alignEndLineToOs;
+import static pl.jalokim.utils.string.StringUtils.equalsIgnoreLineEndings;
 import static pl.jalokim.utils.template.TemplateAsText.fromClassPath;
 import static pl.jalokim.utils.template.TemplateAsText.fromFile;
 import static pl.jalokim.utils.template.TemplateAsText.fromText;
@@ -31,11 +31,11 @@ public class TemplateAsTextTest {
         templateAsText.overrideVariable("placeholder_name", "SOME TEXT");
         String currentTemplateText = templateAsText.getCurrentTemplateText();
         // then
-        assertThat(alignEndLineToOs(currentTemplateText)).isEqualTo(format("some text with: SOME TEXT%n" +
+        assertThat(equalsIgnoreLineEndings(currentTemplateText, format("some text with: SOME TEXT%n" +
             "some text with: ${another-placeholder}%n" +
             "this one will not throw exception: ${test^test}%n" +
             "the same text like in first with: 'SOME TEXT' end text.%n" +
-            "other text with: ${placeholder_name_5}"));
+            "other text with: ${placeholder_name_5}"))).isTrue();
     }
 
     @Test
@@ -57,11 +57,11 @@ public class TemplateAsTextTest {
         templateAsText.overrideVariable("placeholder_name", "SOME TEXT");
         String currentTemplateText = templateAsText.getCurrentTemplateText();
         // then
-        assertThat(alignEndLineToOs(currentTemplateText)).isEqualTo(format("some text with: SOME TEXT%n" +
+        assertThat(equalsIgnoreLineEndings(currentTemplateText, format("some text with: SOME TEXT%n" +
             "some text with: ${another-placeholder}%n" +
             "this one will not throw exception: ${test^test}%n" +
             "the same text like in first with: 'SOME TEXT' end text.%n" +
-            "other text with: ${placeholder_name_5}"));
+            "other text with: ${placeholder_name_5}"))).isTrue();
     }
 
     @Test

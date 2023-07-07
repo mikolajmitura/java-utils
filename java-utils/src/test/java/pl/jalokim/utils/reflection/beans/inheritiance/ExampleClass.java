@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Stream;
 import lombok.Data;
 import lombok.Getter;
@@ -79,6 +80,7 @@ public class ExampleClass {
     private Duration durationField;
     private Period periodField;
     private Instant instantField;
+    private UUID someUuid;
 
     public void checkTypesOfStringTupleNexObject() {
         Map<Number, List<String>> rawValueE = stringTupleNexObject.getRawValueE();

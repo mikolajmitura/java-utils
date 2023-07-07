@@ -12,6 +12,7 @@ import static pl.jalokim.utils.file.FileUtils.deleteFileOrDirectory;
 import static pl.jalokim.utils.file.FileUtils.listOfFiles;
 import static pl.jalokim.utils.file.FileUtils.readAsTextFromClassPath;
 import static pl.jalokim.utils.file.FileUtils.writeToFile;
+import static pl.jalokim.utils.string.StringUtils.equalsIgnoreLineEndings;
 import static pl.jalokim.utils.test.ExpectedErrorUtilBuilder.when;
 
 import java.io.File;
@@ -41,10 +42,10 @@ public class FileUtilsTest extends TemporaryTestResources {
         // when
         String text = FileUtils.readAsText(PATH_TO_FILE);
         // then
-        assertThat(alignEndLineToOs(text)).isEqualTo(String.format("line first%n" +
-                                                 "second line%n" +
-                                                 "3 line%n" +
-                                                 "end line"));
+        assertThat(equalsIgnoreLineEndings(text, String.format("line first%n" +
+            "second line%n" +
+            "3 line%n" +
+            "end line"))).isTrue();
     }
 
     @Test
@@ -52,10 +53,10 @@ public class FileUtilsTest extends TemporaryTestResources {
         // when
         String text = FileUtils.readAsText(PATH_TO_FILE, StandardCharsets.UTF_8);
         // then
-        assertThat(alignEndLineToOs(text)).isEqualTo(String.format("line first%n" +
-                                                 "second line%n" +
-                                                 "3 line%n" +
-                                                 "end line"));
+        assertThat(equalsIgnoreLineEndings(text, String.format("line first%n" +
+            "second line%n" +
+            "3 line%n" +
+            "end line"))).isTrue();
     }
 
     @Test
@@ -63,10 +64,10 @@ public class FileUtilsTest extends TemporaryTestResources {
         // when
         String text = FileUtils.readAsTextFromClassPath("filesTest/someFile");
         // then
-        assertThat(alignEndLineToOs(text)).isEqualTo(String.format("line first%n" +
-                                                 "second line%n" +
-                                                 "3 line%n" +
-                                                 "end line"));
+        assertThat(equalsIgnoreLineEndings(text, String.format("line first%n" +
+            "second line%n" +
+            "3 line%n" +
+            "end line"))).isTrue();
     }
 
     @Test
@@ -74,10 +75,10 @@ public class FileUtilsTest extends TemporaryTestResources {
         // when
         String text = readAsTextFromClassPath("filesTest/someFile", StandardCharsets.UTF_8);
         // then
-        assertThat(alignEndLineToOs(text)).isEqualTo(String.format("line first%n" +
-                                                 "second line%n" +
-                                                 "3 line%n" +
-                                                 "end line"));
+        assertThat(equalsIgnoreLineEndings(text, String.format("line first%n" +
+            "second line%n" +
+            "3 line%n" +
+            "end line"))).isTrue();
     }
 
     @Test
@@ -178,10 +179,10 @@ public class FileUtilsTest extends TemporaryTestResources {
         // then
         List<String> lines = FileUtils.readAsList(newFile.getAbsolutePath());
         assertThat(lines).containsExactly("line first",
-                                          "second Line__",
-                                          "end line.......",
-                                          "next line",
-                                          "last line...");
+            "second Line__",
+            "end line.......",
+            "next line",
+            "last line...");
     }
 
     @Test
@@ -227,7 +228,7 @@ public class FileUtilsTest extends TemporaryTestResources {
         // then
         List<String> lines = FileUtils.readAsList(newFile.getAbsolutePath());
         assertThat(lines).containsExactly("next line",
-                                          "last line...");
+            "last line...");
     }
 
     @Test
@@ -254,17 +255,17 @@ public class FileUtilsTest extends TemporaryTestResources {
         writeToFile(newFile.getAbsolutePath(), contentToSave);
         // when
         FileUtils.writeToFile(newFile.getAbsolutePath(), Arrays.asList("line first",
-                                                                       "second Line__",
-                                                                       "end line.......",
-                                                                       "next line",
-                                                                       "last line..."));
+            "second Line__",
+            "end line.......",
+            "next line",
+            "last line..."));
         // then
         List<String> lines = FileUtils.readAsList(newFile.getAbsolutePath());
         assertThat(lines).containsExactly("line first",
-                                          "second Line__",
-                                          "end line.......",
-                                          "next line",
-                                          "last line...");
+            "second Line__",
+            "end line.......",
+            "next line",
+            "last line...");
     }
 
     @Test
@@ -275,20 +276,20 @@ public class FileUtilsTest extends TemporaryTestResources {
         writeToFile(newFile.getAbsolutePath(), contentToSave);
         // when
         FileUtils.appendToFile(newFile.getAbsolutePath(), Arrays.asList("line first",
-                                                                        "second Line__",
-                                                                        "end2 line.......",
-                                                                        "next line",
-                                                                        "last line..."));
+            "second Line__",
+            "end2 line.......",
+            "next line",
+            "last line..."));
         // then
         List<String> lines = FileUtils.readAsList(newFile.getAbsolutePath());
         assertThat(lines).containsExactly("line first",
-                                          "second Line__",
-                                          "end line.......",
-                                          "line first",
-                                          "second Line__",
-                                          "end2 line.......",
-                                          "next line",
-                                          "last line...");
+            "second Line__",
+            "end line.......",
+            "line first",
+            "second Line__",
+            "end2 line.......",
+            "next line",
+            "last line...");
     }
 
     @Test
@@ -342,9 +343,9 @@ public class FileUtilsTest extends TemporaryTestResources {
     @Test
     public void cannotReadFromFile() {
         when(() ->
-                     FileUtils.readAsList("/some_folder_which_not_exist"))
-                .thenException(FileException.class)
-                .thenNestedException(NoSuchFileException.class);
+            FileUtils.readAsList("/some_folder_which_not_exist"))
+            .thenException(FileException.class)
+            .thenNestedException(NoSuchFileException.class);
     }
 
     @Test
@@ -400,13 +401,13 @@ public class FileUtilsTest extends TemporaryTestResources {
     @Test
     public void catchIoExReturnFileException() {
         when(
-                () -> catchIoEx(
-                        () -> {
-                            throw new NoSuchFileException("some text");
-                        })
-            )
-                .thenException(FileException.class)
-                .thenNestedException(new NoSuchFileException("some text"));
+            () -> catchIoEx(
+                () -> {
+                    throw new NoSuchFileException("some text");
+                })
+        )
+            .thenException(FileException.class)
+            .thenNestedException(new NoSuchFileException("some text"));
     }
 
     @Test
@@ -475,7 +476,7 @@ public class FileUtilsTest extends TemporaryTestResources {
     @Test
     public void cannotGetListOfInvalidFile() {
         when(() -> listOfFiles("notExist"))
-                .thenException(FileException.class, "Provided path: " + new File("notExist").getAbsolutePath() + " does not exist");
+            .thenException(FileException.class, "Provided path: " + new File("notExist").getAbsolutePath() + " does not exist");
     }
 
     @Test
@@ -506,7 +507,7 @@ public class FileUtilsTest extends TemporaryTestResources {
     @Test
     public void cannotRemoveFileWhenNotExist() {
         when(() -> deleteFileOrDirectory("notExist"))
-                .thenException(FileException.class, "cannot delete file: " + new File("notExist").getAbsolutePath());
+            .thenException(FileException.class, "cannot delete file: " + new File("notExist").getAbsolutePath());
     }
 
     @Test
@@ -646,22 +647,15 @@ public class FileUtilsTest extends TemporaryTestResources {
         newFile("someFile1");
         newFile("someFile2");
         assertThat(elements(listOfFiles(getTempFolder().getRoot()))
-                           .map(File::getName)
-                           .asList())
-                .containsExactlyInAnyOrder("someFile1", "someFile2", "notEmptyFolder", "someFolder");
+            .map(File::getName)
+            .asList())
+            .containsExactlyInAnyOrder("someFile1", "someFile2", "notEmptyFolder", "someFolder");
         // when
         fileConsumer.accept(notEmptyFolder.getRealFolder());
         // then
         assertThat(elements(listOfFiles(getTempFolder().getRoot()))
-                           .map(File::getName)
-                           .asList())
-                .containsExactlyInAnyOrder("someFile1", "someFile2", "someFolder");
-    }
-
-    public static String alignEndLineToOs(String text) {
-        if (!isWindows()) {
-            text = text.replace("\r\n", "\n");
-        }
-        return text;
+            .map(File::getName)
+            .asList())
+            .containsExactlyInAnyOrder("someFile1", "someFile2", "someFolder");
     }
 }

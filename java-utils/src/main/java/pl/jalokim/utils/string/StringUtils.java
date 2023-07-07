@@ -2,6 +2,7 @@ package pl.jalokim.utils.string;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.nCopies;
+import static pl.jalokim.utils.collection.Elements.bySplitText;
 import static pl.jalokim.utils.constants.Constants.EMPTY;
 import static pl.jalokim.utils.constants.Constants.NEW_LINE;
 import static pl.jalokim.utils.constants.Constants.TAB;
@@ -18,6 +19,9 @@ import pl.jalokim.utils.collection.Elements;
  * Utils methods for String.
  */
 public final class StringUtils {
+
+    public static final String WINDOWS_LINE_ENDING_SIGN = "\r\n";
+    public static final String UNIX_LINE_ENDING_SIGN = "\n";
 
     private StringUtils() {
 
@@ -413,4 +417,20 @@ public final class StringUtils {
         }
         return originText;
     }
+
+    public static boolean equalsIgnoreLineEndings(String text1, String text2) {
+        if (text1 != null && text2 != null) {
+            return splitByLineEnding(text1).equals(splitByLineEnding(text2));
+        }
+        return Objects.equals(text1, text2);
+    }
+
+    public static List<String> splitByLineEnding(String text) {
+        String lineEnding = UNIX_LINE_ENDING_SIGN;
+        if (text.contains(WINDOWS_LINE_ENDING_SIGN)) {
+            lineEnding = WINDOWS_LINE_ENDING_SIGN;
+        }
+        return bySplitText(text, lineEnding).asList();
+    }
 }
+
